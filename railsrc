@@ -1,0 +1,9 @@
+--skip-active-storage
+--skip-action-text
+--skip-action-cable
+--skip-action-mailbox
+--skip-turbolinks
+--skip-spring
+--skip-test
+--template=template.rb
+--database=postgresql
