@@ -40,7 +40,11 @@ run "yarn add --dev pa11y-ci"
 gem_group :development, :test do
   gem "rspec-rails", "~> 5.0"
   gem "dotenv-rails", "~> 2.7"
+  gem "brakeman", "~> 5.1"
 end
+
+
+copy_file "lib/tasks/scanning.rake"
 
 
 unless options[:skip_git]
