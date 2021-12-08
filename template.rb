@@ -29,6 +29,14 @@ after_bundle do
 end
 
 
+# setup pa11y and owasp scanning
+directory "bin", mode: :preserve
+copy_file "pa11yci", ".pa11yci"
+copy_file "editorconfig", ".editorconfig"
+copy_file "zap.conf"
+run "yarn add --dev pa11y-ci"
+
+
 gem_group :development, :test do
   gem "rspec-rails", "~> 5.0"
   gem "dotenv-rails", "~> 2.7"

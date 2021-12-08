@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+#
+# Run an OWASP ZAP scan locally in a near-production configuration
+#
+# known issue: this currently only works on macOS
+#
+# prerequisits:
+#  * db is running
+#  * docker running
+#  * no other server is listening on port 3000
+
+
+docker_name="owasp/zap2docker-stable"
+hostname="http://host.docker.internal:3000"
+args="-c zap.conf -I -r zap_report.html"
+cmd="docker run --rm --user root -v $(pwd):/zap/wrk/:rw -t $docker_name zap-full-scan.py -t $hostname $args"
+
+`dirname "$0"`/with-server "$cmd"
