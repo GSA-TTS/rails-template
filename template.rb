@@ -3,6 +3,13 @@ def source_paths
   ["#{__dir__}/templates"]
 end
 
+def setup_pages_controller
+  generate :controller, "pages", "home", "--skip-routes", "--no-helper", "--no-assets"
+  route  "root to: 'pages#home'"
+  copy_file "spec/requests/pages_spec.rb", force: true
+  copy_file "spec/views/pages/home.html.erb_spec.rb", force: true
+end
+
 template "README.md", force: true
 
 
@@ -17,7 +24,7 @@ inside "config" do
     EOM
 end
 after_bundle do
-  if webpack_install? && bundle_install?
+  if webpack_install?
     append_to_file "config/webpacker.yml", <<~EOM
 
       ci:
@@ -55,8 +62,27 @@ unless options[:skip_git]
   EOM
 end
 
+
+# setup USWDS
+run "yarn add uswds"
+append_to_file "app/javascript/packs/application.js", <<~EOJS
+
+  import 'uswds/src/stylesheets/uswds.scss'
+  import 'uswds/dist/img/icon-dot-gov.svg'
+  import 'uswds/dist/img/us_flag_small.png'
+  import 'uswds/dist/img/icon-https.svg'
+
+  document.addEventListener("DOMContentLoaded", () => {
+    require('uswds')
+  })
+EOJS
+template "app/views/layouts/application.html.erb", force: true
+copy_file "app/views/application/_usa_banner.html.erb"
+
+
 after_bundle do
   rails_command "generate rspec:install"
+  setup_pages_controller
 
   unless options[:skip_git]
     git add: '.'
