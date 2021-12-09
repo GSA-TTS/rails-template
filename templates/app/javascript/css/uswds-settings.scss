@@ -1,0 +1,7 @@
+// Fixes required to find the correct folders
+// with webpacker 5.x
+$theme-font-path: "../../../fonts";
+$theme-image-path: "../../../img";
+$theme-hero-image: "../../../dist/img/hero.png";
+
+// Put your USWDS theme settings here

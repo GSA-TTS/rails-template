@@ -5,7 +5,7 @@
 
 `rails new <<PATH_TO_PROJECT>> --rc=railsrc`
 
-**Important:** You must not pass `--skip-bundle` to `rails new` or various aspects of the template will be broken
+**Important:** You must not pass `--skip-bundle` or `--skip-webpack-install` to `rails new` or various aspects of the template will be broken
 
 ### What railsrc does
 

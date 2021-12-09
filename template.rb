@@ -3,6 +3,10 @@ def source_paths
   ["#{__dir__}/templates"]
 end
 
+def skip_git?
+  !!options[:skip_git]
+end
+
 def setup_pages_controller
   generate :controller, "pages", "home", "--skip-routes", "--no-helper", "--no-assets"
   route  "root to: 'pages#home'"
@@ -29,16 +33,19 @@ inside "config" do
     EOM
 end
 after_bundle do
-  if webpack_install?
-    append_to_file "config/webpacker.yml", <<~EOM
+  append_to_file "config/webpacker.yml", <<~EOM
 
-      ci:
-        <<: *default
-        compile: true
-        extract_css: true
-      EOM
-  end
+    ci:
+      <<: *default
+      compile: true
+      extract_css: true
+    EOM
 end
+
+
+# setup nvmrc
+node_version = ask("What version of NodeJS are you using? (Blank to skip creating .nvmrc)")
+file ".nvmrc", node_version unless node_version.blank?
 
 
 # setup pa11y and owasp scanning
@@ -59,7 +66,7 @@ end
 copy_file "lib/tasks/scanning.rake"
 
 
-unless options[:skip_git]
+unless skip_git?
   append_to_file ".gitignore", <<~EOM
 
     # Ignore local configuration overrides
@@ -70,9 +77,10 @@ end
 
 # setup USWDS
 run "yarn add uswds"
+run "yarn add resolve-url-loader"
 append_to_file "app/javascript/packs/application.js", <<~EOJS
 
-  import 'uswds/src/stylesheets/uswds.scss'
+  import 'css/application.scss'
   import 'uswds/dist/img/icon-dot-gov.svg'
   import 'uswds/dist/img/us_flag_small.png'
   import 'uswds/dist/img/icon-https.svg'
@@ -81,6 +89,17 @@ append_to_file "app/javascript/packs/application.js", <<~EOJS
     require('uswds')
   })
 EOJS
+directory "app/javascript/css"
+after_bundle do
+  insert_into_file "config/webpack/environment.js", <<~EOJS, before: "module.exports = environment"
+    // Place resolve-url-loader into webpack loaders config
+    // source: https://github.com/rails/webpacker/issues/2155#issuecomment-829741240
+    environment.loaders.get('sass').use.splice(-1, 0, {
+      loader: 'resolve-url-loader'
+    })
+
+  EOJS
+end
 template "app/views/layouts/application.html.erb", force: true
 copy_file "app/views/application/_usa_banner.html.erb"
 
@@ -89,7 +108,7 @@ after_bundle do
   rails_command "generate rspec:install"
   setup_pages_controller
 
-  unless options[:skip_git]
+  unless skip_git?
     git add: '.'
     git commit: "-a -m 'Initial commit'"
   end
