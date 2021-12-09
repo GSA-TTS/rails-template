@@ -6,8 +6,13 @@ end
 def setup_pages_controller
   generate :controller, "pages", "home", "--skip-routes", "--no-helper", "--no-assets"
   route  "root to: 'pages#home'"
-  copy_file "spec/requests/pages_spec.rb", force: true
-  copy_file "spec/views/pages/home.html.erb_spec.rb", force: true
+  gsub_file "spec/requests/pages_spec.rb", "/pages/home", "/"
+  gsub_file "spec/views/pages/home.html.erb_spec.rb", '  pending "add some examples to (or delete) #{__FILE__}"', <<-EOM
+  it "displays the gov banner" do
+    render template: "pages/home", layout: "layouts/application"
+    expect(rendered).to match "An official website of the United States government"
+  end
+  EOM
 end
 
 template "README.md", force: true
