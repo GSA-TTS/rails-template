@@ -63,13 +63,20 @@ Run everything: `bundle exec rake`
 
 ### Deployment
 
+Each environment has dependencies on a PostgreSQL RDS instance managed by cloud.gov.
+See [cloud.gov docs](https://cloud.gov/docs/services/relational-database/) for information on RDS.
+
 #### Staging
 
-TBD
+First time only: create DB service with `cf create-service aws-rds micro-psql <%= app_name %>-rds-stage`
+
+`cf push --strategy rolling --vars-file config/deployment/stage.yml --var rails_master_key=$(cat config/master.key)`
 
 #### Production
 
-TBD
+First time only: create DB service with `cf create-service aws-rds <<SERVICE_PLAN_NAME>> <%= app_name %>-rds-prod`
+
+`cf push --strategy rolling --vars-file config/deployment/prod.yml --var rails_master_key=$(cat config/master.key)`
 
 ### Configuring ENV variables in cloud.gov
 
@@ -88,7 +95,7 @@ Otherwise, they are set as a `((variable))` within `manifest.yml` and the variab
 
 #### Non-secrets
 
-Configuration that changes from staging to production, but is public, should be added to `config/deployment/stage.yml` and `config/deployment/production.yml`
+Configuration that changes from staging to production, but is public, should be added to `config/deployment/stage.yml` and `config/deployment/prod.yml`
 
 ## Documentation
 

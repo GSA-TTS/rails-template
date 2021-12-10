@@ -1,0 +1,14 @@
+---
+applications:
+- name: <%= app_name %>-((env))
+  buildpacks:
+    - ruby_buildpack
+  env:
+    RAILS_MASTER_KEY: ((rails_master_key))
+    RAILS_ENV: production
+  processes:
+  - type: web
+    instances: ((web_instances))
+    memory: ((web_memory))
+  services:
+  - <%= app_name %>-rds-((env))

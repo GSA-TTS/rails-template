@@ -148,7 +148,21 @@ after_bundle do
     rails_command "db:create"
     rails_command "db:migrate"
   end
+end
 
+
+if yes?("Create cloud.gov deployment files? (y/n)")
+  template "manifest.yml"
+  directory "config/deployment"
+  after_bundle do
+    run "cp .gitignore .cfignore"
+  end
+end
+
+
+# ensure this is the very last step
+after_bundle do
+  run "bundle lock --add-platform x86_64-linux"
   unless skip_git?
     git add: '.'
     git commit: "-a -m 'Initial commit'"
