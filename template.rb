@@ -67,6 +67,7 @@ initializer "secure_headers.rb", <<~EOM
   end
 EOM
 csp_initializer = "config/initializers/content_security_policy.rb"
+# Replace the default commented out block with our locked-down default
 gsub_file csp_initializer, /^# Rails.*\|policy\|$.+end$/m, <<~EOM
   Rails.application.config.content_security_policy do |policy|
     policy.default_src :self
@@ -86,6 +87,7 @@ gsub_file csp_initializer, /^# Rails.*\|policy\|$.+end$/m, <<~EOM
     policy.connect_src :self, :https, "http://localhost:3035", "ws://localhost:3035" if Rails.env.development?
   end
 EOM
+# uncommenting the nonce generation lines is needed for Rails' UJS to work
 uncomment_lines csp_initializer, "content_security_policy_nonce"
 
 
@@ -155,13 +157,14 @@ if yes?("Create cloud.gov deployment files? (y/n)")
   template "manifest.yml"
   directory "config/deployment"
   after_bundle do
-    run "cp .gitignore .cfignore"
+    run "cp .gitignore .cfignore" unless skip_git?
   end
 end
 
 
 # ensure this is the very last step
 after_bundle do
+  # x86_64-linux is required to install gems on any linux system such as cloud.gov of CI pipeline
   run "bundle lock --add-platform x86_64-linux"
   unless skip_git?
     git add: '.'
