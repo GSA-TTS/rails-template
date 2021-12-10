@@ -25,5 +25,17 @@ You may want to edit that file if you do need some of those frameworks
 
 ### What template.rb does
 
-1. Install RSpec
+1. Create a better default README
+1. Create a "near-production" `ci` Rails environment, used for running a11y and security scans
+1. Optionally create a `.nvmrc` file
+1. Set up `pa11y-ci` for a11y scanning
+1. Set up `OWASP ZAP` dynamic security scanning
+1. Include `secure_headers` gem and configure CSP header to get OWASP passing by default
+1. Install and configure [brakeman](https://rubygems.org/gems/brakeman) for static security scanning
+1. Install [rspec](https://rubygems.org/gems/rspec-rails) for unit testing
+1. Install [dotenv](https://rubygems.org/gems/dotenv-rails) for local configuration
+1. Setup USWDS via webpacker
+1. Install new `app/views/layouts/application.html.erb` that passes the `pa11y-ci` scan and includes the USWDS Banner
+1. Create a `PagesController` and root route
+1. Optionally run the `rake db:create` and `rake db:migrate` setup steps
 1. Commit the resulting project with git (unless `--skip-git` is passed)

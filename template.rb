@@ -1,3 +1,4 @@
+## Supporting methods
 # tell our template to grab all files from the templates directory
 def source_paths
   ["#{__dir__}/templates"]
@@ -19,6 +20,7 @@ def setup_pages_controller
   EOM
 end
 
+## Start of app customizations
 template "README.md", force: true
 
 
@@ -55,6 +57,37 @@ copy_file "editorconfig", ".editorconfig"
 copy_file "zap.conf"
 run "yarn add --dev pa11y-ci"
 
+# updates for OWASP scan to pass
+gem "secure_headers", "~> 6.3"
+initializer "secure_headers.rb", <<~EOM
+  SecureHeaders::Configuration.default do |config|
+    # CSP settings are handled by Rails
+    # see: content_security_policy.rb
+    config.csp = SecureHeaders::OPT_OUT
+  end
+EOM
+csp_initializer = "config/initializers/content_security_policy.rb"
+gsub_file csp_initializer, /^# Rails.*\|policy\|$.+end$/m, <<~EOM
+  Rails.application.config.content_security_policy do |policy|
+    policy.default_src :self
+    policy.font_src :self
+    policy.form_action :self
+    policy.frame_ancestors :none
+    policy.img_src :self, :data
+    policy.object_src :none
+    policy.script_src :self
+    if Rails.env.development?
+      # webpack injects styles inline in development mode
+      policy.style_src :self, "'unsafe-inline'"
+    else
+      policy.style_src :self
+    end
+    # If you are using webpack-dev-server then specify webpack-dev-server host
+    policy.connect_src :self, :https, "http://localhost:3035", "ws://localhost:3035" if Rails.env.development?
+  end
+EOM
+uncomment_lines csp_initializer, "content_security_policy_nonce"
+
 
 gem_group :development, :test do
   gem "rspec-rails", "~> 5.0"
@@ -69,8 +102,11 @@ copy_file "lib/tasks/scanning.rake"
 unless skip_git?
   append_to_file ".gitignore", <<~EOM
 
-    # Ignore local configuration overrides
+    # Ignore local dotenv overrides
     .env*.local
+
+    # Ignore OWASP report file
+    zap_report.html
   EOM
 end
 
@@ -107,6 +143,11 @@ copy_file "app/views/application/_usa_banner.html.erb"
 after_bundle do
   rails_command "generate rspec:install"
   setup_pages_controller
+
+  if yes?("Run db setup steps? (y/n)")
+    rails_command "db:create"
+    rails_command "db:migrate"
+  end
 
   unless skip_git?
     git add: '.'
