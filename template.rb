@@ -20,6 +20,19 @@ def setup_pages_controller
   EOM
 end
 
+@cloudgov_deploy = yes?("Create cloud.gov deployment files? (y/n)")
+@github_actions = yes?("Create Github Actions? (y/n)")
+@adrs = yes?("Create initial Architecture Decision Records? (y/n)")
+@node_version = ask("What version of NodeJS are you using? (Blank to skip creating .nvmrc)")
+
+if @node_version.present?
+  # setup nvmrc
+  file ".nvmrc", @node_version
+else
+  @node_version = "14.18"
+end
+
+
 ## Start of app customizations
 template "README.md", force: true
 
@@ -43,11 +56,6 @@ after_bundle do
       extract_css: true
     EOM
 end
-
-
-# setup nvmrc
-@node_version = ask("What version of NodeJS are you using? (Blank to skip creating .nvmrc)")
-file ".nvmrc", @node_version unless @node_version.blank?
 
 
 # setup pa11y and owasp scanning
@@ -153,7 +161,7 @@ after_bundle do
 end
 
 
-if yes?("Create cloud.gov deployment files? (y/n)")
+if @cloudgov_deploy
   template "manifest.yml"
   directory "config/deployment"
   after_bundle do
@@ -161,13 +169,12 @@ if yes?("Create cloud.gov deployment files? (y/n)")
   end
 end
 
-if yes?("Create Github Actions? (y/n)")
+if @github_actions
   # default to minor version supported by cloud.gov ruby_buildpack
-  @node_version = "14.18" if @node_version.blank?
   directory "github", ".github"
 end
 
-if yes?("Create initial Architecture Decision Records? (y/n)")
+if @adrs
   directory "doc/adr"
 end
 
