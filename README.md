@@ -39,4 +39,5 @@ You may want to edit that file if you do need some of those frameworks
 1. Create a `PagesController` and root route
 1. Optionally run the `rake db:create` and `rake db:migrate` setup steps
 1. Optionally create `manifest.yml` and variable files for cloud.gov deployment
+1. Optionally create Github Actions workflows
 1. Commit the resulting project with git (unless `--skip-git` is passed)

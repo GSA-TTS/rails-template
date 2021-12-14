@@ -46,8 +46,8 @@ end
 
 
 # setup nvmrc
-node_version = ask("What version of NodeJS are you using? (Blank to skip creating .nvmrc)")
-file ".nvmrc", node_version unless node_version.blank?
+@node_version = ask("What version of NodeJS are you using? (Blank to skip creating .nvmrc)")
+file ".nvmrc", @node_version unless @node_version.blank?
 
 
 # setup pa11y and owasp scanning
@@ -159,6 +159,12 @@ if yes?("Create cloud.gov deployment files? (y/n)")
   after_bundle do
     run "cp .gitignore .cfignore" unless skip_git?
   end
+end
+
+if yes?("Create Github Actions? (y/n)")
+  # default to minor version supported by cloud.gov ruby_buildpack
+  @node_version = "14.18" if @node_version.blank?
+  directory "github", ".github"
 end
 
 
