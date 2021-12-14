@@ -167,6 +167,9 @@ if yes?("Create Github Actions? (y/n)")
   directory "github", ".github"
 end
 
+if yes?("Create initial Architecture Decision Records? (y/n)")
+  directory "doc/adr"
+end
 
 # ensure this is the very last step
 after_bundle do
