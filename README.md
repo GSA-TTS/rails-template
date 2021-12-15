@@ -26,6 +26,7 @@ You may want to edit that file if you do need some of those frameworks
 ### What template.rb does
 
 1. Create a better default README
+1. Copy CONTRIBUTING.md and LICENSE.md from the 18F Open Source Policy repo
 1. Create a "near-production" `ci` Rails environment, used for running a11y and security scans
 1. Optionally create a `.nvmrc` file
 1. Set up `pa11y-ci` for a11y scanning

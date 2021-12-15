@@ -37,6 +37,11 @@ end
 template "README.md", force: true
 
 
+## Get files from Open Source Policy
+get "https://raw.githubusercontent.com/18F/open-source-policy/master/CONTRIBUTING.md"
+get "https://raw.githubusercontent.com/18F/open-source-policy/master/LICENSE.md"
+
+
 ## setup near-production CI environment
 inside "config" do
   copy_file "environments/ci.rb"
