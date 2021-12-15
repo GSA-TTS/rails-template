@@ -29,6 +29,7 @@ if @node_version.present?
   # setup nvmrc
   file ".nvmrc", @node_version
 else
+  # default to minor version supported by cloud.gov ruby_buildpack
   @node_version = "14.18"
 end
 
@@ -175,7 +176,6 @@ if @cloudgov_deploy
 end
 
 if @github_actions
-  # default to minor version supported by cloud.gov ruby_buildpack
   directory "github", ".github"
 end
 
@@ -185,7 +185,7 @@ end
 
 # ensure this is the very last step
 after_bundle do
-  # x86_64-linux is required to install gems on any linux system such as cloud.gov of CI pipeline
+  # x86_64-linux is required to install gems on any linux system such as cloud.gov or CI pipelines
   run "bundle lock --add-platform x86_64-linux"
   unless skip_git?
     git add: '.'
