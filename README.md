@@ -3,11 +3,13 @@
 
 ## Usage
 
-`rails new <<PATH_TO_PROJECT>> --rc=railsrc`
+1. Clone this repository to your computer
+1. Change directory into the clone
+1. `rails new <<PATH_TO_PROJECT>> --rc=railsrc` The path should not be a subdirectory of this repository.
 
 **Important:** You must not pass `--skip-bundle` or `--skip-webpack-install` to `rails new` or various aspects of the template will be broken
 
-### What railsrc does
+### What `railsrc` does
 
 ```
 --skip-active-storage   # don't include ActiveStorage for document upload
@@ -21,14 +23,15 @@
 --database=postgresql   # default to PostgreSQL
 ```
 
-You may want to edit that file if you do need some of those frameworks
+You may want to edit that file if you do need some of those frameworks for your project. They can also
+be added after your project needs them.
 
-### What template.rb does
+### What `template.rb` does
 
 1. Create a better default README
 1. Copy CONTRIBUTING.md and LICENSE.md from the 18F Open Source Policy repo
 1. Create a "near-production" `ci` Rails environment, used for running a11y and security scans
-1. Optionally create a `.nvmrc` file
+1. Optionally create a `.nvmrc` file for specifying the NodeJS version in use
 1. Set up `pa11y-ci` for a11y scanning
 1. Set up `OWASP ZAP` dynamic security scanning
 1. Include `secure_headers` gem and configure CSP header to get OWASP passing by default
