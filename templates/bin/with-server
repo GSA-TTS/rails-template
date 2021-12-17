@@ -23,9 +23,6 @@ server_pid=$!
 # pause to ensure the server has started
 sleep 5
 
-# ensure devDependencies are installed
-yarn install --frozen-lockfile
-
 
 $@
 exit_status=$?

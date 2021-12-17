@@ -53,15 +53,6 @@ inside "config" do
       database: #{app_name}_development
     EOM
 end
-after_bundle do
-  append_to_file "config/webpacker.yml", <<~EOM
-
-    ci:
-      <<: *default
-      compile: true
-      extract_css: true
-    EOM
-end
 
 
 # setup pa11y and owasp scanning
@@ -69,7 +60,9 @@ directory "bin", mode: :preserve
 copy_file "pa11yci", ".pa11yci"
 copy_file "editorconfig", ".editorconfig"
 copy_file "zap.conf"
-run "yarn add --dev pa11y-ci"
+after_bundle do
+  run "yarn add --dev pa11y-ci"
+end
 
 # updates for OWASP scan to pass
 gem "secure_headers", "~> 6.3"
@@ -108,7 +101,7 @@ uncomment_lines csp_initializer, "content_security_policy_nonce"
 gem_group :development, :test do
   gem "rspec-rails", "~> 5.0"
   gem "dotenv-rails", "~> 2.7"
-  gem "brakeman", "~> 5.1"
+  gem "brakeman", "~> 5.2"
 end
 
 
@@ -128,31 +121,41 @@ end
 
 
 # setup USWDS
-run "yarn add uswds"
-run "yarn add resolve-url-loader"
-append_to_file "app/javascript/packs/application.js", <<~EOJS
-
-  import 'css/application.scss'
-  import 'uswds/dist/img/icon-dot-gov.svg'
-  import 'uswds/dist/img/us_flag_small.png'
-  import 'uswds/dist/img/icon-https.svg'
-
-  document.addEventListener("DOMContentLoaded", () => {
-    require('uswds')
-  })
-EOJS
-directory "app/javascript/css"
+uncomment_lines "Gemfile", "sassc-rails" # use sassc-rails for asset minification in prod
 after_bundle do
-  insert_into_file "config/webpack/environment.js", <<~EOJS, before: "module.exports = environment"
-    // Place resolve-url-loader into webpack loaders config
-    // source: https://github.com/rails/webpacker/issues/2155#issuecomment-829741240
-    environment.loaders.get('sass').use.splice(-1, 0, {
-      loader: 'resolve-url-loader'
-    })
-
-  EOJS
+  insert_into_file "package.json", <<-EOJSON, before: /^\s+"dependencies"/
+  "scripts": {
+    "build": "esbuild app/javascript/*.* --bundle --sourcemap --outdir=app/assets/builds",
+    "build:css": "postcss ./app/assets/stylesheets/application.postcss.css -o ./app/assets/builds/application.css"
+  },
+  EOJSON
+  # Replace postcss-nesting with sass since USWDS uses sass
+  run "yarn remove postcss-nesting"
+  # include fork of @csstools/postcss-sass until that library is updated for postcss 8
+  run "yarn add https://github.com/sinankeskin/postcss-sass"
+  run "yarn add postcss-scss"
+  insert_into_file "postcss.config.js", "  syntax: 'postcss-scss',\n", before: /^\s+plugins/
+  gsub_file "postcss.config.js", "postcss-nesting", "@csstools/postcss-sass"
+  run "yarn add uswds"
+  append_to_file "app/javascript/application.js", "require('uswds')"
+  directory "app/assets"
+  append_to_file "app/assets/stylesheets/application.postcss.css", <<~EOCSS
+    // KNOWN ISSUE: only changes to application.postcss.css will trigger an automatic rebuild
+    // restart your server or run `yarn build:css` when changing other files
+    @import "uswds-settings.scss";
+    @import "../../../node_modules/uswds/dist/scss/uswds.scss";
+  EOCSS
+  gsub_file "app/views/layouts/application.html.erb", "<html>", "<html lang=\"en\">"
+  gsub_file "app/views/layouts/application.html.erb", "<%= yield %>", <<-EOHTML
+    <%= render "application/usa_banner" %>
+    <main id="main-content">
+      <div class="grid-container usa-section">
+        <%= yield %>
+      </div>
+    </main>
+  EOHTML
+  append_to_file "config/initializers/assets.rb", "Rails.application.config.assets.paths << Rails.root.join(\"node_modules\")"
 end
-template "app/views/layouts/application.html.erb", force: true
 copy_file "app/views/application/_usa_banner.html.erb"
 
 
@@ -171,7 +174,11 @@ if @cloudgov_deploy
   template "manifest.yml"
   directory "config/deployment"
   after_bundle do
-    run "cp .gitignore .cfignore" unless skip_git?
+    unless skip_git?
+      run "cp .gitignore .cfignore"
+      # there's an issue with compiling assets on cloud.gov with rails 7 currently
+      comment_lines ".cfignore", "/public/assets"
+    end
   end
 end
 

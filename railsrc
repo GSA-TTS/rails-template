@@ -2,8 +2,8 @@
 --skip-action-text
 --skip-action-cable
 --skip-action-mailbox
---skip-turbolinks
---skip-spring
+--skip-hotwire
 --skip-test
+--css=postcss
 --template=template.rb
 --database=postgresql

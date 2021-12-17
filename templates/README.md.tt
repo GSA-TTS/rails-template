@@ -85,13 +85,15 @@ See [cloud.gov docs](https://cloud.gov/docs/services/relational-database/) for i
 
 First time only: create DB service with `cf create-service aws-rds micro-psql <%= app_name %>-rds-stage`
 
-`cf push --strategy rolling --vars-file config/deployment/stage.yml --var rails_master_key=$(cat config/master.key)`
+* `RAILS_ENV=production ./bin/rails assets:precompile`
+* `cf push --strategy rolling --vars-file config/deployment/stage.yml --var rails_master_key=$(cat config/master.key)`
 
 #### Production
 
 First time only: create DB service with `cf create-service aws-rds <<SERVICE_PLAN_NAME>> <%= app_name %>-rds-prod`
 
-`cf push --strategy rolling --vars-file config/deployment/prod.yml --var rails_master_key=$(cat config/master.key)`
+* `RAILS_ENV=production ./bin/rails assets:precompile`
+* `cf push --strategy rolling --vars-file config/deployment/prod.yml --var rails_master_key=$(cat config/master.key)`
 
 ### Configuring ENV variables in cloud.gov
 

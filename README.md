@@ -1,9 +1,9 @@
-18F-Flavored Rails 6 Project
-==========================
+18F-Flavored Rails 7 Project
+============================
 
-This template will create a new Rails 6.1.x project.
+This template will create a new Rails 7.0.x project with server-rendered HTML.
 
-Coming soon: `rails-7` branch to support rails 7.0.x
+See the `main` branch for Rails 6.1.x
 
 ## Usage
 
@@ -20,9 +20,9 @@ Coming soon: `rails-7` branch to support rails 7.0.x
 --skip-action-text      # don't include ActionText libraries for WYSIWYG editing
 --skip-action-cable     # don't include ActionCable websocket implementation
 --skip-action-mailbox   # don't include inbound email
---skip-turbolinks       # don't include Turbolinks JS library
---skip-spring           # don't include Spring application preloader
+--skip-hotwire          # don't include Hotwire JS library
 --skip-test             # Skip built in test framework. (RSpec included via template.rb)
+--css=postcss           # Use the postcss CSS bundling framework
 --template=template.rb  # add additional configuration from template.rb
 --database=postgresql   # default to PostgreSQL
 ```
@@ -42,8 +42,8 @@ be added after your project needs them.
 1. Install and configure [brakeman](https://rubygems.org/gems/brakeman) for static security scanning
 1. Install [rspec](https://rubygems.org/gems/rspec-rails) for unit testing
 1. Install [dotenv](https://rubygems.org/gems/dotenv-rails) for local configuration
-1. Setup USWDS via webpacker
-1. Install new `app/views/layouts/application.html.erb` that passes the `pa11y-ci` scan and includes the USWDS Banner
+1. Setup USWDS via postcss
+1. Update `app/views/layouts/application.html.erb` to pass the `pa11y-ci` scan and include the USWDS Banner
 1. Create a `PagesController` and root route
 1. Optionally run the `rake db:create` and `rake db:migrate` setup steps
 1. Optionally create `manifest.yml` and variable files for cloud.gov deployment
