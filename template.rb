@@ -174,11 +174,7 @@ if @cloudgov_deploy
   template "manifest.yml"
   directory "config/deployment"
   after_bundle do
-    unless skip_git?
-      run "cp .gitignore .cfignore"
-      # there's an issue with compiling assets on cloud.gov with rails 7 currently
-      comment_lines ".cfignore", "/public/assets"
-    end
+    run "cp .gitignore .cfignore" unless skip_git?
   end
 end
 

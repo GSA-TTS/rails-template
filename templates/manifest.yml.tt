@@ -2,6 +2,7 @@
 applications:
 - name: <%= app_name %>-((env))
   buildpacks:
+    - nodejs_buildpack
     - ruby_buildpack
   env:
     RAILS_MASTER_KEY: ((rails_master_key))
