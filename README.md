@@ -1,9 +1,9 @@
 18F-Flavored Rails 6 Project
-==========================
+============================
 
 This template will create a new Rails 6.1.x project.
 
-Coming soon: `rails-7` branch to support rails 7.0.x
+See the `rails-7` branch for Rails 7.0.x
 
 ## Usage
 
