@@ -97,6 +97,7 @@ gem_group :development, :test do
   gem "rspec-rails", "~> 5.0"
   gem "dotenv-rails", "~> 2.7"
   gem "brakeman", "~> 5.2"
+  gem "bundler-audit", "~> 0.9"
 end
 
 

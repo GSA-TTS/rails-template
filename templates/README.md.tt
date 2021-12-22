@@ -62,6 +62,8 @@ more information on setting these up successfully.
 * Accessbility scan: `./bin/pa11y-scan`
 * Dynamic security scan: `./bin/owasp-scan`
 * Ruby static security scan: `bundle exec rake brakeman`
+* Ruby dependency checks: `bundle exec rake bundler:audit`
+* JS dependency checks: `bundle exec rake yarn:audit`
 
 Run everything: `bundle exec rake`
 
