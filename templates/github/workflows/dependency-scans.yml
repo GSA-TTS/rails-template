@@ -7,12 +7,11 @@ on:
       - 'doc/**'
       - 'README.md'
   pull_request:
-    # The branches below must be a subset of the branches above
     branches: [ main ]
   schedule:
     # cron format: 'minute hour dayofmonth month dayofweek'
-    # this will run at noon UTC each Monday (7am EST / 8am EDT)
-    - cron: '0 12 * * 1'
+    # this will run at noon UTC every day (7am EST / 8am EDT)
+    - cron: '0 12 * * *'
 
 jobs:
   bundle-audit:
