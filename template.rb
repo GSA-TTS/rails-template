@@ -75,8 +75,8 @@ initializer "secure_headers.rb", <<~EOM
 EOM
 csp_initializer = "config/initializers/content_security_policy.rb"
 # Replace the default commented out block with our locked-down default
-gsub_file csp_initializer, /^# Rails.*\|policy\|$.+end$/m, <<~EOM
-  Rails.application.config.content_security_policy do |policy|
+gsub_file csp_initializer, /^#   config.*\|policy\|$.+^#   end$/m, <<EOM
+  config.content_security_policy do |policy|
     policy.default_src :self
     policy.font_src :self
     policy.form_action :self
@@ -84,17 +84,12 @@ gsub_file csp_initializer, /^# Rails.*\|policy\|$.+end$/m, <<~EOM
     policy.img_src :self, :data
     policy.object_src :none
     policy.script_src :self
-    if Rails.env.development?
-      # webpack injects styles inline in development mode
-      policy.style_src :self, "'unsafe-inline'"
-    else
-      policy.style_src :self
-    end
-    # If you are using webpack-dev-server then specify webpack-dev-server host
-    policy.connect_src :self, :https, "http://localhost:3035", "ws://localhost:3035" if Rails.env.development?
+    policy.style_src :self
   end
 EOM
 # uncommenting the nonce generation lines is needed for Rails' UJS to work
+uncomment_lines csp_initializer, "Rails.application"
+uncomment_lines csp_initializer, /end$/
 uncomment_lines csp_initializer, "content_security_policy_nonce"
 
 
