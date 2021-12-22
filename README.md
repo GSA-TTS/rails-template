@@ -40,6 +40,8 @@ be added after your project needs them.
 1. Set up `OWASP ZAP` dynamic security scanning
 1. Include `secure_headers` gem and configure CSP header to get OWASP passing by default
 1. Install and configure [brakeman](https://rubygems.org/gems/brakeman) for static security scanning
+1. Install `bundler-audit` and set up `bundle:audit` rake task for Ruby dependency security scans
+1. Set up `yarn:audit` rake task for JavaScript dependency security scans
 1. Install [rspec](https://rubygems.org/gems/rspec-rails) for unit testing
 1. Install [dotenv](https://rubygems.org/gems/dotenv-rails) for local configuration
 1. Setup USWDS via webpacker
