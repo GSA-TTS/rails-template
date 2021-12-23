@@ -134,8 +134,8 @@ after_bundle do
   append_to_file "app/javascript/application.js", "require('uswds')"
   directory "app/assets"
   append_to_file "app/assets/stylesheets/application.postcss.css", <<~EOCSS
-    // KNOWN ISSUE: only changes to application.postcss.css will trigger an automatic rebuild
-    // restart your server or run `yarn build:css` when changing other files
+    /* KNOWN ISSUE: only changes to application.postcss.css will trigger an automatic rebuild */
+    /* restart your server or run `yarn build:css` when changing other files */
     @import "uswds-settings.scss";
     @import "../../../node_modules/uswds/dist/scss/uswds.scss";
   EOCSS
