@@ -4,6 +4,7 @@
 --skip-action-mailbox
 --skip-hotwire
 --skip-test
+--javascript=webpack
 --css=postcss
 --template=template.rb
 --database=postgresql

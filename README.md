@@ -1,7 +1,7 @@
 18F-Flavored Rails 7 Project
 ============================
 
-This template will create a new Rails 7.0.x project with server-rendered HTML.
+This template will create a new Rails 7.0.x project.
 
 See the `main` branch for Rails 6.1.x
 
@@ -11,7 +11,20 @@ See the `main` branch for Rails 6.1.x
 1. Change directory into the clone
 1. `rails new <<PATH_TO_PROJECT>> --rc=railsrc` The path should not be a subdirectory of this repository.
 
-**Important:** You must not pass `--skip-bundle` or `--skip-webpack-install` to `rails new` or various aspects of the template will be broken
+### Available Options
+
+The following options can be added after `--rc=railsrc` to change how the template behaves.
+
+**Important:** You must not pass `--skip-bundle` or `--skip-javascript` to `rails new` or various aspects of the template will be broken
+
+#### `--javascript=esbuild`
+
+Use [esbuild](https://esbuild.github.io/) instead of [webpack](https://webpack.js.org/) for javascript bundling. Note that
+maintaining IE11 support with esbuild may be tricky.
+
+#### `--no-skip-FRAMEWORK`
+
+Each of the skipped frameworks in `railsrc` can be overridden on the command line. For example: `--no-skip-active-storage` will include support for `ActiveStorage` document uploads
 
 ### What `railsrc` does
 
@@ -22,6 +35,7 @@ See the `main` branch for Rails 6.1.x
 --skip-action-mailbox   # don't include inbound email
 --skip-hotwire          # don't include Hotwire JS library
 --skip-test             # Skip built in test framework. (RSpec included via template.rb)
+--javascript=webpack    # Use webpack for JS bundling
 --css=postcss           # Use the postcss CSS bundling framework
 --template=template.rb  # add additional configuration from template.rb
 --database=postgresql   # default to PostgreSQL

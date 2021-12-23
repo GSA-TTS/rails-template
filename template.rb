@@ -119,9 +119,14 @@ end
 # setup USWDS
 uncomment_lines "Gemfile", "sassc-rails" # use sassc-rails for asset minification in prod
 after_bundle do
+  js_startup = if adjusted_javascript_option == "webpack"
+    "webpack --config webpack.config.js"
+  else
+    "esbuild app/javascript/*.* --bundle --sourcemap --outdir=app/assets/builds"
+  end
   insert_into_file "package.json", <<-EOJSON, before: /^\s+"dependencies"/
   "scripts": {
-    "build": "esbuild app/javascript/*.* --bundle --sourcemap --outdir=app/assets/builds",
+    "build": "#{js_startup}",
     "build:css": "postcss ./app/assets/stylesheets/application.postcss.css -o ./app/assets/builds/application.css"
   },
   EOJSON

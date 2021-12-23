@@ -25,6 +25,7 @@ end
 namespace :yarn do
   desc "Run yarn audit"
   task :audit do
+    require "open3"
     stdout, stderr, status = Open3.capture3("yarn audit --json")
     unless status.success?
       puts stderr
