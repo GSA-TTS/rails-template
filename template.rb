@@ -8,16 +8,8 @@ def skip_git?
   !!options[:skip_git]
 end
 
-def setup_pages_controller
-  generate :controller, "pages", "home", "--skip-routes", "--no-helper", "--no-assets"
-  route  "root to: 'pages#home'"
-  gsub_file "spec/requests/pages_spec.rb", "/pages/home", "/"
-  gsub_file "spec/views/pages/home.html.erb_spec.rb", '  pending "add some examples to (or delete) #{__FILE__}"', <<-EOM
-  it "displays the gov banner" do
-    render template: "pages/home", layout: "layouts/application"
-    expect(rendered).to match "An official website of the United States government"
-  end
-  EOM
+def webpack?
+  adjusted_javascript_option == "webpack"
 end
 
 @cloudgov_deploy = yes?("Create cloud.gov deployment files? (y/n)")
@@ -117,9 +109,10 @@ end
 
 
 # setup USWDS
+copy_file "browserslistrc", ".browserslistrc" if webpack?
 uncomment_lines "Gemfile", "sassc-rails" # use sassc-rails for asset minification in prod
 after_bundle do
-  js_startup = if adjusted_javascript_option == "webpack"
+  js_startup = if webpack?
     "webpack --config webpack.config.js"
   else
     "esbuild app/javascript/*.* --bundle --sourcemap --outdir=app/assets/builds"
@@ -162,7 +155,17 @@ copy_file "app/views/application/_usa_banner.html.erb"
 
 after_bundle do
   rails_command "generate rspec:install"
-  setup_pages_controller
+
+  # setup the PagesController and home (root) route
+  generate :controller, "pages", "home", "--skip-routes", "--no-helper", "--no-assets"
+  route "root 'pages#home'"
+  gsub_file "spec/requests/pages_spec.rb", "/pages/home", "/"
+  gsub_file "spec/views/pages/home.html.erb_spec.rb", '  pending "add some examples to (or delete) #{__FILE__}"', <<-EOM
+  it "displays the gov banner" do
+    render template: "pages/home", layout: "layouts/application"
+    expect(rendered).to match "An official website of the United States government"
+  end
+  EOM
 
   if yes?("Run db setup steps? (y/n)")
     rails_command "db:create"

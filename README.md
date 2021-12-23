@@ -59,6 +59,7 @@ be added after your project needs them.
 1. Install [rspec](https://rubygems.org/gems/rspec-rails) for unit testing
 1. Install [dotenv](https://rubygems.org/gems/dotenv-rails) for local configuration
 1. Setup USWDS via postcss
+1. Setup webpack with `.browserslistrc` from USWDS
 1. Update `app/views/layouts/application.html.erb` to pass the `pa11y-ci` scan and include the USWDS Banner
 1. Create a `PagesController` and root route
 1. Optionally run the `rake db:create` and `rake db:migrate` setup steps
