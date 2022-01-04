@@ -110,6 +110,7 @@ gem_group :development, :test do
   gem "dotenv-rails", "~> 2.7"
   gem "brakeman", "~> 5.1"
   gem "bundler-audit", "~> 0.9"
+  gem "standard", "~> 1.5"
 end
 
 
@@ -192,6 +193,12 @@ end
 after_bundle do
   # x86_64-linux is required to install gems on any linux system such as cloud.gov or CI pipelines
   run "bundle lock --add-platform x86_64-linux"
+
+  # bring generated code into compliance with standard ruby: https://github.com/testdouble/standard
+  gsub_file "config/environments/production.rb", "(STDOUT)", "($stdout)"
+  gsub_file "config/puma.rb", /\) { (\S+) }/, ', \1)'
+  run "bundle exec standardrb --fix"
+
   unless skip_git?
     git add: '.'
     git commit: "-a -m 'Initial commit'"
