@@ -104,6 +104,9 @@ unless skip_git?
 
     # Ignore OWASP report file
     zap_report.html
+
+    # Ignore rspec examples status file
+    spec/examples.txt
   EOM
 end
 
@@ -155,6 +158,7 @@ copy_file "app/views/application/_usa_banner.html.erb"
 
 after_bundle do
   rails_command "generate rspec:install"
+  gsub_file "spec/spec_helper.rb", /^=(begin|end)$/, ""
 
   # setup the PagesController and home (root) route
   generate :controller, "pages", "home", "--skip-routes", "--no-helper", "--no-assets"
