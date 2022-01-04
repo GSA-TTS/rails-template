@@ -38,7 +38,7 @@ Any changes to variables in `.env` that should not be checked into git should be
 in `.env.local`.
 
 If you wish to override a config globally for the `test` Rails environment you can set it in `.env.test.local`.
-However, any config that should be set on other machines should either go into `.env` or be explicitely set as part
+However, any config that should be set on other machines should either go into `.env` or be explicitly set as part
 of the test.
 
 #### Authentication
@@ -59,7 +59,7 @@ more information on setting these up successfully.
 #### Running tests
 
 * Tests: `bundle exec rake spec`
-* Accessbility scan: `./bin/pa11y-scan`
+* Accessibility scan: `./bin/pa11y-scan`
 * Dynamic security scan: `./bin/owasp-scan`
 * Ruby static security scan: `bundle exec rake brakeman`
 * Ruby dependency checks: `bundle exec rake bundler:audit`
