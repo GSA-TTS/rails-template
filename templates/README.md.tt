@@ -59,6 +59,7 @@ more information on setting these up successfully.
 #### Running tests
 
 * Tests: `bundle exec rake spec`
+* Ruby linter: `bundle exec rake standard`
 * Accessibility scan: `./bin/pa11y-scan`
 * Dynamic security scan: `./bin/owasp-scan`
 * Ruby static security scan: `bundle exec rake brakeman`
