@@ -9,17 +9,37 @@ See the `main` branch for Rails 6.1.x
 
 1. Clone this repository to your computer
 1. Change directory into the clone
-1. `rails new <<PATH_TO_PROJECT>> --rc=railsrc` The path should not be a subdirectory of this repository.
+1. Run `rails new <<PATH_TO_PROJECT>> --rc=<<RC_FILE>>` with the appropriate rc file for your needs. The path should not be a subdirectory of this repository.
+
+### Choosing which RC file to use
+
+You should run this template with either `railsrc` or `railsrc-hotwire` depending on your development needs.
+
+#### Server Rendered _or_ Single Page Applications
+
+`rails new <<PATH_TO_PROJECT>> --rc=railsrc`
+
+The base `railsrc` file creates a Rails application that is appropriate for both server-rendered applications,
+as well as a basis for installing a separate Single Page Application (SPA) library such as React.
+
+#### A bit more JavaScript needed
+
+`rails new <<PATH_TO_PROJECT>> --rc=railsrc-hotwire`
+
+The `railsrc-hotwire` file creates a Rails application that includes the [Hotwire](https://hotwired.dev/) JavaScript framework.
+
+Hotwire can be used to add [a bit of JavaScript](https://engineering.18f.gov/web-architecture/#:~:text=are%20more%20complex-,If%20your%20use%20case%20requires%20a%20bit%20of%20client%2Dside%20interactivity%2C%20use%20the%20above%20options%20with%20a%20bit%20of%20JavaScript.,-You%20might%20use)
+for more interactivity than server-rendered apps, but less than a full SPA.
 
 ### Available Options
 
-The following options can be added after `--rc=railsrc` to change how the template behaves.
+The following options can be added after `--rc=<<RC_FILE>>` to change how the template behaves.
 
 **Important:** You must not pass `--skip-bundle` or `--skip-javascript` to `rails new` or various aspects of the template will be broken
 
 #### `--javascript=esbuild`
 
-Use [esbuild](https://esbuild.github.io/) instead of [webpack](https://webpack.js.org/) for javascript bundling. Note that
+Use [esbuild](https://esbuild.github.io/) instead of [webpack](https://webpack.js.org/) for JavaScript bundling. Note that
 maintaining IE11 support with esbuild may be tricky.
 
 #### `--no-skip-FRAMEWORK`
@@ -41,13 +61,17 @@ Each of the skipped frameworks in `railsrc` can be overridden on the command lin
 --database=postgresql   # default to PostgreSQL
 ```
 
-You may want to edit that file if you do need some of those frameworks for your project. They can also
-be added after your project needs them.
+### What `railsrc-hotwire` does
+
+`railsrc-hotwire` is identical to `railsrc` except that [Hotwire](https://hotwired.dev/) and [ActionCable](https://guides.rubyonrails.org/action_cable_overview.html) are not skipped.
+
+ActionCable is included to enable the [Turbo Streams](https://turbo.hotwired.dev/handbook/streams) functionality of Hotwire.
+
 
 ### What `template.rb` does
 
-1. Create a better default README
-1. Copy CONTRIBUTING.md and LICENSE.md from the 18F Open Source Policy repo
+1. Create a better default `README`
+1. Copy `CONTRIBUTING.md` and `LICENSE.md` from the [18F Open Source Policy repo](https://github.com/18F/open-source-policy/)
 1. Create a "near-production" `ci` Rails environment, used for running a11y and security scans
 1. Optionally create a `.nvmrc` file for specifying the NodeJS version in use
 1. Set up `pa11y-ci` for a11y scanning

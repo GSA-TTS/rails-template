@@ -1,0 +1,8 @@
+--skip-active-storage
+--skip-action-text
+--skip-action-mailbox
+--skip-test
+--javascript=webpack
+--css=postcss
+--template=template.rb
+--database=postgresql

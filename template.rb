@@ -12,6 +12,10 @@ def webpack?
   adjusted_javascript_option == "webpack"
 end
 
+def hotwire?
+  !options[:skip_hotwire]
+end
+
 @cloudgov_deploy = yes?("Create cloud.gov deployment files? (y/n)")
 @github_actions = yes?("Create Github Actions? (y/n)")
 @adrs = yes?("Create initial Architecture Decision Records? (y/n)")
@@ -65,8 +69,16 @@ initializer "secure_headers.rb", <<~EOM
     config.csp = SecureHeaders::OPT_OUT
   end
 EOM
-csp_initializer = "config/initializers/content_security_policy.rb"
 # Replace the default commented out block with our locked-down default
+csp_initializer = "config/initializers/content_security_policy.rb"
+style_policy = if hotwire?
+  <<~EOM
+    # 'unsafe-inline' is needed because Turbo uses inline CSS for at least the progress bar
+    policy.style_src :self, "'unsafe-inline'"
+  EOM
+else
+  "policy.style_src :self"
+end
 gsub_file csp_initializer, /^#   config.*\|policy\|$.+^#   end$/m, <<EOM
   config.content_security_policy do |policy|
     policy.default_src :self
@@ -76,10 +88,10 @@ gsub_file csp_initializer, /^#   config.*\|policy\|$.+^#   end$/m, <<EOM
     policy.img_src :self, :data
     policy.object_src :none
     policy.script_src :self
-    policy.style_src :self
+    #{style_policy}
   end
 EOM
-# uncommenting the nonce generation lines is needed for Rails' UJS to work
+# uncommenting the nonce generation lines is needed for any inline js we add
 uncomment_lines csp_initializer, "Rails.application"
 uncomment_lines csp_initializer, /end$/
 uncomment_lines csp_initializer, "content_security_policy_nonce"
@@ -135,7 +147,28 @@ after_bundle do
   insert_into_file "postcss.config.js", "  syntax: 'postcss-scss',\n", before: /^\s+plugins/
   gsub_file "postcss.config.js", "postcss-nesting", "@csstools/postcss-sass"
   run "yarn add uswds"
-  append_to_file "app/javascript/application.js", "require('uswds')"
+  appjs_file = "app/javascript/application.js"
+  append_to_file appjs_file, "\nimport \"uswds\"\n"
+  if hotwire?
+    append_to_file appjs_file, <<~EOJS
+
+      // make sure USWDS components are wired to their behavior after a Turbo navigation
+      import components from "uswds/src/js/components"
+      let initialLoad = true;
+      document.addEventListener("turbo:load", () => {
+        if (initialLoad) {
+          // initial domready is handled by `import "uswds"` code
+          initialLoad = false
+          return
+        }
+        const target = document.body
+        Object.keys(components).forEach((key) => {
+          const behavior = components[key]
+          behavior.on(target)
+        })
+      })
+    EOJS
+  end
   directory "app/assets"
   append_to_file "app/assets/stylesheets/application.postcss.css", <<~EOCSS
     /* KNOWN ISSUE: only changes to application.postcss.css will trigger an automatic rebuild */
