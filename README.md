@@ -3,7 +3,7 @@
 
 This template will create a new Rails 7.0.x project.
 
-See the `main` branch for Rails 6.1.x
+See the `rails-6` branch for Rails 6.1.x
 
 ## Usage
 
