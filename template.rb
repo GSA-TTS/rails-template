@@ -42,8 +42,8 @@ end
 @newrelic = yes?("Create FEDRAMP New Relic config files? (y/n)")
 @dap = yes?("If this will be a public site, should we include Digital Analytics Program code? (y/n)")
 @supported_languages = [:en]
-@supported_languages.push(:es) if yes?("Add es.yml and Spanish routes?")
-@supported_languages.push(:zh) if yes?("Add zh.yml and Simplified Chinese routes?")
+@supported_languages.push(:es) if yes?("Add Spanish to supported locales, with starter es.yml?")
+@supported_languages.push(:zh) if yes?("Add Simplified Chinese to supported locales, with starter zh.yml?")
 @node_version = ask("What version of NodeJS are you using? (Blank to skip creating .nvmrc)")
 
 # copied from Rails' .ruby-version template implementation
@@ -174,6 +174,7 @@ gem_group :development, :test do
   gem "brakeman", "~> 5.2"
   gem "bundler-audit", "~> 0.9"
   gem "standard", "~> 1.5"
+  gem "i18n-tasks", "~> 0.9"
 end
 
 copy_file "lib/tasks/scanning.rake"
@@ -200,8 +201,11 @@ end
 application "config.i18n.available_locales = #{@supported_languages}"
 application "config.i18n.fallbacks = [:en]"
 after_bundle do
+  # Recommended by i18n-tasks
+  run "cp $(i18n-tasks gem-path)/templates/config/i18n-tasks.yml config/"
+
   if @supported_languages.count > 1
-    announce_section("i18n Translations", <<~EOM)
+    announce_section("i18n Translations", <<~'EOM')
       To add routes for available languages, add the following to `config/routes.rb`:
 
       ```
