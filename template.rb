@@ -191,6 +191,8 @@ unless skip_git?
   EOM
 end
 
+# Setup translations
+directory "config/locale"
 
 # setup USWDS
 copy_file "browserslistrc", ".browserslistrc" if webpack?
