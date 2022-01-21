@@ -35,17 +35,20 @@ def announce_section(section_name, instructions)
   $stdout.puts instructions
 end
 
-
 @cloudgov_deploy = yes?("Create cloud.gov deployment files? (y/n)")
 @github_actions = yes?("Create Github Actions? (y/n)")
 @circleci_pipeline = yes?("Create CircleCI config? (y/n)")
 @adrs = yes?("Create initial Architecture Decision Records? (y/n)")
 @newrelic = yes?("Create FEDRAMP New Relic config files? (y/n)")
 @dap = yes?("If this will be a public site, should we include Digital Analytics Program code? (y/n)")
+@supported_languages = [:en]
+@supported_languages.push(:es) if yes?("Add es.yml and Spanish routes?")
+@supported_languages.push(:zh) if yes?("Add zh.yml and Simplified Chinese routes?")
 @node_version = ask("What version of NodeJS are you using? (Blank to skip creating .nvmrc)")
 
 # copied from Rails' .ruby-version template implementation
 @ruby_version = ENV["RBENV_VERSION"] || ENV["rvm_ruby_string"] || "#{RUBY_ENGINE}-#{RUBY_ENGINE_VERSION}"
+
 
 if @node_version.present?
   # setup nvmrc
@@ -173,7 +176,6 @@ gem_group :development, :test do
   gem "standard", "~> 1.5"
 end
 
-
 copy_file "lib/tasks/scanning.rake"
 
 
@@ -192,7 +194,25 @@ unless skip_git?
 end
 
 # Setup translations
-directory "config/locale"
+@supported_languages.each do |language|
+  copy_file "config/locales/#{language}.yml", force: true
+end
+application "config.i18n.available_locales = #{@supported_languages}"
+application "config.i18n.fallbacks = [:en]"
+after_bundle do
+  if @supported_languages.count > 1
+    announce_section("i18n Translations", <<~EOM)
+      To add routes for available languages, add the following to `config/routes.rb`:
+
+      ```
+      scope "(:locale)", locale: /#{I18n.available_locales.join('|')}/ do
+        # Your application routes here
+      end
+      ```
+
+    EOM
+  end
+end
 
 # setup USWDS
 copy_file "browserslistrc", ".browserslistrc" if webpack?
