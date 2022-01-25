@@ -16,6 +16,18 @@ def hotwire?
   !options[:skip_hotwire]
 end
 
+unless Gem::Dependency.new("rails", "~> 7.0.0").match?("rails", Rails.gem_version)
+  $stderr.puts "This template requires Rails 7.0.x"
+  if Gem::Dependency.new("rails", "~> 6.1.0").match?("rails", Rails.gem_version)
+    $stderr.puts "See the rails-6 branch https://github.com/18f/rails-template/tree/rails-6"
+  elsif Gem::Dependency.new("rails", "~> 7.1.0").match?("rails", Rails.gem_version)
+    $stderr.puts "Rails 7.1 is out! Please file an issue so we can get the template updated"
+  else
+    $stderr.puts "We didn't recognize the version of Rails you are using: #{Rails.version}"
+  end
+  exit(1)
+end
+
 @cloudgov_deploy = yes?("Create cloud.gov deployment files? (y/n)")
 @github_actions = yes?("Create Github Actions? (y/n)")
 @adrs = yes?("Create initial Architecture Decision Records? (y/n)")
