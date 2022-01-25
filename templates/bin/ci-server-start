@@ -1,0 +1,8 @@
+#!/bin/bash
+#
+# this script is used by docker-compose and Dockerfile to start up a servrer
+# for running OWASP in CircleCI
+
+dockerize -wait tcp://db:5432 -timeout 1m
+bundle exec rails db:schema:load --trace
+bundle exec rails server -b 0.0.0.0

@@ -90,5 +90,6 @@ ActionCable is included to enable the [Turbo Streams](https://turbo.hotwired.dev
 1. Optionally run the `rake db:create` and `rake db:migrate` setup steps
 1. Optionally create `manifest.yml` and variable files for cloud.gov deployment
 1. Optionally create Github Actions workflows
+1. Optionally create CircleCI workflows
 1. Optionally create [Architecture Decision Records](https://adr.github.io/) for above setup
 1. Commit the resulting project with git (unless `--skip-git` is passed)

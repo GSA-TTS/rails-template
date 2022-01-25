@@ -1,0 +1,26 @@
+version: "3.2"
+services:
+  web:
+    build:
+      context: .
+    user: ${CURRENT_USER:-root}
+    networks:
+      - ci_network
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    environment:
+      RAILS_ENV: ci
+      DATABASE_URL: postgres://circleci:notasecret@db:5432/ci_db
+      RAILS_MASTER_KEY: $RAILS_MASTER_KEY
+  db:
+    image: cimg/postgres:12.9
+    environment:
+      POSTGRES_USER: circleci
+      POSTGRES_DB: ci_db
+      POSTGRES_PASSWORD: notasecret
+    networks:
+      - ci_network
+networks:
+  ci_network:
