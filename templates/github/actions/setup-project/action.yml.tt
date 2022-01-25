@@ -8,7 +8,7 @@ inputs:
   database_url:
     description: DATABASE_URL to set
     required: false
-    default: postgres://pangolin:postgres@localhost:5432/pangolin_test
+    default: postgres://cidbuser:postgres@localhost:5432/<%= app_name %>_test
 outputs:
   database_url:
     value: ${{ inputs.database_url }}

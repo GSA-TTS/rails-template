@@ -16,8 +16,8 @@ jobs:
           --health-retries 5
         ports: ["5432:5432"]
         env:
-          POSTGRES_DB: pangolin_test
-          POSTGRES_USER: pangolin
+          POSTGRES_DB: <%= app_name %>_test
+          POSTGRES_USER: cidbuser
           POSTGRES_PASSWORD: postgres
 
     steps:
