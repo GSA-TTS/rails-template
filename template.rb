@@ -40,6 +40,7 @@ end
 @circleci_pipeline = yes?("Create CircleCI config? (y/n)")
 @adrs = yes?("Create initial Architecture Decision Records? (y/n)")
 @newrelic = yes?("Create FEDRAMP New Relic config files? (y/n)")
+@dap = yes?("If this will be a public site, should we include Digital Analytics Program code? (y/n)")
 @node_version = ask("What version of NodeJS are you using? (Blank to skip creating .nvmrc)")
 
 # copied from Rails' .ruby-version template implementation
@@ -104,20 +105,22 @@ else
   "policy.style_src :self"
 end
 
-script_policy = if @newrelic
-  <<~EOM
-    policy.script_src :self, "https://js-agent.newrelic.com", "https://*.nr-data.net"
-  EOM
-else
-  "policy.script_src :self"
+script_policy = [":self"]
+connect_policy = [":self"]
+image_policy = [":self", ":data"]
+
+if @newrelic
+  script_policy << '"https://js-agent.newrelic.com"'
+  script_policy << '"https://*.nr-data.net"'
+  connect_policy << '"https://*.nr-data.net"'
 end
 
-connect_policy = if @newrelic
-  <<~EOM
-    policy.connect_src :self, "https://*.nr-data.net"
-  EOM
-else
-  "policy.connect_src :self"
+if @dap
+  image_policy << '"https://www.google-analytics.com"'
+  script_policy << '"https://dap.digitalgov.gov"'
+  script_policy << '"https://www.google-analytics.com"'
+  connect_policy << '"https://dap.digitalgov.gov"'
+  connect_policy << '"https://www.google-analytics.com"'
 end
 
 gsub_file csp_initializer, /^#   config.*\|policy\|$.+^#   end$/m, <<EOM
@@ -126,10 +129,10 @@ gsub_file csp_initializer, /^#   config.*\|policy\|$.+^#   end$/m, <<EOM
     policy.font_src :self
     policy.form_action :self
     policy.frame_ancestors :none
-    policy.img_src :self, :data
+    policy.img_src #{image_policy.join(", ")}
     policy.object_src :none
-    #{script_policy}
-    #{connect_policy}
+    policy.script_src #{script_policy.join(", ")}
+    policy.connect_src #{connect_policy.join(", ")}
     #{style_policy}
   end
 EOM
@@ -153,8 +156,8 @@ if @newrelic
       3. Comment out the `agent_enabled: false` line
 
       To enable browser monitoring:
-      4. Embed the Javascript snippet provided  by New Relic into `application.html.erb`. 
-      It is recommended to vary this based on environment  (i.e. include one snippet 
+      4. Embed the Javascript snippet provided  by New Relic into `application.html.erb`.
+      It is recommended to vary this based on environment  (i.e. include one snippet
       for staging and another for production).
 
     EOM
@@ -241,7 +244,7 @@ after_bundle do
     @import "../../../node_modules/uswds/dist/scss/uswds.scss";
   EOCSS
   gsub_file "app/views/layouts/application.html.erb", "<html>", "<html lang=\"en\">"
-  gsub_file "app/views/layouts/application.html.erb", "<%= yield %>", <<-EOHTML
+  gsub_file "app/views/layouts/application.html.erb", /^\s+<%= yield %>/, <<-EOHTML
     <%= render "application/usa_banner" %>
     <main id="main-content">
       <div class="grid-container usa-section">
@@ -296,6 +299,18 @@ end
 
 if @adrs
   directory "doc/adr"
+end
+
+if @dap
+  after_bundle do
+    insert_into_file "app/views/layouts/application.html.erb", <<-EODAP, before: /^\s+<\/head>/
+
+    <% if Rails.env.production? %>
+      <!-- We participate in the US government's analytics program. See the data at analytics.usa.gov. -->
+      <%= javascript_include_tag "https://dap.digitalgov.gov/Universal-Federated-Analytics-Min.js?agency=GSA", async: true, id:"_fed_an_ua_tag" %>
+    <% end %>
+    EODAP
+  end
 end
 
 # ensure this is the very last step
