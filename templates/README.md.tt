@@ -157,9 +157,9 @@ Digital Analytics Program (DAP) code has been included for the Production enviro
 If <%= app_name.titleize %> is for another agency, update the agency line in `app/views/layouts/application.html.erb`
 <% end %>
 
-<% if @adrs %>
-
 ## Documentation
+
+<% if @adrs %>
 
 Architectural Decision Records (ADR) are stored in `doc/adr`
 To create a new ADR, first install [ADR-tools](https://github.com/npryce/adr-tools) if you don't
@@ -171,6 +171,9 @@ Then create the ADR:
 
 This will create a new, numbered ADR in the `doc/adr` directory.
 <% end %>
+
+Compliance diagrams are stored in `doc/compliance`. See the README there for more information on
+generating diagram updates.
 
 ## Contributing
 
