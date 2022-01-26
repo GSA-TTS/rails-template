@@ -298,7 +298,9 @@ else
 end
 
 if @adrs
-  directory "doc/adr"
+  directory "doc"
+else
+  directory "doc/compliance"
 end
 
 if @dap
