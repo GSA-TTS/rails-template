@@ -146,9 +146,10 @@ if @newrelic
       To get started sending metrics via New Relic APM:
       1. Replace `<APPNAME>` with what is registered for your application in New Relic
       2. Add your New Relic license key to the Rails credentials with key `new_relic_key`.
+      3. Comment out the `agent_enabled: false` line
 
       To enable browser monitoring:
-      3. Embed the Javascript snippet provided  by New Relic into `application.html.erb`. 
+      4. Embed the Javascript snippet provided  by New Relic into `application.html.erb`. 
       It is recommended to vary this based on environment  (i.e. include one snippet 
       for staging and another for production).
 

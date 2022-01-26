@@ -28,8 +28,12 @@ common: &default_settings
     # include js code via partial to comply with CSP settings
     auto_instrument: false
 
-  # To disable the agent regardless of other settings, uncomment the following:
-  # agent_enabled: false
+  # This line disables agent regardless of other settings.
+  # To enable the New Relic agent:
+  # 1) Replace <APPNAME> in this file with the application name you want to show in New Relic
+  # 2) add the New Relic license keys to the appropriate encrypted credentials file(s)
+  # 3) Comment out the line below
+  agent_enabled: false
 
   # Logging level for log/newrelic_agent.log
   log_level: info
