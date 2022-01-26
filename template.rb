@@ -37,9 +37,13 @@ end
 
 @cloudgov_deploy = yes?("Create cloud.gov deployment files? (y/n)")
 @github_actions = yes?("Create Github Actions? (y/n)")
+@circleci_pipeline = yes?("Create CircleCI config? (y/n)")
 @adrs = yes?("Create initial Architecture Decision Records? (y/n)")
 @newrelic = yes?("Create FEDRAMP New Relic config files? (y/n)")
 @node_version = ask("What version of NodeJS are you using? (Blank to skip creating .nvmrc)")
+
+# copied from Rails' .ruby-version template implementation
+@ruby_version = ENV["RBENV_VERSION"] || ENV["rvm_ruby_string"] || "#{RUBY_ENGINE}-#{RUBY_ENGINE_VERSION}"
 
 if @node_version.present?
   # setup nvmrc
@@ -280,6 +284,14 @@ end
 
 if @github_actions
   directory "github", ".github"
+end
+
+if @circleci_pipeline
+  directory "circleci", ".circleci"
+  copy_file "docker-compose.ci.yml"
+  template "Dockerfile"
+else
+  remove_file "bin/ci-server-start"
 end
 
 if @adrs
