@@ -149,6 +149,14 @@ To get started sending metrics via New Relic APM:
 1. Add the [Javascript snippet provided by New Relic](https://docs.newrelic.com/docs/browser/browser-monitoring/installation/install-browser-monitoring-agent) into `application.html.erb`. It is recommended to vary this based on environment (i.e. include one snippet for staging and another for production).
 <% end %>
 
+<% if @dap %>
+## Analytics
+
+Digital Analytics Program (DAP) code has been included for the Production environment, associated with GSA.
+
+If <%= app_name.titleize %> is for another agency, update the agency line in `app/views/layouts/application.html.erb`
+<% end %>
+
 <% if @adrs %>
 
 ## Documentation
