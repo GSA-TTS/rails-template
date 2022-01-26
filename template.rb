@@ -1,3 +1,5 @@
+require 'colorize'
+
 ## Supporting methods
 # tell our template to grab all files from the templates directory
 def source_paths
@@ -28,9 +30,15 @@ unless Gem::Dependency.new("rails", "~> 7.0.0").match?("rails", Rails.gem_versio
   exit(1)
 end
 
+def announce_section(section_name, instructions)
+  $stdout.puts "\n============= #{section_name} ============= ".yellow
+  $stdout.puts instructions
+end
+
 @cloudgov_deploy = yes?("Create cloud.gov deployment files? (y/n)")
 @github_actions = yes?("Create Github Actions? (y/n)")
 @adrs = yes?("Create initial Architecture Decision Records? (y/n)")
+@newrelic = yes?("Create FEDRAMP New Relic config files? (y/n)")
 @node_version = ask("What version of NodeJS are you using? (Blank to skip creating .nvmrc)")
 
 if @node_version.present?
@@ -91,6 +99,23 @@ style_policy = if hotwire?
 else
   "policy.style_src :self"
 end
+
+script_policy = if @newrelic
+  <<~EOM
+    policy.script_src :self, "https://js-agent.newrelic.com", "https://*.nr-data.net"
+  EOM
+else
+  "policy.script_src :self"
+end
+
+connect_policy = if @newrelic
+  <<~EOM
+    policy.connect_src :self, "https://*.nr-data.net"
+  EOM
+else
+  "policy.connect_src :self"
+end
+
 gsub_file csp_initializer, /^#   config.*\|policy\|$.+^#   end$/m, <<EOM
   config.content_security_policy do |policy|
     policy.default_src :self
@@ -99,7 +124,8 @@ gsub_file csp_initializer, /^#   config.*\|policy\|$.+^#   end$/m, <<EOM
     policy.frame_ancestors :none
     policy.img_src :self, :data
     policy.object_src :none
-    policy.script_src :self
+    #{script_policy}
+    #{connect_policy}
     #{style_policy}
   end
 EOM
@@ -108,6 +134,28 @@ uncomment_lines csp_initializer, "Rails.application"
 uncomment_lines csp_initializer, /end$/
 uncomment_lines csp_initializer, "content_security_policy_nonce"
 
+if @newrelic
+  gem "newrelic_rpm", "~> 8.3"
+
+  after_bundle do
+    copy_file "config/newrelic.yml"
+
+    announce_section("New Relic", <<~EOM)
+      A New Relic config file has been written to `config/newrelic.yml`
+
+      To get started sending metrics via New Relic APM:
+      1. Replace `<APPNAME>` with what is registered for your application in New Relic
+      2. Add your New Relic license key to the Rails credentials with key `new_relic_key`.
+      3. Comment out the `agent_enabled: false` line
+
+      To enable browser monitoring:
+      4. Embed the Javascript snippet provided  by New Relic into `application.html.erb`. 
+      It is recommended to vary this based on environment  (i.e. include one snippet 
+      for staging and another for production).
+
+    EOM
+  end
+end
 
 gem_group :development, :test do
   gem "rspec-rails", "~> 5.0"
@@ -201,7 +249,6 @@ after_bundle do
 end
 copy_file "app/views/application/_usa_banner.html.erb"
 
-
 after_bundle do
   rails_command "generate rspec:install"
   gsub_file "spec/spec_helper.rb", /^=(begin|end)$/, ""
@@ -222,7 +269,6 @@ after_bundle do
     rails_command "db:migrate"
   end
 end
-
 
 if @cloudgov_deploy
   template "manifest.yml"
