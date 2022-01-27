@@ -43,7 +43,6 @@ unless Gem::Dependency.new("rails", "~> 7.0.0").match?("rails", Rails.gem_versio
   exit(1)
 end
 
-@cloudgov_deploy = yes?("Create cloud.gov deployment files? (y/n)")
 @github_actions = yes?("Create Github Actions? (y/n)")
 @circleci_pipeline = yes?("Create CircleCI config? (y/n)")
 @adrs = yes?("Create initial Architecture Decision Records? (y/n)")
@@ -316,12 +315,10 @@ after_bundle do
   end
 end
 
-if @cloudgov_deploy
-  template "manifest.yml"
-  directory "config/deployment"
-  after_bundle do
-    run "cp .gitignore .cfignore" unless skip_git?
-  end
+template "manifest.yml"
+directory "config/deployment"
+after_bundle do
+  run "cp .gitignore .cfignore" unless skip_git?
 end
 
 if @github_actions

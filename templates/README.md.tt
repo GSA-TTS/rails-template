@@ -109,7 +109,6 @@ TBD
 
 ### Deployment
 
-<% if @cloudgov_deploy %>
 Each environment has dependencies on a PostgreSQL RDS instance managed by cloud.gov.
 See [cloud.gov docs](https://cloud.gov/docs/services/relational-database/) for information on RDS.
 
@@ -152,9 +151,6 @@ TBD
 #### Non-secrets
 
 Configuration that changes from staging to production, but is public, should be added to `config/deployment/stage.yml` and `config/deployment/prod.yml`
-<% else %>
-TBD
-<% end %>
 
 <% if @newrelic %>
 ## Monitoring with New Relic
