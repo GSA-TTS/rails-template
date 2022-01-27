@@ -5,21 +5,27 @@ orbs:
   node: circleci/node@5.0.0
   browser-tools: circleci/browser-tools@1.2.3
 
-jobs:
-  build:
-    docker:
-      - image: cimg/ruby:<%= @ruby_version %>-node
+commands:
+  setup-project:
     steps:
       - checkout
       - ruby/install-deps
+      - node/install:
+          install-yarn: true
       - node/install-packages:
           cache-only-lockfile: false
           pkg-manager: yarn
+jobs:
+  build:
+    docker:
+      - image: cimg/ruby:<%= @ruby_version %>
+    steps:
+      - setup-project
 
   test:
     parallelism: 3
     docker:
-      - image: cimg/ruby:<%= @ruby_version %>-node
+      - image: cimg/ruby:<%= @ruby_version %>
       - image: cimg/postgres:12.9
         environment:
           POSTGRES_USER: circleci
@@ -33,11 +39,7 @@ jobs:
       PGPASSWORD: ""
       RAILS_ENV: test
     steps:
-      - checkout
-      - ruby/install-deps
-      - node/install-packages:
-          cache-only-lockfile: false
-          pkg-manager: yarn
+      - setup-project
       - browser-tools/install-chrome
       - browser-tools/install-chromedriver
       - run:
@@ -69,13 +71,9 @@ jobs:
 
   static_security_scans:
     docker:
-      - image: cimg/ruby:<%= @ruby_version %>-node
+      - image: cimg/ruby:<%= @ruby_version %>
     steps:
-      - checkout
-      - ruby/install-deps
-      - node/install-packages:
-          cache-only-lockfile: false
-          pkg-manager: yarn
+      - setup-project
       - run:
           name: Run Brakeman scan
           command: bundle exec brakeman
@@ -118,7 +116,7 @@ jobs:
 
   a11y_scan:
     docker:
-      - image: cimg/ruby:<%= @ruby_version %>-node
+      - image: cimg/ruby:<%= @ruby_version %>
       - image: cimg/postgres:12.9
         environment:
           POSTGRES_USER: circleci
@@ -132,11 +130,7 @@ jobs:
       PGPASSWORD: ""
       RAILS_ENV: ci
     steps:
-      - checkout
-      - ruby/install-deps
-      - node/install-packages:
-          cache-only-lockfile: false
-          pkg-manager: yarn
+      - setup-project
       - browser-tools/install-chrome
       - browser-tools/install-chromedriver
       - run:
@@ -179,22 +173,18 @@ jobs:
 
   deploy:
     docker:
-      - image: cimg/ruby:<%= @ruby_version %>-node
+      - image: cimg/ruby:<%= @ruby_version %>
     steps:
-      - checkout
+      - setup-project
       - when:
           condition:
             or:
               - equal: [<< pipeline.git.branch >>, "main"]
               - equal: [<< pipeline.git.branch >>, "production"]
           steps:
-            - ruby/install-deps
             - run:
                 name: Vendor gems
                 command: bundle cache --all
-            - node/install-packages:
-                cache-only-lockfile: false
-                pkg-manager: yarn
             - run:
                 name: Install Cloud Foundry CLI
                 command: |

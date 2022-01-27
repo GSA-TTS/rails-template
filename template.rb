@@ -52,18 +52,15 @@ end
 @supported_languages = [:en]
 @supported_languages.push(:es) if yes?("Add Spanish to supported locales, with starter es.yml? (y/n)")
 @supported_languages.push(:zh) if yes?("Add Simplified Chinese to supported locales, with starter zh.yml? (y/n)")
-@node_version = ask("What version of NodeJS are you using? (Blank to skip creating .nvmrc)")
+
+running_node_version = `node --version`.gsub(/^v/, "").strip
+@node_version = ask("What version of NodeJS are you using? (Default: #{running_node_version})")
+@node_version = running_node_version if @node_version.blank?
+# setup nvmrc
+file ".nvmrc", @node_version
 
 # copied from Rails' .ruby-version template implementation
 @ruby_version = ENV["RBENV_VERSION"] || ENV["rvm_ruby_string"] || "#{RUBY_ENGINE}-#{RUBY_ENGINE_VERSION}"
-
-if @node_version.present?
-  # setup nvmrc
-  file ".nvmrc", @node_version
-else
-  # default to minor version supported by cloud.gov ruby_buildpack
-  @node_version = "14.18"
-end
 
 
 ## Start of app customizations
@@ -182,6 +179,7 @@ gem_group :development, :test do
   gem "bundler-audit", "~> 0.9"
   gem "standard", "~> 1.5"
   gem "i18n-tasks", "~> 0.9"
+  gem "rspec_junit_formatter", "~> 0.5" if @circleci_pipeline
 end
 
 copy_file "lib/tasks/scanning.rake"
