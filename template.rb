@@ -18,6 +18,19 @@ def hotwire?
   !options[:skip_hotwire]
 end
 
+@announcements = {}
+def register_announcement(section_name, instructions)
+  @announcements[section_name.to_sym] = instructions
+end
+
+def print_announcements
+  $stdout.puts "\n============= Post-install announcements ============= ".red
+  @announcements.each do |section_name, instructions|
+    $stdout.puts "\n============= #{section_name} ============= ".yellow
+    $stdout.puts instructions
+  end
+end
+
 unless Gem::Dependency.new("rails", "~> 7.0.0").match?("rails", Rails.gem_version)
   $stderr.puts "This template requires Rails 7.0.x"
   if Gem::Dependency.new("rails", "~> 6.1.0").match?("rails", Rails.gem_version)
@@ -28,11 +41,6 @@ unless Gem::Dependency.new("rails", "~> 7.0.0").match?("rails", Rails.gem_versio
     $stderr.puts "We didn't recognize the version of Rails you are using: #{Rails.version}"
   end
   exit(1)
-end
-
-def announce_section(section_name, instructions)
-  $stdout.puts "\n============= #{section_name} ============= ".yellow
-  $stdout.puts instructions
 end
 
 @cloudgov_deploy = yes?("Create cloud.gov deployment files? (y/n)")
@@ -48,7 +56,6 @@ end
 
 # copied from Rails' .ruby-version template implementation
 @ruby_version = ENV["RBENV_VERSION"] || ENV["rvm_ruby_string"] || "#{RUBY_ENGINE}-#{RUBY_ENGINE_VERSION}"
-
 
 if @node_version.present?
   # setup nvmrc
@@ -151,7 +158,7 @@ if @newrelic
   after_bundle do
     copy_file "config/newrelic.yml"
 
-    announce_section("New Relic", <<~EOM)
+    register_announcement("New Relic", <<~EOM)
       A New Relic config file has been written to `config/newrelic.yml`
 
       To get started sending metrics via New Relic APM:
@@ -205,7 +212,7 @@ after_bundle do
   run "cp $(i18n-tasks gem-path)/templates/config/i18n-tasks.yml config/"
 
   if @supported_languages.count > 1
-    announce_section("i18n Translations", <<~'EOM')
+    register_announcement("i18n Translations", <<~'EOM')
       To add routes for available languages, add the following to `config/routes.rb`:
 
       ```
@@ -354,4 +361,7 @@ after_bundle do
     git add: '.'
     git commit: "-a -m 'Initial commit'"
   end
+
+  # Post-install announcement
+  print_announcements
 end
