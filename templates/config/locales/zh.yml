@@ -1,0 +1,14 @@
+---
+zh:
+  shared:
+    banner:
+      gov_description_html: "<strong>“.gov”</strong>网站为美国官方政府组织机构网站。"
+      gov_heading: 官方网站使用“.gov”
+      how: 这里是了解途径
+      lock: 锁
+      locked_padlock: 上锁的挂锁
+      official_site: 美国政府的官方网站
+      secure_description_html: "<strong>锁形图标</strong> (%{lock_icon}) 或 <strong>“https://”</strong>表示您已安全连接到.gov网站。仅在安全的官方网站上分享敏感信息。"
+      secure_heading: 安全的.gov网站使用HTTPS
+      us_flag: 美国国旗
+    skip_link: 跳转到主要内容

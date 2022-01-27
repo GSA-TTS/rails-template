@@ -18,6 +18,19 @@ def hotwire?
   !options[:skip_hotwire]
 end
 
+@announcements = {}
+def register_announcement(section_name, instructions)
+  @announcements[section_name.to_sym] = instructions
+end
+
+def print_announcements
+  $stdout.puts "\n============= Post-install announcements ============= ".red unless @announcements.none?
+  @announcements.each do |section_name, instructions|
+    $stdout.puts "\n============= #{section_name} ============= ".yellow
+    $stdout.puts instructions
+  end
+end
+
 unless Gem::Dependency.new("rails", "~> 7.0.0").match?("rails", Rails.gem_version)
   $stderr.puts "This template requires Rails 7.0.x"
   if Gem::Dependency.new("rails", "~> 6.1.0").match?("rails", Rails.gem_version)
@@ -30,17 +43,15 @@ unless Gem::Dependency.new("rails", "~> 7.0.0").match?("rails", Rails.gem_versio
   exit(1)
 end
 
-def announce_section(section_name, instructions)
-  $stdout.puts "\n============= #{section_name} ============= ".yellow
-  $stdout.puts instructions
-end
-
 @cloudgov_deploy = yes?("Create cloud.gov deployment files? (y/n)")
 @github_actions = yes?("Create Github Actions? (y/n)")
 @circleci_pipeline = yes?("Create CircleCI config? (y/n)")
 @adrs = yes?("Create initial Architecture Decision Records? (y/n)")
 @newrelic = yes?("Create FEDRAMP New Relic config files? (y/n)")
 @dap = yes?("If this will be a public site, should we include Digital Analytics Program code? (y/n)")
+@supported_languages = [:en]
+@supported_languages.push(:es) if yes?("Add Spanish to supported locales, with starter es.yml? (y/n)")
+@supported_languages.push(:zh) if yes?("Add Simplified Chinese to supported locales, with starter zh.yml? (y/n)")
 @node_version = ask("What version of NodeJS are you using? (Blank to skip creating .nvmrc)")
 
 # copied from Rails' .ruby-version template implementation
@@ -147,7 +158,7 @@ if @newrelic
   after_bundle do
     copy_file "config/newrelic.yml"
 
-    announce_section("New Relic", <<~EOM)
+    register_announcement("New Relic", <<~EOM)
       A New Relic config file has been written to `config/newrelic.yml`
 
       To get started sending metrics via New Relic APM:
@@ -170,8 +181,8 @@ gem_group :development, :test do
   gem "brakeman", "~> 5.2"
   gem "bundler-audit", "~> 0.9"
   gem "standard", "~> 1.5"
+  gem "i18n-tasks", "~> 0.9"
 end
-
 
 copy_file "lib/tasks/scanning.rake"
 
@@ -190,6 +201,16 @@ unless skip_git?
   EOM
 end
 
+# Setup translations
+@supported_languages.each do |language|
+  copy_file "config/locales/#{language}.yml", force: true
+end
+application "config.i18n.available_locales = #{@supported_languages}"
+application "config.i18n.fallbacks = [:en]"
+after_bundle do
+  # Recommended by i18n-tasks
+  run "cp $(i18n-tasks gem-path)/templates/config/i18n-tasks.yml config/"
+end
 
 # setup USWDS
 copy_file "browserslistrc", ".browserslistrc" if webpack?
@@ -260,9 +281,29 @@ after_bundle do
   rails_command "generate rspec:install"
   gsub_file "spec/spec_helper.rb", /^=(begin|end)$/, ""
 
-  # setup the PagesController and home (root) route
+  # Setup the PagesController, locale routes, and home (root) route
   generate :controller, "pages", "home", "--skip-routes", "--no-helper", "--no-assets"
-  route "root 'pages#home'"
+
+  if @supported_languages.count > 1
+    locale_switching = <<~EOM
+      around_action :switch_locale
+
+      def switch_locale(&action)
+        locale = params[:locale] || I18n.default_locale
+        I18n.with_locale(locale, &action)
+      end
+    EOM
+    insert_into_file "app/controllers/application_controller.rb", locale_switching, before: /^end/
+
+    route <<-'EOM'
+      scope "(:locale)", locale: /#{I18n.available_locales.join('|')}/ do
+        # Your application routes here
+      end
+      root 'pages#home'
+    EOM
+  else
+    route "root 'pages#home'"
+  end
   gsub_file "spec/requests/pages_spec.rb", "/pages/home", "/"
   gsub_file "spec/views/pages/home.html.erb_spec.rb", '  pending "add some examples to (or delete) #{__FILE__}"', <<-EOM
   it "displays the gov banner" do
@@ -327,4 +368,7 @@ after_bundle do
     git add: '.'
     git commit: "-a -m 'Initial commit'"
   end
+
+  # Post-install announcement
+  print_announcements
 end
