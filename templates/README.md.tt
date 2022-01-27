@@ -54,9 +54,9 @@ See the [CSP compliant script tag helpers](./doc/adr/0004-rails-csp-compliant-sc
 more information on setting these up successfully.
 <% end %>
 
-### Managing translation files
+### Managing locale files
 
-We use the gem `i18n-tasks` to manage translation files. Here are a few common tasks:
+We use the gem `i18n-tasks` to manage locale files. Here are a few common tasks:
 
 Add missing keys across locales:
 ```
@@ -75,7 +75,7 @@ $ i18n-tasks unused # shows unused keys
 $ i18n-tasks remove-unused # removes unused keys across locale files
 ```
 
-For more information on usage and helpful rake tasks to manage translation files, see [the documentation](https://github.com/glebm/i18n-tasks#usage).
+For more information on usage and helpful rake tasks to manage locale files, see [the documentation](https://github.com/glebm/i18n-tasks#usage).
 
 ### Testing
 
