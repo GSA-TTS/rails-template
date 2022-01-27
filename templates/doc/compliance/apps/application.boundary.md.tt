@@ -27,7 +27,7 @@ Boundary(aws, "AWS GovCloud") {
         System_Ext(cloudgov_router, "<&layers> cloud.gov routers", "Cloud Foundry traffic service")
         Boundary(atob, "ATO boundary") {
             System_Boundary(inventory, "Application") {
-                Container(app, "<&layers> Application", "Ruby <%= @ruby_version %>, Rails <%= Rails.version %>", "TKTK Application Description")
+                Container(app, "<&layers> <%= app_name.titleize %>", "Ruby <%= @ruby_version %>, Rails <%= Rails.version %>", "TKTK Application Description")
                 ContainerDb(app_db, "Application DB", "AWS RDS (PostgreSQL)", "Primary data storage")
                 <% if !skip_active_storage? %>
                 ContainerDb(app_s3, "File Storage", "AWS S3", "User-uploaded file storage")

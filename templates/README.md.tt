@@ -91,6 +91,10 @@ For more information on usage and helpful rake tasks to manage locale files, see
 
 Run everything: `bundle exec rake`
 
+#### Pa11y Scan
+
+When new pages are added to the application, ensure they are added to `./.pa11yci` so that they can be scanned.
+
 ## CI/CD
 
 <% if @github_actions %>

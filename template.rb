@@ -18,16 +18,16 @@ def hotwire?
   !options[:skip_hotwire]
 end
 
-@announcements = {}
+@announcements = Hash.new { |h, k| h[k] = [] }
 def register_announcement(section_name, instructions)
-  @announcements[section_name.to_sym] = instructions
+  @announcements[section_name.to_sym] << instructions
 end
 
 def print_announcements
   $stdout.puts "\n============= Post-install announcements ============= ".red unless @announcements.none?
   @announcements.each do |section_name, instructions|
     $stdout.puts "\n============= #{section_name} ============= ".yellow
-    $stdout.puts instructions
+    $stdout.puts instructions.join("\n")
   end
 end
 
@@ -64,6 +64,10 @@ file ".nvmrc", @node_version
 
 ## Start of app customizations
 template "README.md", force: true
+register_announcement("Documentation", <<EOM)
+* Complete the project README by adding a quick summary of the project in the top section.
+* Review any TBD sections of the README and update where appropriate.
+EOM
 
 
 ## Get files from Open Source Policy
@@ -150,25 +154,21 @@ uncomment_lines csp_initializer, "content_security_policy_nonce"
 
 if @newrelic
   gem "newrelic_rpm", "~> 8.3"
+  copy_file "config/newrelic.yml"
 
-  after_bundle do
-    copy_file "config/newrelic.yml"
+  register_announcement("New Relic", <<~EOM)
+    A New Relic config file has been written to `config/newrelic.yml`
 
-    register_announcement("New Relic", <<~EOM)
-      A New Relic config file has been written to `config/newrelic.yml`
+    To get started sending metrics via New Relic APM:
+    1. Replace `<APPNAME>` with what is registered for your application in New Relic
+    2. Add your New Relic license key to the Rails credentials with key `new_relic_key`.
+    3. Comment out the `agent_enabled: false` line
 
-      To get started sending metrics via New Relic APM:
-      1. Replace `<APPNAME>` with what is registered for your application in New Relic
-      2. Add your New Relic license key to the Rails credentials with key `new_relic_key`.
-      3. Comment out the `agent_enabled: false` line
-
-      To enable browser monitoring:
-      4. Embed the Javascript snippet provided  by New Relic into `application.html.erb`.
-      It is recommended to vary this based on environment  (i.e. include one snippet
-      for staging and another for production).
-
-    EOM
-  end
+    To enable browser monitoring:
+    4. Embed the Javascript snippet provided  by New Relic into `application.html.erb`.
+    It is recommended to vary this based on environment  (i.e. include one snippet
+    for staging and another for production).
+  EOM
 end
 
 gem_group :development, :test do
@@ -329,6 +329,9 @@ if @circleci_pipeline
   directory "circleci", ".circleci"
   copy_file "docker-compose.ci.yml"
   template "Dockerfile"
+  register_announcement("CircleCI", <<~EOM)
+    * Fill in the Repository URL in the Deploy step to ensure deploys happen from the expected repository
+  EOM
 else
   remove_file "bin/ci-server-start"
 end
@@ -338,6 +341,10 @@ if @adrs
 else
   directory "doc/compliance"
 end
+register_announcement("Documentation", <<EOM)
+* Include a short description of your application in doc/compliance/apps/application.boundary.md
+* Remember to keep your Logical Data Model up to date in doc/compliance/apps/data.logical.md
+EOM
 
 if @dap
   after_bundle do
@@ -349,6 +356,7 @@ if @dap
     <% end %>
     EODAP
   end
+  register_announcement("Digital Analytics Program", "* Update the DAP agency code in app/views/layouts/application.html.erb")
 end
 
 # ensure this is the very last step
