@@ -24,7 +24,7 @@ def register_announcement(section_name, instructions)
 end
 
 def print_announcements
-  $stdout.puts "\n============= Post-install announcements ============= ".red
+  $stdout.puts "\n============= Post-install announcements ============= ".red unless @announcements.none?
   @announcements.each do |section_name, instructions|
     $stdout.puts "\n============= #{section_name} ============= ".yellow
     $stdout.puts instructions
@@ -50,8 +50,8 @@ end
 @newrelic = yes?("Create FEDRAMP New Relic config files? (y/n)")
 @dap = yes?("If this will be a public site, should we include Digital Analytics Program code? (y/n)")
 @supported_languages = [:en]
-@supported_languages.push(:es) if yes?("Add Spanish to supported locales, with starter es.yml?")
-@supported_languages.push(:zh) if yes?("Add Simplified Chinese to supported locales, with starter zh.yml?")
+@supported_languages.push(:es) if yes?("Add Spanish to supported locales, with starter es.yml? (y/n)")
+@supported_languages.push(:zh) if yes?("Add Simplified Chinese to supported locales, with starter zh.yml? (y/n)")
 @node_version = ask("What version of NodeJS are you using? (Blank to skip creating .nvmrc)")
 
 # copied from Rails' .ruby-version template implementation
@@ -210,19 +210,6 @@ application "config.i18n.fallbacks = [:en]"
 after_bundle do
   # Recommended by i18n-tasks
   run "cp $(i18n-tasks gem-path)/templates/config/i18n-tasks.yml config/"
-
-  if @supported_languages.count > 1
-    register_announcement("i18n Translations", <<~'EOM')
-      To add routes for available languages, add the following to `config/routes.rb`:
-
-      ```
-      scope "(:locale)", locale: /#{I18n.available_locales.join('|')}/ do
-        # Your application routes here
-      end
-      ```
-
-    EOM
-  end
 end
 
 # setup USWDS
@@ -294,9 +281,29 @@ after_bundle do
   rails_command "generate rspec:install"
   gsub_file "spec/spec_helper.rb", /^=(begin|end)$/, ""
 
-  # setup the PagesController and home (root) route
+  # Setup the PagesController, locale routes, and home (root) route
   generate :controller, "pages", "home", "--skip-routes", "--no-helper", "--no-assets"
-  route "root 'pages#home'"
+
+  if @supported_languages.count > 1
+    locale_switching = <<~EOM
+      around_action :switch_locale
+
+      def switch_locale(&action)
+        locale = params[:locale] || I18n.default_locale
+        I18n.with_locale(locale, &action)
+      end
+    EOM
+    insert_into_file "app/controllers/application_controller.rb", locale_switching, before: /^end/
+
+    route <<-'EOM'
+      scope "(:locale)", locale: /#{I18n.available_locales.join('|')}/ do
+        # Your application routes here
+      end
+      root 'pages#home'
+    EOM
+  else
+    route "root 'pages#home'"
+  end
   gsub_file "spec/requests/pages_spec.rb", "/pages/home", "/"
   gsub_file "spec/views/pages/home.html.erb_spec.rb", '  pending "add some examples to (or delete) #{__FILE__}"', <<-EOM
   it "displays the gov banner" do

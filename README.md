@@ -91,6 +91,8 @@ ActionCable is included to enable the [Turbo Streams](https://turbo.hotwired.dev
 1. Optionally create `manifest.yml` and variable files for cloud.gov deployment
 1. Optionally create Github Actions workflows
 1. Optionally create CircleCI workflows
-1. Optionally configure DAP (Digital Analytics Program)
 1. Optionally create [Architecture Decision Records](https://adr.github.io/) for above setup
+1. Optionally create a New Relic config with FEDRAMP-specific host
+1. Optionally configure DAP (Digital Analytics Program)
+1. Optionally add base translation files and routes for Spanish and Simplified Chinese (es.yml and zh.yml)
 1. Commit the resulting project with git (unless `--skip-git` is passed)
