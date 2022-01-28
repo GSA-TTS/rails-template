@@ -15,6 +15,45 @@ commands:
       - node/install-packages:
           cache-only-lockfile: false
           pkg-manager: yarn
+  cg-deploy:
+    description: "Login to cloud foundry space with service account credentials
+      and push application using deployment configuration file."
+    parameters:
+      cloudgov_username:
+        description: "Username of SpaceDeployer account for cloudgov space"
+        type: string
+      cloudgov_password:
+        description: "Name of CircleCi project environment variable that
+          holds deployer password for cloudgov space"
+        type: env_var_name
+      cloudgov_org:
+        description: "cloud.gov organization name"
+        type: string
+      cloudgov_space:
+        description: "cloud.gov space name"
+        type: string
+      deploy_config_file:
+        description: "Path to deployment configuration file"
+        type: string
+      rails_master_key:
+        description: "Name of CircleCI project environment variable holding the RAILS_MASTER_KEY"
+        type: env_var_name
+    steps:
+      - run:
+          name: Login with service account
+          command: |
+            cf login -a api.fr.cloud.gov \
+              -u << parameters.cloudgov_username >> \
+              -p ${<< parameters.cloudgov_password >>} \
+              -o << parameters.cloudgov_org >> \
+              -s << parameters.cloudgov_space >>
+      - run:
+          name: Push application with deployment vars
+          command: |
+            cf push --strategy rolling \
+              --vars-file << parameters.deploy_config_file >> \
+              --var rails_master_key=${<< parameters.rails_master_key >>}
+
 jobs:
   build:
     docker:
@@ -200,11 +239,13 @@ jobs:
                   ]
               - equal: [<< pipeline.git.branch >>, "main"]
           steps:
-            - run:
-                name: Deploy to staging
-                command: |
-                  cf push --strategy rolling --no-wait --vars-file config/deployment/stage.yml \
-                    --var rails_master_key=$RAILS_MASTER_KEY
+            - cg-deploy:
+                cloudgov_username: TKTK_staging_username
+                cloudgov_password: CF_STAGE_PASSWORD
+                cloudgov_org: TKTK_cloud.gov_organization
+                cloudgov_space: staging
+                deploy_config_file: config/deployment/stage.yml
+                rails_master_key: RAILS_MASTER_KEY
       - when:
           condition:
             and:
@@ -215,11 +256,13 @@ jobs:
                   ]
               - equal: [<< pipeline.git.branch >>, "production"]
           steps:
-            - run:
-                name: Deploy to prod
-                command: |
-                  cf push --strategy rolling --no-wait --vars-file config/deployment/prod.yml \
-                    --var rails_master_key=$RAILS_MASTER_KEY
+            - cg-deploy:
+                cloudgov_username: TKTK_prod_username
+                cloudgov_password: CF_PROD_PASSWORD
+                cloudgov_org: TKTK_cloud.gov_organization
+                cloudgov_space: prod
+                deploy_config_file: config/deployment/prod.yml
+                rails_master_key: PROD_RAILS_MASTER_KEY
 
 workflows:
   version: 2.1

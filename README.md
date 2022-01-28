@@ -90,8 +90,8 @@ ActionCable is included to enable the [Turbo Streams](https://turbo.hotwired.dev
 1. Create boundary and logical data model compliance diagrams
 1. Create `manifest.yml` and variable files for cloud.gov deployment
 1. Optionally run the `rake db:create` and `rake db:migrate` setup steps
-1. Optionally create Github Actions workflows
-1. Optionally create CircleCI workflows
+1. Optionally create Github Actions workflows for testing and cloud.gov deploy
+1. Optionally create CircleCI workflows for testing and cloud.gov deploy
 1. Optionally create [Architecture Decision Records](https://adr.github.io/) for above setup
 1. Optionally create a New Relic config with FEDRAMP-specific host
 1. Optionally configure DAP (Digital Analytics Program)

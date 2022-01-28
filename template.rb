@@ -316,6 +316,7 @@ after_bundle do
 end
 
 template "manifest.yml"
+copy_file "lib/tasks/cf.rake"
 directory "config/deployment"
 after_bundle do
   run "cp .gitignore .cfignore" unless skip_git?
@@ -323,6 +324,9 @@ end
 
 if @github_actions
   directory "github", ".github"
+  register_announcement("Github Actions", <<~EOM)
+    * Fill in the cloud.gov username and space information in .github/workflows/deploy-stage.yml
+  EOM
 end
 
 if @circleci_pipeline
@@ -331,6 +335,7 @@ if @circleci_pipeline
   template "Dockerfile"
   register_announcement("CircleCI", <<~EOM)
     * Fill in the Repository URL in the Deploy step to ensure deploys happen from the expected repository
+    * Fill in the cloud.gov username and space information in the cg-deploy steps
   EOM
 else
   remove_file "bin/ci-server-start"
