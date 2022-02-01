@@ -25,6 +25,8 @@ jobs:
 
       - id: setup
         uses: ./.github/actions/setup-project
+        with:
+          rails_env: test
 
       - name: Run rspec
         env:
