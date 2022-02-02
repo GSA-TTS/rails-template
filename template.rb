@@ -82,8 +82,21 @@ inside "config" do
 
     ci:
       <<: *default
+      # db will be configured by DATABASE_URL in CI. Use dev db here for ease of local use
       database: #{app_name}_development
-    EOM
+  EOM
+end
+
+## setup near-production Staging environment
+inside "config" do
+  copy_file "environments/staging.rb"
+  append_to_file "database.yml", <<~EOM
+
+    staging:
+      <<: *default
+      # db will be configured by DATABASE_URL in a "real" staging env. Use dev db here for ease of local use
+      database: #{app_name}_development
+  EOM
 end
 
 

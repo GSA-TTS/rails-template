@@ -1,3 +1,4 @@
 env: prod
+rails_env: production
 web_instances: 2
 web_memory: 512M
