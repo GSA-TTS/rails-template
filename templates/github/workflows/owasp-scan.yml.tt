@@ -37,7 +37,7 @@ jobs:
         with:
           database_url: ${{ steps.setup.outputs.database_url }}
 
-      - name: Run OWASP Full Scan
+      - name: Run OWASP Baseline Scan
         uses: zaproxy/action-baseline@v0.6.1
         with:
           docker_name: 'owasp/zap2docker-weekly'
