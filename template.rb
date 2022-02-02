@@ -339,7 +339,7 @@ end
 if @github_actions
   directory "github", ".github"
   register_announcement("Github Actions", <<~EOM)
-    * Fill in the cloud.gov username and space information in .github/workflows/deploy-stage.yml
+    * Fill in the cloud.gov username and space information in .github/workflows/deploy-staging.yml
   EOM
 end
 

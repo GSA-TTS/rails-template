@@ -11,7 +11,7 @@ jobs:
   deploy:
     name: Deploy to staging
     runs-on: ubuntu-latest
-    environment: stage
+    environment: staging
     steps:
       - uses: actions/checkout@v2
       - name: Deploy app
@@ -23,4 +23,4 @@ jobs:
           cf_password: ${{ secrets.CF_PASSWORD }}
           cf_org: TKTK_cloud.gov_organization
           cf_space: staging
-          push_arguments: "--vars-file config/deployment/stage.yml --var rails_master_key=$RAILS_MASTER_KEY"
+          push_arguments: "--vars-file config/deployment/staging.yml --var rails_master_key=$RAILS_MASTER_KEY"

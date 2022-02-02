@@ -120,23 +120,23 @@ See [cloud.gov docs](https://cloud.gov/docs/services/relational-database/) for i
 
 #### Staging
 
-Before the first deploy only, create DB service with `cf create-service aws-rds micro-psql <%= app_name %>-rds-stage`
+Before the first deploy only, create DB service with `cf create-service aws-rds micro-psql <%= app_name %>-rds-staging`
 
 Deploys to staging happen on every push to the `main` branch in Github.
 
 To manually deploy, run:
 
-`cf push --strategy rolling --vars-file config/deployment/stage.yml --var rails_master_key=$(cat config/master.key)`
+`cf push --strategy rolling --vars-file config/deployment/staging.yml --var rails_master_key=$(cat config/master.key)`
 
 #### Production
 
-Before the first deploy only, create DB service with `cf create-service aws-rds <<SERVICE_PLAN_NAME>> <%= app_name %>-rds-prod`
+Before the first deploy only, create DB service with `cf create-service aws-rds <<SERVICE_PLAN_NAME>> <%= app_name %>-rds-production`
 
 Deploys to production happen on every push to the `production` branch in Github.
 
 To manually deploy, run:
 
-`cf push --strategy rolling --vars-file config/deployment/prod.yml --var rails_master_key=$(cat config/credentials/production.key)`
+`cf push --strategy rolling --vars-file config/deployment/production.yml --var rails_master_key=$(cat config/credentials/production.key)`
 
 ### Configuring ENV variables in cloud.gov
 
@@ -164,7 +164,7 @@ TBD
 
 #### Non-secrets
 
-Configuration that changes from staging to production, but is public, should be added to `config/deployment/stage.yml` and `config/deployment/prod.yml`
+Configuration that changes from staging to production, but is public, should be added to `config/deployment/staging.yml` and `config/deployment/production.yml`
 
 <% if @newrelic %>
 ## Monitoring with New Relic

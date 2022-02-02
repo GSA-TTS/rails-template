@@ -244,7 +244,7 @@ jobs:
                 cloudgov_password: CF_STAGE_PASSWORD
                 cloudgov_org: TKTK_cloud.gov_organization
                 cloudgov_space: staging
-                deploy_config_file: config/deployment/stage.yml
+                deploy_config_file: config/deployment/staging.yml
                 rails_master_key: RAILS_MASTER_KEY
       - when:
           condition:
@@ -261,7 +261,7 @@ jobs:
                 cloudgov_password: CF_PROD_PASSWORD
                 cloudgov_org: TKTK_cloud.gov_organization
                 cloudgov_space: prod
-                deploy_config_file: config/deployment/prod.yml
+                deploy_config_file: config/deployment/production.yml
                 rails_master_key: PROD_RAILS_MASTER_KEY
 
 workflows:
