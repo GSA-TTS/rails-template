@@ -204,8 +204,9 @@ unless skip_git?
     # Ignore local dotenv overrides
     .env*.local
 
-    # Ignore OWASP report file
-    zap_report.html
+    # Ignore OWASP files
+    /zap_report.html
+    /zap.yaml
 
     # Ignore rspec examples status file
     spec/examples.txt

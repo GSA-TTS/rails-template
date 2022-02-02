@@ -1,13 +1,10 @@
-name: OWASP ZAP scan
+name: OWASP ZAP daily scan
 
 on:
-  push:
-    branches: [ main ]
-    paths-ignore:
-      - 'doc/**'
-      - 'README.md'
-  pull_request:
-    branches: [ main ]
+  schedule:
+    # cron format: 'minute hour dayofmonth month dayofweek'
+    # this will run at noon UTC every day (7am EST / 8am EDT)
+    - cron: '0 12 * * *'
 
 jobs:
   owasp-scan:
@@ -38,7 +35,7 @@ jobs:
           database_url: ${{ steps.setup.outputs.database_url }}
 
       - name: Run OWASP Full Scan
-        uses: zaproxy/action-baseline@v0.6.1
+        uses: zaproxy/action-full-scan@v0.6.1
         with:
           docker_name: 'owasp/zap2docker-weekly'
           target: 'http://localhost:3000/'
