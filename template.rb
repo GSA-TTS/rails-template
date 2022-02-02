@@ -198,6 +198,7 @@ copy_file "lib/tasks/scanning.rake"
 
 
 unless skip_git?
+  rails_command "credentials:diff --enroll"
   append_to_file ".gitignore", <<~EOM
 
     # Ignore local dotenv overrides
@@ -288,7 +289,7 @@ end
 copy_file "app/views/application/_usa_banner.html.erb"
 
 after_bundle do
-  rails_command "generate rspec:install"
+  generate "rspec:install"
   gsub_file "spec/spec_helper.rb", /^=(begin|end)$/, ""
 
   # Setup the PagesController, locale routes, and home (root) route
@@ -376,6 +377,32 @@ if @dap
   end
   register_announcement("Digital Analytics Program", "* Update the DAP agency code in app/views/layouts/application.html.erb")
 end
+
+# setup production credentials file
+require "rails/generators"
+require "rails/generators/rails/encryption_key_file/encryption_key_file_generator"
+require "rails/generators/rails/encrypted_file/encrypted_file_generator"
+key_file_generator = Rails::Generators::EncryptionKeyFileGenerator.new
+key_file_path = Pathname.new "config/credentials/production.key"
+key_file_generator.add_key_file_silently key_file_path
+key_file_generator.ignore_key_file_silently key_file_path
+Rails::Generators::EncryptedFileGenerator.new.add_encrypted_file_silently("config/credentials/production.yml.enc", key_file_path, <<~EOYAML)
+  # Used as the base secret for all MessageVerifiers in Rails, including the one protecting cookies.
+  secret_key_base: #{SecureRandom.hex(64)}
+EOYAML
+register_announcement("Credentials", <<~EOM)
+  Two credentials files and keys have been generated:
+
+  * production
+    * config/credentials/production.yml.enc
+    * config/credentials/production.key
+  * all other environments
+    * config/credentials.yml.enc
+    * config/master.key
+
+  The contents of `config/master.key` should be shared with other developers running the application.
+  The contents of `config/credentials/production.key` must be limited to those developers who are authorized to have access to production.
+EOM
 
 # ensure this is the very last step
 after_bundle do

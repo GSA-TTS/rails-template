@@ -34,6 +34,8 @@ Environment variables can be set in development using the [dotenv](https://githu
 
 Consistent but sensitive credentials should be added to `config/credentials.yml.env` by using `$ rails credentials:edit`
 
+Production credentials should be added to `config/credentials/production.yml.env` by using `$ rails credentials:edit --environment production`
+
 Any changes to variables in `.env` that should not be checked into git should be set
 in `.env.local`.
 
@@ -134,7 +136,7 @@ Deploys to production happen on every push to the `production` branch in Github.
 
 To manually deploy, run:
 
-`cf push --strategy rolling --vars-file config/deployment/prod.yml --var rails_master_key=$(cat config/master.key)`
+`cf push --strategy rolling --vars-file config/deployment/prod.yml --var rails_master_key=$(cat config/credentials/production.key)`
 
 ### Configuring ENV variables in cloud.gov
 
