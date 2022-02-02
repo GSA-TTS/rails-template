@@ -309,8 +309,8 @@ after_bundle do
     route <<-'EOM'
       scope "(:locale)", locale: /#{I18n.available_locales.join('|')}/ do
         # Your application routes here
+        root 'pages#home'
       end
-      root 'pages#home'
     EOM
   else
     route "root 'pages#home'"
