@@ -286,7 +286,7 @@ after_bundle do
   EOHTML
   append_to_file "config/initializers/assets.rb", "Rails.application.config.assets.paths << Rails.root.join(\"node_modules\")"
 end
-copy_file "app/views/application/_usa_banner.html.erb"
+directory "app/views/application"
 
 after_bundle do
   generate "rspec:install"
