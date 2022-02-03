@@ -359,6 +359,8 @@ if @terraform
       * terraform/bootstrap/main.tf
       * terraform/staging/main.tf
       * terraform/production/main.tf
+
+    Run the bootstrap script and update the appropriate CI/CD environment variables
   EOM
 end
 
@@ -369,6 +371,7 @@ if @github_actions
   end
   register_announcement("Github Actions", <<~EOM)
     * Fill in the cloud.gov organization information in .github/workflows/deploy-staging.yml
+    * Create environment variable secrets for deploy users
   EOM
 end
 
@@ -377,8 +380,8 @@ if @circleci_pipeline
   copy_file "docker-compose.ci.yml"
   template "Dockerfile"
   register_announcement("CircleCI", <<~EOM)
-    * Fill in the Repository URL in the Deploy step to ensure deploys happen from the expected repository
-    * Fill in the cloud.gov username and space information in the cg-deploy steps
+    * Fill in the cloud.gov organization information n the cg-deploy steps
+    * Create project environment variables for deploy users
   EOM
 else
   remove_file "bin/ci-server-start"
