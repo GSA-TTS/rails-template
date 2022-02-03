@@ -4,6 +4,7 @@ orbs:
   ruby: circleci/ruby@1.3.0
   node: circleci/node@5.0.0
   browser-tools: circleci/browser-tools@1.2.3
+  terraform: circleci/terraform@3.0.0
 
 commands:
   setup-project:
@@ -20,10 +21,11 @@ commands:
       and push application using deployment configuration file."
     parameters:
       cloudgov_username:
-        description: "Username of SpaceDeployer account for cloudgov space"
-        type: string
+        description: "Name of CircleCI project environment variable that
+          holdes deployer username for cloudgov space"
+        type: env_var_name
       cloudgov_password:
-        description: "Name of CircleCi project environment variable that
+        description: "Name of CircleCI project environment variable that
           holds deployer password for cloudgov space"
         type: env_var_name
       cloudgov_org:
@@ -40,10 +42,18 @@ commands:
         type: env_var_name
     steps:
       - run:
+          name: Vendor gems
+          command: bundle cache --all
+      - run:
+          name: Install Cloud Foundry CLI
+          command: |
+            curl -v -L -o cf-cli_amd64.deb 'https://packages.cloudfoundry.org/stable?release=debian64&version=v7&source=github'
+            sudo dpkg -i cf-cli_amd64.deb
+      - run:
           name: Login with service account
           command: |
             cf login -a api.fr.cloud.gov \
-              -u << parameters.cloudgov_username >> \
+              -u ${<< parameters.cloudgov_username >>} \
               -p ${<< parameters.cloudgov_password >>} \
               -o << parameters.cloudgov_org >> \
               -s << parameters.cloudgov_space >>
@@ -239,60 +249,47 @@ jobs:
       - run:
           name: Run pa11y-ci
           command: yarn run pa11y-ci
-
-  deploy:
+<% if @terraform %>
+  terraform_plan_staging:
+    executor: terraform/default
+    steps:
+      - checkout
+      - terraform/init:
+          path: terraform/staging
+      - terraform/validate:
+          path: terraform/staging
+      - terraform/fmt:
+          path: terraform/staging
+      - run:
+          name: Set terraform variables
+          working_directory: terraform/staging
+          command: echo -e "cf_user = \"$CF_STAGE_USERNAME\"\ncf_password = \"$CF_STAGE_PASSWORD\"" > secrets.auto.tfvars
+      - terraform/plan:
+          path: terraform/staging
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./terraform/*
+  terraform_apply_staging:
+    executor: terraform/default
+    steps:
+      - attach_workspace:
+          at: .
+      - terraform/apply
+          path: terraform/staging
+<% end %>
+  deploy_staging:
     docker:
       - image: cimg/ruby:<%= @ruby_version %>
     steps:
       - setup-project
-      - when:
-          condition:
-            or:
-              - equal: [<< pipeline.git.branch >>, "main"]
-              - equal: [<< pipeline.git.branch >>, "production"]
-          steps:
-            - run:
-                name: Vendor gems
-                command: bundle cache --all
-            - run:
-                name: Install Cloud Foundry CLI
-                command: |
-                  curl -v -L -o cf-cli_amd64.deb 'https://packages.cloudfoundry.org/stable?release=debian64&version=v7&source=github'
-                  sudo dpkg -i cf-cli_amd64.deb
-      - when:
-          condition:
-            and:
-              - equal:
-                  [
-                    << pipeline.project.git_url >>,
-                    "TKTK insert repo URL",
-                  ]
-              - equal: [<< pipeline.git.branch >>, "main"]
-          steps:
-            - cg-deploy:
-                cloudgov_username: TKTK_staging_username
-                cloudgov_password: CF_STAGE_PASSWORD
-                cloudgov_org: TKTK-cloud.gov-org-name
-                cloudgov_space: staging
-                deploy_config_file: config/deployment/staging.yml
-                rails_master_key: RAILS_MASTER_KEY
-      - when:
-          condition:
-            and:
-              - equal:
-                  [
-                    << pipeline.project.git_url >>,
-                    "TKTK insert repo URL",
-                  ]
-              - equal: [<< pipeline.git.branch >>, "production"]
-          steps:
-            - cg-deploy:
-                cloudgov_username: TKTK_prod_username
-                cloudgov_password: CF_PROD_PASSWORD
-                cloudgov_org: TKTK-cloud.gov-org-name
-                cloudgov_space: prod
-                deploy_config_file: config/deployment/production.yml
-                rails_master_key: PROD_RAILS_MASTER_KEY
+      - cg-deploy:
+          cloudgov_username: CF_STAGE_USERNAME
+          cloudgov_password: CF_STAGE_PASSWORD
+          cloudgov_org: TKTK-cloud.gov-org-name
+          cloudgov_space: staging
+          deploy_config_file: config/deployment/staging.yml
+          rails_master_key: RAILS_MASTER_KEY
 
 workflows:
   version: 2.1
@@ -310,13 +307,24 @@ workflows:
             - build
       - a11y_scan:
           requires:
-            - build
-      - deploy:
+            - build<% if @terraform %>
+      - terraform_plan_staging
+      - terraform_apply_staging:
+          filters:
+            branches:
+              only: main
+          requires:
+            - terraform_plan_staging<% end %>
+      - deploy_staging:
+          filters:
+            branches:
+              only: main
           requires:
             - test
             - static_security_scans
             - owasp_scan
-            - a11y_scan
+            - a11y_scan<% if @terraform %>
+            - terraform_apply_staging<% end %>
   daily_scan:
     triggers:
       - schedule:
