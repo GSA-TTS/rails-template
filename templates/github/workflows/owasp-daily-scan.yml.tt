@@ -35,7 +35,7 @@ jobs:
           database_url: ${{ steps.setup.outputs.database_url }}
 
       - name: Run OWASP Full Scan
-        uses: zaproxy/action-full-scan@v0.6.1
+        uses: zaproxy/action-full-scan@v0.3.0
         with:
           docker_name: 'owasp/zap2docker-weekly'
           target: 'http://localhost:3000/'
