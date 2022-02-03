@@ -368,6 +368,7 @@ if @github_actions
   directory "github", ".github"
   if !@terraform
     remove_file ".github/workflows/terraform-staging.yml"
+    remove_file ".github/workflows/terraform-production.yml"
   end
   register_announcement("Github Actions", <<~EOM)
     * Fill in the cloud.gov organization information in .github/workflows/deploy-staging.yml
