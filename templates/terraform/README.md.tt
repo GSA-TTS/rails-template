@@ -29,9 +29,12 @@ The below steps rely on you first configuring access to the Terraform state in s
     terraform plan
     ```
 
+<% if @circleci_pipeline || @github_actions %>
+1. Changes will be automatically applied to staging when your PR is merged into main
+1. Changes will be automatically applied to production when your PR is merged into production
+<% else %>
 1. Apply changes with `terraform apply`.
-
-    *TKTK, information about how the terraform gets applied by CI/CD, when we do that.*
+<% end %>
 
 1. Remove the space deployer service instance if it doesn't need to be used again, such as when manually running terraform once.
     ```bash
