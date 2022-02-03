@@ -263,7 +263,7 @@ jobs:
       - run:
           name: Set terraform variables
           working_directory: terraform/staging
-          command: echo -e "cf_user = \"$CF_STAGE_USERNAME\"\ncf_password = \"$CF_STAGE_PASSWORD\"" > secrets.auto.tfvars
+          command: echo -e "cf_user = \"$CF_STAGING_USERNAME\"\ncf_password = \"$CF_STAGING_PASSWORD\"" > secrets.auto.tfvars
       - terraform/plan:
           path: terraform/staging
       - persist_to_workspace:
@@ -277,6 +277,33 @@ jobs:
           at: .
       - terraform/apply
           path: terraform/staging
+  terraform_plan_production:
+    executor: terraform/default
+    steps:
+      - checkout
+      - terraform/init:
+          path: terraform/production
+      - terraform/validate:
+          path: terraform/production
+      - terraform/fmt:
+          path: terraform/production
+      - run:
+          name: Set terraform variables
+          working_directory: terraform/production
+          command: echo -e "cf_user = \"$CF_PRODUCTION_USERNAME\"\ncf_password = \"$CF_PRODUCTION_PASSWORD\"" > secrets.auto.tfvars
+      - terraform/plan:
+          path: terraform/production
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./terraform/*
+  terraform_apply_production:
+    executor: terraform/default
+    steps:
+      - attach_workspace:
+          at: .
+      - terraform/apply
+          path: terraform/production
 <% end %>
   deploy_staging:
     docker:
@@ -284,12 +311,24 @@ jobs:
     steps:
       - setup-project
       - cg-deploy:
-          cloudgov_username: CF_STAGE_USERNAME
-          cloudgov_password: CF_STAGE_PASSWORD
+          cloudgov_username: CF_STAGING_USERNAME
+          cloudgov_password: CF_STAGING_PASSWORD
           cloudgov_org: TKTK-cloud.gov-org-name
           cloudgov_space: staging
           deploy_config_file: config/deployment/staging.yml
           rails_master_key: RAILS_MASTER_KEY
+  deploy_production:
+    docker:
+      - image: cimg/ruby:<%= @ruby_version %>
+    steps:
+      - setup-project
+      - cg-deploy:
+          cloudgov_username: CF_PRODUCTION_USERNAME
+          cloudgov_password: CF_PRODUCTION_PASSWORD
+          cloudgov_org: TKTK-cloud.gov-org-name
+          cloudgov_space: prod
+          deploy_config_file: config/deployment/production.yml
+          rails_master_key: PRODUCTION_RAILS_MASTER_KEY
 
 workflows:
   version: 2.1
@@ -314,7 +353,16 @@ workflows:
             branches:
               only: main
           requires:
-            - terraform_plan_staging<% end %>
+            - terraform_plan_staging
+      - terraform_plan_production:
+          requires:
+            - terraform_plan_staging
+      - terraform_apply_production:
+          filters:
+            branches:
+              only: production
+          requires:
+            - terraform_plan_production<% end %>
       - deploy_staging:
           filters:
             branches:
@@ -325,6 +373,16 @@ workflows:
             - owasp_scan
             - a11y_scan<% if @terraform %>
             - terraform_apply_staging<% end %>
+      - deploy_production:
+          filters:
+            branches:
+              only: production
+          requires:
+            - test
+            - static_security_scans
+            - owasp_scan
+            - a11y_scan<% if @terraform %>
+            - terraform_apply_production<% end %>
   daily_scan:
     triggers:
       - schedule:
