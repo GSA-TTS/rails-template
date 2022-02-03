@@ -272,7 +272,7 @@ jobs:
             - cg-deploy:
                 cloudgov_username: TKTK_staging_username
                 cloudgov_password: CF_STAGE_PASSWORD
-                cloudgov_org: TKTK_cloud.gov_organization
+                cloudgov_org: TKTK-cloud.gov-org-name
                 cloudgov_space: staging
                 deploy_config_file: config/deployment/staging.yml
                 rails_master_key: RAILS_MASTER_KEY
@@ -289,7 +289,7 @@ jobs:
             - cg-deploy:
                 cloudgov_username: TKTK_prod_username
                 cloudgov_password: CF_PROD_PASSWORD
-                cloudgov_org: TKTK_cloud.gov_organization
+                cloudgov_org: TKTK-cloud.gov-org-name
                 cloudgov_space: prod
                 deploy_config_file: config/deployment/production.yml
                 rails_master_key: PROD_RAILS_MASTER_KEY
