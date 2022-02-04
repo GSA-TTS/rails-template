@@ -43,6 +43,7 @@ unless Gem::Dependency.new("rails", "~> 7.0.0").match?("rails", Rails.gem_versio
   exit(1)
 end
 
+@terraform = yes?("Create terraform files for cloud.gov services? (y/n)")
 @github_actions = yes?("Create Github Actions? (y/n)")
 @circleci_pipeline = yes?("Create CircleCI config? (y/n)")
 @adrs = yes?("Create initial Architecture Decision Records? (y/n)")
@@ -55,11 +56,11 @@ end
 running_node_version = `node --version`.gsub(/^v/, "").strip
 @node_version = ask("What version of NodeJS are you using? (Default: #{running_node_version})")
 @node_version = running_node_version if @node_version.blank?
-# setup nvmrc
-file ".nvmrc", @node_version
 
 # copied from Rails' .ruby-version template implementation
 @ruby_version = ENV["RBENV_VERSION"] || ENV["rvm_ruby_string"] || "#{RUBY_ENGINE}-#{RUBY_ENGINE_VERSION}"
+
+run_db_setup = yes?("Run db setup steps? (y/n)")
 
 
 ## Start of app customizations
@@ -69,6 +70,8 @@ register_announcement("Documentation", <<EOM)
 * Review any TBD sections of the README and update where appropriate.
 EOM
 
+# setup nvmrc
+file ".nvmrc", @node_version
 
 ## Get files from Open Source Policy
 get "https://raw.githubusercontent.com/18F/open-source-policy/master/CONTRIBUTING.md"
@@ -199,6 +202,11 @@ copy_file "lib/tasks/scanning.rake"
 
 unless skip_git?
   rails_command "credentials:diff --enroll"
+  template "githooks/pre-commit", ".githooks/pre-commit"
+  register_announcement("Git", <<~EOM)
+    `.githooks/pre-commit` has been installed to run linters on each git commit
+    To use, each developer must follow the instructions in the top of the file.
+  EOM
   append_to_file ".gitignore", <<~EOM
 
     # Ignore local dotenv overrides
@@ -324,12 +332,13 @@ after_bundle do
   end
   EOM
 
-  if yes?("Run db setup steps? (y/n)")
+  if run_db_setup
     rails_command "db:create"
     rails_command "db:migrate"
   end
 end
 
+# infrastructure & deploy
 template "manifest.yml"
 copy_file "lib/tasks/cf.rake"
 directory "config/deployment"
@@ -337,10 +346,38 @@ after_bundle do
   run "cp .gitignore .cfignore" unless skip_git?
 end
 
+if @terraform
+  directory "terraform", mode: :preserve
+  unless skip_git?
+    append_to_file ".gitignore", <<~EOM
+
+      # Terraform
+      .terraform.lock.hcl
+      **/.terraform/*
+      secrets.auto.tfvars
+      terraform.tfstate
+      terraform.tfstate.backup
+    EOM
+  end
+  register_announcement("Terraform", <<~EOM)
+    Fill in the cloud.gov organization information in:
+      * terraform/bootstrap/main.tf
+      * terraform/staging/main.tf
+      * terraform/production/main.tf
+
+    Run the bootstrap script and update the appropriate CI/CD environment variables
+  EOM
+end
+
 if @github_actions
   directory "github", ".github"
+  if !@terraform
+    remove_file ".github/workflows/terraform-staging.yml"
+    remove_file ".github/workflows/terraform-production.yml"
+  end
   register_announcement("Github Actions", <<~EOM)
-    * Fill in the cloud.gov username and space information in .github/workflows/deploy-staging.yml
+    * Fill in the cloud.gov organization information in .github/workflows/deploy-staging.yml
+    * Create environment variable secrets for deploy users
   EOM
 end
 
@@ -349,8 +386,8 @@ if @circleci_pipeline
   copy_file "docker-compose.ci.yml"
   template "Dockerfile"
   register_announcement("CircleCI", <<~EOM)
-    * Fill in the Repository URL in the Deploy step to ensure deploys happen from the expected repository
-    * Fill in the cloud.gov username and space information in the cg-deploy steps
+    * Fill in the cloud.gov organization information n the cg-deploy steps
+    * Create project environment variables for deploy users
   EOM
 else
   remove_file "bin/ci-server-start"

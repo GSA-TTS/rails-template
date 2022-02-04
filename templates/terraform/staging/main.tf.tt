@@ -1,0 +1,30 @@
+locals {
+  cf_org_name      = "TKTK-cloud.gov-org-name"
+  cf_space_name    = "staging"
+  env              = "staging"
+  recursive_delete = true
+}
+
+module "database" {
+  source = "../shared/database"
+
+  cf_user          = var.cf_user
+  cf_password      = var.cf_password
+  cf_org_name      = local.cf_org_name
+  cf_space_name    = local.cf_space_name
+  env              = local.env
+  recursive_delete = local.recursive_delete
+  rds_plan_name    = "micro-psql"
+}
+
+<% if !skip_active_storage? %>
+module "s3" {
+  source = "../shared/s3"
+
+  cf_user         = var.cf_user
+  cf_password     = var.cf_password
+  cf_org_name     = local.cf_org_name
+  cf_space_name   = local.cf_space_name
+  s3_service_name = "<%= app_name %>-s3-${local.env}"
+}
+<% end %>

@@ -120,23 +120,39 @@ See [cloud.gov docs](https://cloud.gov/docs/services/relational-database/) for i
 
 #### Staging
 
+<% if !@terraform %>
 Before the first deploy only, create DB service with `cf create-service aws-rds micro-psql <%= app_name %>-rds-staging`
-
+<% end %>
+<% if @github_actions || @circleci_pipeline %>
+<% if @terraform %>
+Deploys to staging, including applying changes in terraform, happen on every push to the `main` branch in Github.
+<% else %>
 Deploys to staging happen on every push to the `main` branch in Github.
-
-To manually deploy, run:
-
+<% end %>
+<% else %>
+<% if @terraform %>
+Follow the instructions in `terraform/README.md` to create the supporting services.
+<% end %>
 `cf push --strategy rolling --vars-file config/deployment/staging.yml --var rails_master_key=$(cat config/master.key)`
+<% end %>
 
 #### Production
 
+<% if !@terraform %>
 Before the first deploy only, create DB service with `cf create-service aws-rds <<SERVICE_PLAN_NAME>> <%= app_name %>-rds-production`
-
+<% end %>
+<% if @github_actions || @circleci_pipeline %>
+<% if @terraform %>
+Deploys to production, including applying changes in terraform, happen on every push to the `production` branch in Github.
+<% else %>
 Deploys to production happen on every push to the `production` branch in Github.
-
-To manually deploy, run:
-
+<% end %>
+<% else %>
+<% if @terraform %>
+Follow the instructions in `terraform/README.md` to create the supporting services.
+<% end %>
 `cf push --strategy rolling --vars-file config/deployment/production.yml --var rails_master_key=$(cat config/credentials/production.key)`
+<% end %>
 
 ### Configuring ENV variables in cloud.gov
 
