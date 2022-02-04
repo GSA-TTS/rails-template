@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-cf target -s prod
+cf target -s <%= @cloud_gov_production_space %>
 
 # destroy service key
 cf delete-service-key config-bootstrap-deployer space-deployer-key -f

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if [[ ! -f "secrets.auto.tfvars" ]]; then
-  cf target -s prod
+  cf target -s <%= @cloud_gov_production_space %>
 
   # create space deployer service
   cf create-service cloud-gov-service-account space-deployer config-bootstrap-deployer

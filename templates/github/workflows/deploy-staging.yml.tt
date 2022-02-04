@@ -48,6 +48,6 @@ jobs:
         with:
           cf_username: ${{ secrets.CF_USERNAME }}
           cf_password: ${{ secrets.CF_PASSWORD }}
-          cf_org: TKTK-cloud.gov-org-name
-          cf_space: staging
+          cf_org: <%= @cloud_gov_organization %>
+          cf_space: <%= @cloud_gov_staging_space %>
           push_arguments: "--vars-file config/deployment/staging.yml --var rails_master_key=$RAILS_MASTER_KEY"

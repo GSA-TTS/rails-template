@@ -18,6 +18,10 @@ def hotwire?
   !options[:skip_hotwire]
 end
 
+def cloud_gov_org_tktk?
+  @cloud_gov_organization =~ /TKTK/
+end
+
 @announcements = Hash.new { |h, k| h[k] = [] }
 def register_announcement(section_name, instructions)
   @announcements[section_name.to_sym] << instructions
@@ -43,7 +47,17 @@ unless Gem::Dependency.new("rails", "~> 7.0.0").match?("rails", Rails.gem_versio
   exit(1)
 end
 
+# ask setup questions
 @terraform = yes?("Create terraform files for cloud.gov services? (y/n)")
+@cloud_gov_organization = ask("What is your cloud.gov organization name? (Leave blank to fill in later)")
+default_staging_space = "staging"
+@cloud_gov_staging_space = ask("What is your cloud.gov staging space name? (Default: #{default_staging_space})")
+default_prod_space = "prod"
+@cloud_gov_production_space = ask("What is your cloud.gov production space name? (Default: #{default_prod_space})")
+@cloud_gov_organization = "TKTK-cloud.gov-org-name" if @cloud_gov_organization.blank?
+@cloud_gov_staging_space = default_staging_space if @cloud_gov_staging_space.blank?
+@cloud_gov_production_space = default_prod_space if @cloud_gov_production_space.blank?
+
 @github_actions = yes?("Create Github Actions? (y/n)")
 @circleci_pipeline = yes?("Create CircleCI config? (y/n)")
 @adrs = yes?("Create initial Architecture Decision Records? (y/n)")
@@ -203,6 +217,7 @@ copy_file "lib/tasks/scanning.rake"
 unless skip_git?
   rails_command "credentials:diff --enroll"
   template "githooks/pre-commit", ".githooks/pre-commit"
+  chmod ".githooks/pre-commit", 0755
   register_announcement("Git", <<~EOM)
     `.githooks/pre-commit` has been installed to run linters on each git commit
     To use, each developer must follow the instructions in the top of the file.
@@ -369,14 +384,15 @@ if @terraform
       terraform.tfstate.backup
     EOM
   end
-  register_announcement("Terraform", <<~EOM)
-    Fill in the cloud.gov organization information in:
-      * terraform/bootstrap/main.tf
-      * terraform/staging/main.tf
-      * terraform/production/main.tf
-
-    Run the bootstrap script and update the appropriate CI/CD environment variables
-  EOM
+  if cloud_gov_org_tktk?
+    register_announcement("Terraform", <<~EOM)
+      Fill in the cloud.gov organization information in:
+        * terraform/bootstrap/main.tf
+        * terraform/staging/main.tf
+        * terraform/production/main.tf
+    EOM
+  end
+  register_announcement("Terraform", "Run the bootstrap script and update the appropriate CI/CD environment variables")
 end
 
 if @github_actions
@@ -385,8 +401,12 @@ if @github_actions
     remove_file ".github/workflows/terraform-staging.yml"
     remove_file ".github/workflows/terraform-production.yml"
   end
+  if cloud_gov_org_tktk?
+    register_announcement("Github Actions", <<~EOM)
+      * Fill in the cloud.gov organization information in .github/workflows/deploy-staging.yml
+    EOM
+  end
   register_announcement("Github Actions", <<~EOM)
-    * Fill in the cloud.gov organization information in .github/workflows/deploy-staging.yml
     * Create environment variable secrets for deploy users
   EOM
 end
@@ -395,8 +415,12 @@ if @circleci_pipeline
   directory "circleci", ".circleci"
   copy_file "docker-compose.ci.yml"
   template "Dockerfile"
+  if cloud_gov_org_tktk?
+    register_announcement("CircleCI", <<~EOM)
+      * Fill in the cloud.gov organization information n the cg-deploy steps
+    EOM
+  end
   register_announcement("CircleCI", <<~EOM)
-    * Fill in the cloud.gov organization information n the cg-deploy steps
     * Create project environment variables for deploy users
   EOM
 else

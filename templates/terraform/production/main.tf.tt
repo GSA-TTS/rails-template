@@ -1,6 +1,6 @@
 locals {
-  cf_org_name      = "TKTK-cloud.gov-org-name"
-  cf_space_name    = "prod"
+  cf_org_name      = "<%= @cloud_gov_organization %>"
+  cf_space_name    = "<%= @cloud_gov_production_space %>"
   env              = "production"
   recursive_delete = false
 }
@@ -34,7 +34,7 @@ module "s3" {
 # It can be re-enabled after:
 # 1) the app has first been deployed
 # 2) the route has been manually created by an OrgManager:
-#     `cf create-domain "TKTK-cloud.gov-org-name" TKTK-production-domain-name`
+#     `cf create-domain <%= @cloud_gov_organization %> TKTK-production-domain-name`
 ###########################################################################
 # module "domain" {
 #   source = "../shared/domain"
