@@ -269,10 +269,11 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - ./terraform/*
+            - ./terraform/staging
   terraform_apply_staging:
     executor: terraform/default
     steps:
+      - checkout
       - attach_workspace:
           at: .
       - terraform/apply
@@ -296,10 +297,11 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - ./terraform/*
+            - ./terraform/production
   terraform_apply_production:
     executor: terraform/default
     steps:
+      - checkout
       - attach_workspace:
           at: .
       - terraform/apply
@@ -347,22 +349,30 @@ workflows:
       - a11y_scan:
           requires:
             - build<% if @terraform %>
-      - terraform_plan_staging
+      - terraform_plan_staging:
+          filters:
+            branches:
+              ignore: production
       - terraform_apply_staging:
           filters:
             branches:
               only: main
           requires:
             - terraform_plan_staging
-      - terraform_plan_production:
+      - terraform_plan_production
+      - approve_production_terraform:
+          type: approval
+          filters:
+            branches:
+              only: production
           requires:
-            - terraform_plan_staging
+            - terraform_plan_production
       - terraform_apply_production:
           filters:
             branches:
               only: production
           requires:
-            - terraform_plan_production<% end %>
+            - approve_production_terraform<% end %>
       - deploy_staging:
           filters:
             branches:
