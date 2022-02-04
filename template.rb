@@ -202,6 +202,11 @@ copy_file "lib/tasks/scanning.rake"
 
 unless skip_git?
   rails_command "credentials:diff --enroll"
+  template "githooks/pre-commit", ".githooks/pre-commit"
+  register_announcement("Git", <<~EOM)
+    `.githooks/pre-commit` has been installed to run linters on each git commit
+    To use, each developer must follow the instructions in the top of the file.
+  EOM
   append_to_file ".gitignore", <<~EOM
 
     # Ignore local dotenv overrides
