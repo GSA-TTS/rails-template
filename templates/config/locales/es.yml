@@ -11,4 +11,8 @@ es:
       secure_description_html: Un <strong>candado</strong> (%{lock_icon}) o <strong>https://</strong> significa que usted se conectó de forma segura a un sitio web .gov. Comparta información sensible sólo en sitios web oficiales y seguros.
       secure_heading: Los sitios web seguros .gov usan HTTPS
       us_flag: Bandera de Estados Unidos
+    header:
+      menu: Menú
+      close: Cerrar
+      primary: Navegacion primaria
     skip_link: Salte al contenido principal

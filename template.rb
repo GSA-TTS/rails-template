@@ -223,7 +223,7 @@ end
 
 # Setup translations
 @supported_languages.each do |language|
-  copy_file "config/locales/#{language}.yml", force: true
+  template "config/locales/#{language}.yml", force: true
 end
 application "config.i18n.available_locales = #{@supported_languages}"
 application "config.i18n.fallbacks = [:en]"
@@ -231,6 +231,15 @@ after_bundle do
   # Recommended by i18n-tasks
   run "cp $(i18n-tasks gem-path)/templates/config/i18n-tasks.yml config/"
 end
+insert_into_file "app/helpers/application_helper.rb", <<'EOH', before: /^end$/
+  def format_active_locale(locale_string)
+    link_classes = "usa-nav__link"
+    if locale_string.to_sym == I18n.locale
+      link_classes = "#{link_classes} usa-current"
+    end
+    link_to t("shared.languages.#{locale_string}"), root_path(locale: locale_string), class: link_classes
+  end
+EOH
 
 # setup USWDS
 copy_file "browserslistrc", ".browserslistrc" if webpack?
@@ -287,6 +296,7 @@ after_bundle do
   gsub_file "app/views/layouts/application.html.erb", "<html>", "<html lang=\"en\">"
   gsub_file "app/views/layouts/application.html.erb", /^\s+<%= yield %>/, <<-EOHTML
     <%= render "application/usa_banner" %>
+    <%= render "application/header" %>
     <main id="main-content">
       <div class="grid-container usa-section">
         <%= yield %>
