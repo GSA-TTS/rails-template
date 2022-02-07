@@ -65,6 +65,7 @@ default_prod_space = "prod"
 @dap = yes?("If this will be a public site, should we include Digital Analytics Program code? (y/n)")
 @supported_languages = [:en]
 @supported_languages.push(:es) if yes?("Add Spanish to supported locales, with starter es.yml? (y/n)")
+@supported_languages.push(:fr) if yes?("Add French to supported locales, with starter fr.yml? (y/n)")
 @supported_languages.push(:zh) if yes?("Add Simplified Chinese to supported locales, with starter zh.yml? (y/n)")
 
 running_node_version = `node --version`.gsub(/^v/, "").strip
