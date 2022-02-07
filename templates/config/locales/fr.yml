@@ -5,8 +5,8 @@ fr:
       gov_description_html: Un site Web <strong>.gov</strong> appartient à une organisation gouvernementale officielle des États-Unis.
       gov_heading: Les sites Web officiels utilisent .gov
       how: Voici comment vous savez
-      lock: TKTK Missing Translation
-      locked_padlock: TKTK Missing Translation
+      lock: Verrou
+      locked_padlock: Verrou fermé
       official_site: Un site web officiel du gouvernement des États-Unis
       secure_description_html: Un <strong>verrou</strong> (%{lock_icon}) ou
         <strong>https://</strong> signifie que vous êtes connecté en toute
@@ -17,5 +17,5 @@ fr:
     header:
       menu: Menu
       close: Fermer
-      primary: TKTK Missing Translation
+      primary: Navigation primaire
     skip_link: Passer au contenu principal
