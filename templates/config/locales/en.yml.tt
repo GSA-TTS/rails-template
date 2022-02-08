@@ -16,8 +16,10 @@ en:
       menu: Menu
       close: Close
       primary: Primary navigation
+      demo_banner: TEST SITE - Do not use real personal information (demo purposes only) - TEST SITE
     languages:
       en: English
       es: Español
+      fr: Français
       zh: 中文
     skip_link: Skip to main content

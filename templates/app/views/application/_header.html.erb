@@ -1,5 +1,6 @@
 <div class="usa-overlay"></div>
 <header class="usa-header usa-header--basic">
+  <%= render "application/demo_site_banner" if Rails.configuration.x.show_demo_banner %>
   <div class="usa-nav-container">
     <div class="usa-navbar">
       <div class="usa-logo">

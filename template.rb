@@ -117,6 +117,13 @@ inside "config" do
   EOM
 end
 
+## add x-config values to standard environment files
+inside "config/environments" do
+  insert_into_file "production.rb", "\n  config.x.show_demo_banner = false\n", before: /^end$/
+  insert_into_file "development.rb", "\n  config.x.show_demo_banner = ENV[\"SHOW_DEMO_BANNER\"] == \"true\"\n", before: /^end$/
+  insert_into_file "test.rb", "\n  config.x.show_demo_banner = false\n", before: /^end$/
+end
+
 
 # setup pa11y and owasp scanning
 directory "bin", mode: :preserve
@@ -213,6 +220,7 @@ gem_group :development, :test do
 end
 
 copy_file "lib/tasks/scanning.rake"
+copy_file "env", ".env"
 
 
 unless skip_git?
@@ -374,6 +382,8 @@ end
 
 if @terraform
   directory "terraform", mode: :preserve
+  chmod "terraform/bootstrap/run.sh", 0755
+  chmod "terraform/bootstrap/teardown_creds.sh", 0755
   unless skip_git?
     append_to_file ".gitignore", <<~EOM
 

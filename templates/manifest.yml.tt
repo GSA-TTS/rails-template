@@ -7,6 +7,9 @@ applications:
   env:
     RAILS_MASTER_KEY: ((rails_master_key))
     RAILS_ENV: ((env))
+    RAILS_LOG_TO_STDOUT: true
+    RAILS_SERVE_STATIC_FILES: true<% if @newrelic %>
+    NEW_RELIC_LOG: stdout<% end %>
   processes:
   - type: web
     instances: ((web_instances))
