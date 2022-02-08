@@ -117,6 +117,13 @@ inside "config" do
   EOM
 end
 
+## add x-config values to standard environment files
+inside "config/environments" do
+  insert_into_file "production.rb", "\n  config.x.show_demo_banner = false\n", before: /^end$/
+  insert_into_file "development.rb", "\n  config.x.show_demo_banner = ENV[\"SHOW_DEMO_BANNER\"] == \"true\"\n", before: /^end$/
+  insert_into_file "test.rb", "\n  config.x.show_demo_banner = false\n", before: /^end$/
+end
+
 
 # setup pa11y and owasp scanning
 directory "bin", mode: :preserve
