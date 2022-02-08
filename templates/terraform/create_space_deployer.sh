@@ -4,7 +4,7 @@ set -e
 set -o pipefail
 
 if [[ $# -lt 2 ]]; then
-  echo "./create_space_deployer.sh <<SPACE_NAME>> <<SERVICE_NAME>>"
+  echo "$0 <<SPACE_NAME>> <<ACCOUNT_NAME>>"
   exit 1;
 fi
 
@@ -25,8 +25,8 @@ username=`echo $creds | jq '.username'`
 password=`echo $creds | jq '.password'`
 
 cat << EOF
-# generated with ./create_space_deployer.sh $space $service
-# revoke with ./destroy_space_deployer.sh $space $service
+# generated with $0 $space $service
+# revoke with $(dirname $0)/destroy_space_deployer.sh $space $service
 
 cf_user = $username
 cf_password = $password

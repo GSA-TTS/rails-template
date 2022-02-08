@@ -3,7 +3,7 @@
 set -e
 
 if [[ $# -ne 2 ]]; then
-  echo "./destroy_space_deployer.sh <<SPACE_NAME>> <<SERVICE_NAME>>"
+  echo "$0 <<SPACE_NAME>> <<ACCOUNT_NAME>>"
   exit 1;
 fi
 
