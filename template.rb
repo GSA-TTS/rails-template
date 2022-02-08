@@ -382,6 +382,8 @@ end
 
 if @terraform
   directory "terraform", mode: :preserve
+  chmod "terraform/bootstrap/run.sh", 0755
+  chmod "terraform/bootstrap/teardown_creds.sh", 0755
   unless skip_git?
     append_to_file ".gitignore", <<~EOM
 
