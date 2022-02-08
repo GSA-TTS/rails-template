@@ -220,6 +220,7 @@ gem_group :development, :test do
 end
 
 copy_file "lib/tasks/scanning.rake"
+copy_file "env", ".env"
 
 
 unless skip_git?
