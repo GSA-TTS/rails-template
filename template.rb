@@ -227,10 +227,6 @@ unless skip_git?
   rails_command "credentials:diff --enroll"
   template "githooks/pre-commit", ".githooks/pre-commit"
   chmod ".githooks/pre-commit", 0755
-  register_announcement("Git", <<~EOM)
-    `.githooks/pre-commit` has been installed to run linters on each git commit
-    To use, each developer must follow the instructions in the top of the file.
-  EOM
   append_to_file ".gitignore", <<~EOM
 
     # Ignore local dotenv overrides
@@ -403,7 +399,7 @@ if @terraform
         * terraform/production/main.tf
     EOM
   end
-  register_announcement("Terraform", "Run the bootstrap script and update the appropriate CI/CD environment variables")
+  register_announcement("Terraform", "Run the bootstrap script and update the appropriate CI/CD environment variables defined in the Deployment section of the README")
 end
 
 if @github_actions
@@ -418,7 +414,7 @@ if @github_actions
     EOM
   end
   register_announcement("Github Actions", <<~EOM)
-    * Create environment variable secrets for deploy users
+    * Create environment variable secrets for deploy users as defined in the Deployment section of the README
   EOM
 end
 
@@ -428,11 +424,11 @@ if @circleci_pipeline
   template "Dockerfile"
   if cloud_gov_org_tktk?
     register_announcement("CircleCI", <<~EOM)
-      * Fill in the cloud.gov organization information n the cg-deploy steps
+      * Fill in the cloud.gov organization information in the cg-deploy steps
     EOM
   end
   register_announcement("CircleCI", <<~EOM)
-    * Create project environment variables for deploy users
+    * Create project environment variables for deploy users as defined in the Deployment section of the README
   EOM
 else
   remove_file "bin/ci-server-start"
@@ -458,7 +454,7 @@ if @dap
     <% end %>
     EODAP
   end
-  register_announcement("Digital Analytics Program", "* Update the DAP agency code in app/views/layouts/application.html.erb")
+  register_announcement("Digital Analytics Program", "Update the DAP agency code in app/views/layouts/application.html.erb")
 end
 
 # setup production credentials file
