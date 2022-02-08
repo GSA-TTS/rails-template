@@ -112,7 +112,8 @@ Each environment has its own module, which relies on a shared module for everyth
   |- main.tf
   |- providers.tf
   |- secrets.auto.tfvars
-  |- variables.tf
+  |- variables.tf<% if @github_actions %>
+  |- .force-action-apply<% end %>
 - shared/
   |- s3/
      |- main.tf
@@ -137,7 +138,8 @@ In the environment-specific modules:
 - `providers.tf` lists the required providers
 - `main.tf` calls the shared Terraform code, but this is also a place where you can add any other services, resources, etc, which you would like to set up for that environment
 - `variables.tf` lists the variables that will be needed, either to pass through to the child module or for use in this module
-- `secrets.auto.tfvars` is a file which contains the information about the service-key and other secrets that should not be shared
+- `secrets.auto.tfvars` is a file which contains the information about the service-key and other secrets that should not be shared<% if @github_actions %>
+- `.force-action-apply` is a file that can be updated to force GitHub Actions to run `terraform apply` during the deploy phase<% end %>
 
 In the bootstrap module:
 - `providers.tf` lists the required providers
