@@ -191,7 +191,7 @@ uncomment_lines csp_initializer, /end$/
 uncomment_lines csp_initializer, "content_security_policy_nonce"
 
 if @newrelic
-  gem "newrelic_rpm", "~> 8.3"
+  gem "newrelic_rpm", "~> 8.4"
   copy_file "config/newrelic.yml"
 
   register_announcement("New Relic", <<~EOM)
@@ -210,11 +210,11 @@ if @newrelic
 end
 
 gem_group :development, :test do
-  gem "rspec-rails", "~> 5.0"
+  gem "rspec-rails", "~> 5.1"
   gem "dotenv-rails", "~> 2.7"
   gem "brakeman", "~> 5.2"
   gem "bundler-audit", "~> 0.9"
-  gem "standard", "~> 1.5"
+  gem "standard", "~> 1.7"
   gem "i18n-tasks", "~> 0.9"
   gem "rspec_junit_formatter", "~> 0.5" if @circleci_pipeline
 end
