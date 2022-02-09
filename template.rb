@@ -1,4 +1,4 @@
-require 'colorize'
+require "colorize"
 
 ## Supporting methods
 # tell our template to grab all files from the templates directory
@@ -36,13 +36,13 @@ def print_announcements
 end
 
 unless Gem::Dependency.new("rails", "~> 7.0.0").match?("rails", Rails.gem_version)
-  $stderr.puts "This template requires Rails 7.0.x"
+  warn "This template requires Rails 7.0.x"
   if Gem::Dependency.new("rails", "~> 6.1.0").match?("rails", Rails.gem_version)
-    $stderr.puts "See the rails-6 branch https://github.com/18f/rails-template/tree/rails-6"
+    warn "See the rails-6 branch https://github.com/18f/rails-template/tree/rails-6"
   elsif Gem::Dependency.new("rails", "~> 7.1.0").match?("rails", Rails.gem_version)
-    $stderr.puts "Rails 7.1 is out! Please file an issue so we can get the template updated"
+    warn "Rails 7.1 is out! Please file an issue so we can get the template updated"
   else
-    $stderr.puts "We didn't recognize the version of Rails you are using: #{Rails.version}"
+    warn "We didn't recognize the version of Rails you are using: #{Rails.version}"
   end
   exit(1)
 end
@@ -77,12 +77,11 @@ running_node_version = `node --version`.gsub(/^v/, "").strip
 
 run_db_setup = yes?("Run db setup steps? (y/n)")
 
-
 ## Start of app customizations
 template "README.md", force: true
-register_announcement("Documentation", <<EOM)
-* Complete the project README by adding a quick summary of the project in the top section.
-* Review any TBD sections of the README and update where appropriate.
+register_announcement("Documentation", <<~EOM)
+  * Complete the project README by adding a quick summary of the project in the top section.
+  * Review any TBD sections of the README and update where appropriate.
 EOM
 
 # setup nvmrc
@@ -91,7 +90,6 @@ file ".nvmrc", @node_version
 ## Get files from Open Source Policy
 get "https://raw.githubusercontent.com/18F/open-source-policy/master/CONTRIBUTING.md"
 get "https://raw.githubusercontent.com/18F/open-source-policy/master/LICENSE.md"
-
 
 ## setup near-production CI environment
 inside "config" do
@@ -123,7 +121,6 @@ inside "config/environments" do
   insert_into_file "development.rb", "\n  config.x.show_demo_banner = ENV[\"SHOW_DEMO_BANNER\"] == \"true\"\n", before: /^end$/
   insert_into_file "test.rb", "\n  config.x.show_demo_banner = false\n", before: /^end$/
 end
-
 
 # setup pa11y and owasp scanning
 directory "bin", mode: :preserve
@@ -222,11 +219,10 @@ end
 copy_file "lib/tasks/scanning.rake"
 copy_file "env", ".env"
 
-
 unless skip_git?
   rails_command "credentials:diff --enroll"
   template "githooks/pre-commit", ".githooks/pre-commit"
-  chmod ".githooks/pre-commit", 0755
+  chmod ".githooks/pre-commit", 0o755
   append_to_file ".gitignore", <<~EOM
 
     # Ignore local dotenv overrides
@@ -355,7 +351,7 @@ after_bundle do
     route "root 'pages#home'"
   end
   gsub_file "spec/requests/pages_spec.rb", "/pages/home", "/"
-  gsub_file "spec/views/pages/home.html.erb_spec.rb", '  pending "add some examples to (or delete) #{__FILE__}"', <<-EOM
+  gsub_file "spec/views/pages/home.html.erb_spec.rb", "  pending \"add some examples to (or delete) \#{__FILE__}\"", <<-EOM
   it "displays the gov banner" do
     render template: "pages/home", layout: "layouts/application"
     expect(rendered).to match "An official website of the United States government"
@@ -378,8 +374,8 @@ end
 
 if @terraform
   directory "terraform", mode: :preserve
-  chmod "terraform/bootstrap/run.sh", 0755
-  chmod "terraform/bootstrap/teardown_creds.sh", 0755
+  chmod "terraform/bootstrap/run.sh", 0o755
+  chmod "terraform/bootstrap/teardown_creds.sh", 0o755
   unless skip_git?
     append_to_file ".gitignore", <<~EOM
 
@@ -439,9 +435,9 @@ if @adrs
 else
   directory "doc/compliance"
 end
-register_announcement("Documentation", <<EOM)
-* Include a short description of your application in doc/compliance/apps/application.boundary.md
-* Remember to keep your Logical Data Model up to date in doc/compliance/apps/data.logical.md
+register_announcement("Documentation", <<~EOM)
+  * Include a short description of your application in doc/compliance/apps/application.boundary.md
+  * Remember to keep your Logical Data Model up to date in doc/compliance/apps/data.logical.md
 EOM
 
 if @dap
@@ -494,7 +490,7 @@ after_bundle do
   run "bundle exec standardrb --fix"
 
   unless skip_git?
-    git add: '.'
+    git add: "."
     git commit: "-a -m 'Initial commit'"
   end
 
