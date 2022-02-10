@@ -107,19 +107,10 @@ To enable automatic ruby linting<% if @terraform %> and terraform formatting<% e
 follow the instructions at the top of `.githooks/pre-commit`
 
 ## CI/CD
-
 <% if @github_actions %>
 GitHub actions are used to run all tests and scans as part of pull requests.
 
 Security scans are also run on a scheduled basis. Weekly for static code scans, and daily for dependency scans.
-<% end %>
-<% if @circleci_pipeline %>
-CircleCI is used to run all tests and scans as part of pull requests.
-
-Security scans are also run on a daily schedule.
-<% end %>
-<% if !@github_actions && !@circleci_pipeline %>
-TBD
 <% end %>
 
 ### Deployment
@@ -129,18 +120,18 @@ See [cloud.gov docs](https://cloud.gov/docs/services/relational-database/) for i
 
 #### Staging
 
-<% if !@terraform %>
-Before the first deploy only, create DB service with `cf create-service aws-rds micro-psql <%= app_name %>-rds-staging`
-<% end %>
-<% if @github_actions || @circleci_pipeline %>
+<% if @github_actions %>
 <% if @terraform %>
 Deploys to staging, including applying changes in terraform, happen on every push to the `main` branch in Github.
 <% else %>
 Deploys to staging happen on every push to the `main` branch in Github.
 <% end %>
-<% else %>
+<% end %>
+<% if !@github_actions && !@circleci_pipeline %>
 <% if @terraform %>
 Follow the instructions in `terraform/README.md` to create the supporting services.
+<% else %>
+Before the first deploy only, create DB service with `cf create-service aws-rds micro-psql <%= app_name %>-rds-staging`
 <% end %>
 `cf push --strategy rolling --vars-file config/deployment/staging.yml --var rails_master_key=$(cat config/master.key)`
 <% end %>
@@ -157,33 +148,21 @@ to enable a deploy to work:
 | `TERRAFORM_STATE_ACCESS_KEY` | Access key for terraform state bucket |
 | `TERRAFORM_STATE_SECRET_ACCESS_KEY` | Secret key for terraform state bucket |<% end %>
 <% end %>
-<% if @circleci_pipeline %>
-The following secrets must be set within [CircleCI Environment Variables](https://circleci.com/docs/2.0/env-vars/)
-to enable a deploy to work:
-
-| Secret Name | Description |
-| ----------- | ----------- |
-| `CF_STAGING_USERNAME` | cloud.gov SpaceDeployer username |
-| `CF_STAGING_PASSWORD` | cloud.gov SpaceDeployer password |
-| `RAILS_MASTER_KEY` | `config/master.key` |<% if @terraform %>
-| `AWS_ACCESS_KEY_ID` | Access key for terraform state bucket |
-| `AWS_SECRET_ACCESS_KEY` | Secret key for terraform state bucket |<% end %>
-<% end %>
 
 #### Production
 
-<% if !@terraform %>
-Before the first deploy only, create DB service with `cf create-service aws-rds <<SERVICE_PLAN_NAME>> <%= app_name %>-rds-production`
-<% end %>
-<% if @github_actions || @circleci_pipeline %>
+<% if @github_actions %>
 <% if @terraform %>
 Deploys to production, including applying changes in terraform, happen on every push to the `production` branch in Github.
 <% else %>
 Deploys to production happen on every push to the `production` branch in Github.
 <% end %>
-<% else %>
+<% end %>
+<% if !@github_actions && !@circleci_pipeline %>
 <% if @terraform %>
 Follow the instructions in `terraform/README.md` to create the supporting services.
+<% else %>
+Before the first deploy only, create DB service with `cf create-service aws-rds <<SERVICE_PLAN_NAME>> <%= app_name %>-rds-production`
 <% end %>
 `cf push --strategy rolling --vars-file config/deployment/production.yml --var rails_master_key=$(cat config/credentials/production.key)`
 <% end %>
@@ -199,18 +178,6 @@ to enable a deploy to work:
 | `RAILS_MASTER_KEY` | `config/credentials/production.key` |<% if @terraform %>
 | `TERRAFORM_STATE_ACCESS_KEY` | Access key for terraform state bucket |
 | `TERRAFORM_STATE_SECRET_ACCESS_KEY` | Secret key for terraform state bucket |<% end %>
-<% end %>
-<% if @circleci_pipeline %>
-The following secrets must be set within [CircleCI Environment Variables](https://circleci.com/docs/2.0/env-vars/)
-to enable a deploy to work:
-
-| Secret Name | Description |
-| ----------- | ----------- |
-| `CF_PRODUCTION_USERNAME` | cloud.gov SpaceDeployer username |
-| `CF_PRODUCTION_PASSWORD` | cloud.gov SpaceDeployer password |
-| `PRODUCTION_RAILS_MASTER_KEY` | `config/credentials/production.key` |<% if @terraform %>
-| `AWS_ACCESS_KEY_ID` | Access key for terraform state bucket |
-| `AWS_SECRET_ACCESS_KEY` | Secret key for terraform state bucket |<% end %>
 <% end %>
 
 ### Configuring ENV variables in cloud.gov
@@ -228,13 +195,6 @@ Otherwise, they are set as a `((variable))` within `manifest.yml` and the variab
 1. Store variables that must be secret using [GitHub Environment Secrets](https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-an-environment)
 1. Add the secret to the `env:` block of the deploy action [as in this example](https://github.com/OHS-Hosting-Infrastructure/complaint-tracker/blob/a9e8d22aae2023a0afb631a6182251c04f597f7e/.github/workflows/deploy-stage.yml#L20)
 1. Add the appropriate `--var` addition to the `push_arguments` line on the deploy action [as in this example](https://github.com/OHS-Hosting-Infrastructure/complaint-tracker/blob/a9e8d22aae2023a0afb631a6182251c04f597f7e/.github/workflows/deploy-stage.yml#L27)
-<% end %>
-<% if @circleci_pipeline %>
-1. Store variables that must be secret using [CircleCI Environment Variables](https://circleci.com/docs/2.0/env-vars/)
-1. Add the appropriate `--var` addition to the `cf push` line on the deploy job
-<% end %>
-<% if !@github_actions && !@circleci_pipeline %>
-TBD
 <% end %>
 
 #### Non-secrets

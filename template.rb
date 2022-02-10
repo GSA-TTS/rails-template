@@ -213,7 +213,11 @@ gem_group :development, :test do
   gem "bundler-audit", "~> 0.9"
   gem "standard", "~> 1.7"
   gem "i18n-tasks", "~> 0.9"
-  gem "rspec_junit_formatter", "~> 0.5" if @circleci_pipeline
+end
+if ENV["RT_DEV"] == "true"
+  gem "rails_template_18f", group: :development, path: ENV["PWD"]
+else
+  gem "rails_template_18f", group: :development
 end
 
 copy_file "lib/tasks/scanning.rake"
@@ -415,19 +419,18 @@ if @github_actions
 end
 
 if @circleci_pipeline
-  directory "circleci", ".circleci"
-  copy_file "docker-compose.ci.yml"
-  template "Dockerfile"
-  if cloud_gov_org_tktk?
-    register_announcement("CircleCI", <<~EOM)
-      * Fill in the cloud.gov organization information in the cg-deploy steps
-    EOM
+  after_bundle do
+    generator_arguments = [
+      (@terraform ? "--terraform" : "--no-terraform"),
+      "--cg-org=#{@cloud_gov_organization}",
+      "--cg-staging=#{@cloud_gov_staging_space}",
+      "--cg-prod=#{@cloud_gov_production_space}"
+    ]
+    generate "rails_template18f:circleci", *generator_arguments
   end
   register_announcement("CircleCI", <<~EOM)
     * Create project environment variables for deploy users as defined in the Deployment section of the README
   EOM
-else
-  remove_file "bin/ci-server-start"
 end
 
 if @adrs

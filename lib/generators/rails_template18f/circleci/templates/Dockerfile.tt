@@ -1,4 +1,4 @@
-FROM cimg/ruby:<%= @ruby_version %>-node
+FROM cimg/ruby:<%= ruby_version %>-node
 
 ENV PORT=3000
 EXPOSE $PORT
