@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
 
   spec.summary = "TKTK: Write a short summary, because RubyGems requires one."
   spec.homepage = "https://github.com/18f/rails-template"
-  spec.required_ruby_version = ">= 3.0.0"
+  spec.required_ruby_version = ">= 2.7.5"
 
   spec.metadata["allowed_push_host"] = "TODO: Set to your gem server 'https://example.com'"
 
