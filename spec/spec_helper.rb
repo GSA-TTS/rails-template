@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
-require "rails"
+require "rails/all"
 require "rails_template_18f"
+
+require "ammeter/init"
+require_relative "support/generators"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -13,4 +16,8 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
+
+  config.filter_run_when_matching :focus
+  config.order = :random
+  Kernel.srand config.seed
 end

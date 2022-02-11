@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RailsTemplate18f
   module Generators
     class CircleciGenerator < ::Rails::Generators::Base
@@ -29,47 +31,65 @@ module RailsTemplate18f
       end
 
       def update_readme
-        insert_into_file "README.md", <<~EOM, after: "## CI/CD\n"
+        insert_into_file "README.md", readme_cicd, after: "## CI/CD\n"
+        insert_into_file "README.md", readme_staging_deploy, after: "#### Staging\n"
+        insert_into_file "README.md", readme_prod_deploy, after: "#### Production\n"
+        insert_into_file "README.md", readme_credentials, after: "#### Credentials and other Secrets\n"
+      end
 
-          CircleCI is used to run all tests and scans as part of pull requests.
+      no_tasks do
+        def readme_cicd
+          <<~EOM
 
-          Security scans are also run on a daily schedule.
-        EOM
-        insert_into_file "README.md", <<~EOM, after: "#### Staging\n"
+            CircleCI is used to run all tests and scans as part of pull requests.
 
-          Deploys to staging#{terraform? ? ", including applying changes in terraform," : ""} happen
-          on every push to the `main` branch in Github.
+            Security scans are also run on a daily schedule.
+          EOM
+        end
 
-          The following secrets must be set within [CircleCI Environment Variables](https://circleci.com/docs/2.0/env-vars/)
-          to enable a deploy to work:
+        def readme_staging_deploy
+          <<~EOM
 
-          | Secret Name | Description |
-          | ----------- | ----------- |
-          | `CF_STAGING_USERNAME` | cloud.gov SpaceDeployer username |
-          | `CF_STAGING_PASSWORD` | cloud.gov SpaceDeployer password |
-          | `RAILS_MASTER_KEY` | `config/master.key` |
-          #{terraform_secret_values}
-        EOM
-        insert_into_file "README.md", <<~EOM, after: "#### Production\n"
+            Deploys to staging#{terraform? ? ", including applying changes in terraform," : ""} happen
+            on every push to the `main` branch in Github.
 
-          Deploys to production#{terraform? ? ", including applying changes in terraform," : ""} happen
-          on every push to the `production` branch in Github.
+            The following secrets must be set within [CircleCI Environment Variables](https://circleci.com/docs/2.0/env-vars/)
+            to enable a deploy to work:
 
-          The following secrets must be set within [CircleCI Environment Variables](https://circleci.com/docs/2.0/env-vars/)
-          to enable a deploy to work:
+            | Secret Name | Description |
+            | ----------- | ----------- |
+            | `CF_STAGING_USERNAME` | cloud.gov SpaceDeployer username |
+            | `CF_STAGING_PASSWORD` | cloud.gov SpaceDeployer password |
+            | `RAILS_MASTER_KEY` | `config/master.key` |
+            #{terraform_secret_values}
+          EOM
+        end
 
-          | Secret Name | Description |
-          | ----------- | ----------- |
-          | `CF_PRODUCTION_USERNAME` | cloud.gov SpaceDeployer username |
-          | `CF_PRODUCTION_PASSWORD` | cloud.gov SpaceDeployer password |
-          | `PRODUCTION_RAILS_MASTER_KEY` | `config/credentials/production.key` |
-          #{terraform_secret_values}
-        EOM
-        insert_into_file "README.md", <<~EOM, after: "#### Credentials and other Secrets\n"
+        def readme_prod_deploy
+          <<~EOM
 
-          1. Store variables that must be secret using [CircleCI Environment Variables](https://circleci.com/docs/2.0/env-vars/)
-          1. Add the appropriate `--var` addition to the `cf push` line on the deploy job
-        EOM
+            Deploys to production#{terraform? ? ", including applying changes in terraform," : ""} happen
+            on every push to the `production` branch in Github.
+
+            The following secrets must be set within [CircleCI Environment Variables](https://circleci.com/docs/2.0/env-vars/)
+            to enable a deploy to work:
+
+            | Secret Name | Description |
+            | ----------- | ----------- |
+            | `CF_PRODUCTION_USERNAME` | cloud.gov SpaceDeployer username |
+            | `CF_PRODUCTION_PASSWORD` | cloud.gov SpaceDeployer password |
+            | `PRODUCTION_RAILS_MASTER_KEY` | `config/credentials/production.key` |
+            #{terraform_secret_values}
+          EOM
+        end
+
+        def readme_credentials
+          <<~EOM
+
+            1. Store variables that must be secret using [CircleCI Environment Variables](https://circleci.com/docs/2.0/env-vars/)
+            1. Add the appropriate `--var` addition to the `cf push` line on the deploy job
+          EOM
+        end
       end
 
       private
@@ -95,7 +115,7 @@ module RailsTemplate18f
         if options[:cg_org].present?
           return options[:cg_org]
         elsif terraform_dir_exists?
-          staging_main = File.read(Rails.root.join("terraform", "staging", "main.tf"))
+          staging_main = File.read(terraform_path.join("staging", "main.tf"))
           if (matches = staging_main.match(/cf_org_name\s+= "(?<org_name>.*)"/))
             return matches[:org_name]
           end
@@ -107,7 +127,7 @@ module RailsTemplate18f
         if options[:cg_staging].present?
           return options[:cg_staging]
         elsif terraform_dir_exists?
-          staging_main = File.read(Rails.root.join("terraform", "staging", "main.tf"))
+          staging_main = File.read(terraform_path.join("staging", "main.tf"))
           if (matches = staging_main.match(/cf_space_name\s+= "(?<space_name>.*)"/))
             return matches[:space_name]
           end
@@ -119,7 +139,7 @@ module RailsTemplate18f
         if options[:cg_prod].present?
           return options[:cg_prod]
         elsif terraform_dir_exists?
-          prod_main = File.read(Rails.root.join("terraform", "production", "main.tf"))
+          prod_main = File.read(terraform_path.join("production", "main.tf"))
           if (matches = prod_main.match(/cf_space_name\s+= "(?<space_name>.*)"/))
             return matches[:space_name]
           end
@@ -127,8 +147,12 @@ module RailsTemplate18f
         "prod"
       end
 
+      def terraform_path
+        Pathname.new File.expand_path("terraform", destination_root)
+      end
+
       def terraform_dir_exists?
-        Dir.exist? Rails.root.join("terraform")
+        Dir.exist? terraform_path
       end
     end
   end
