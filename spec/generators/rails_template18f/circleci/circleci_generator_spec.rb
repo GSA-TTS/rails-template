@@ -28,6 +28,14 @@ RSpec.describe RailsTemplate18f::Generators::CircleciGenerator, type: :generator
       expect(file("README.md")).to contain(generator.readme_prod_deploy)
       expect(file("README.md")).to contain(generator.readme_credentials)
     end
+
+    it "creates system entries in the boundary diagram" do
+      expect(file("doc/compliance/apps/application.boundary.md")).to contain("System_Ext(github, \"GitHub\"")
+      expect(file("doc/compliance/apps/application.boundary.md")).to contain("System_Ext(circleci, \"CircleCI\"")
+      expect(file("doc/compliance/apps/application.boundary.md")).to contain("Rel(developer, github, \"Publish code\"")
+      expect(file("doc/compliance/apps/application.boundary.md")).to contain("Rel(github, circleci, \"Commit hook notifies CircleCI to run CI/CD pipeline\"")
+      expect(file("doc/compliance/apps/application.boundary.md")).to contain("Rel(circleci, cg_api, \"Deploy App\"")
+    end
   end
 
   context "with terraform" do

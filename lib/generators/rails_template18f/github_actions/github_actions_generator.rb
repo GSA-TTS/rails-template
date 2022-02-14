@@ -32,6 +32,26 @@ module RailsTemplate18f
         insert_into_file "README.md", readme_credentials, after: "#### Credentials and other Secrets\n"
       end
 
+      def update_boundary_diagram
+        boundary_filename = "doc/compliance/apps/application.boundary.md"
+        insert_into_file boundary_filename, <<EOB, after: "Boundary(cicd, \"CI/CD Pipeline\") {\n"
+    System_Ext(githuball, "GitHub w/ Github Actions", "GSA-controlled code repository and Continuous Integration Service")
+EOB
+        insert_into_file boundary_filename, <<~EOB, before: "@enduml"
+          Rel(developer, githuball, "Publish code", "git ssh (22)")
+          Rel(githuball, cg_api, "Deploy App", "Auth: SpaceDeployer Service Account, https (443)")
+        EOB
+      end
+
+      def update_terraform_readme
+        return unless terraform?
+        readme_filename = "terraform/README.md"
+        insert_into_file readme_filename, "  |- .force-action-apply\n", after: "  |- secrets.auto.tfvars\n"
+        insert_into_file readme_filename, <<~EOM, after: /- `secrets.auto.tfvars`.*$/
+          - `.force-action-apply` is a file that can be updated to force GitHub Actions to run `terraform apply` during the deploy phase
+        EOM
+      end
+
       no_tasks do
         def readme_cicd
           <<~EOM

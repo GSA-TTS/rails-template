@@ -2,9 +2,8 @@
 require "generators/rails_template18f/github_actions/github_actions_generator"
 
 RSpec.describe RailsTemplate18f::Generators::GithubActionsGenerator, type: :generator do
-  setup_default_destination
-
   context "no terraform actions" do
+    setup_default_destination
     before { run_generator }
 
     it "documents use in README" do
@@ -24,14 +23,25 @@ RSpec.describe RailsTemplate18f::Generators::GithubActionsGenerator, type: :gene
       expect(file(".github/workflows/terraform-staging.yml")).to_not exist
       expect(file(".github/workflows/terraform-production.yml")).to_not exist
     end
+
+    it "creates system entries in the boundary diagram" do
+      expect(file("doc/compliance/apps/application.boundary.md")).to contain("System_Ext(githuball, \"GitHub w/ Github Actions\"")
+      expect(file("doc/compliance/apps/application.boundary.md")).to contain("Rel(developer, githuball, \"Publish code\"")
+      expect(file("doc/compliance/apps/application.boundary.md")).to contain("Rel(githuball, cg_api, \"Deploy App\"")
+    end
   end
 
   context "with terraform" do
-    before { run_generator %w[--terraform] }
+    setup_terraform_destination
+    before { run_generator }
 
     it "includes terraform-related actions" do
       expect(file(".github/workflows/terraform-staging.yml")).to exist
       expect(file(".github/workflows/terraform-production.yml")).to exist
+    end
+
+    it "documents use of .force-action-apply in terraform/README" do
+      expect(file("terraform/README.md")).to contain(".force-action-apply")
     end
   end
 end

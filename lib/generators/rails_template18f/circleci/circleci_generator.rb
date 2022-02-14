@@ -33,6 +33,19 @@ module RailsTemplate18f
         insert_into_file "README.md", readme_credentials, after: "#### Credentials and other Secrets\n"
       end
 
+      def update_boundary_diagram
+        boundary_filename = "doc/compliance/apps/application.boundary.md"
+        insert_into_file boundary_filename, <<EOB, after: "Boundary(cicd, \"CI/CD Pipeline\") {\n"
+    System_Ext(github, "GitHub", "GSA-controlled code repository")
+    System_Ext(circleci, "CircleCI", "Continuous Integration Service")
+EOB
+        insert_into_file boundary_filename, <<~EOB, before: "@enduml"
+          Rel(developer, github, "Publish code", "git ssh (22)")
+          Rel(github, circleci, "Commit hook notifies CircleCI to run CI/CD pipeline", "https POST (443)")
+          Rel(circleci, cg_api, "Deploy App", "Auth: SpaceDeployer Service Account, https (443)")
+        EOB
+      end
+
       no_tasks do
         def readme_cicd
           <<~EOM
