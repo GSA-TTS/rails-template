@@ -403,10 +403,14 @@ if @terraform
 end
 
 if @github_actions
-  directory "github", ".github"
-  if !@terraform
-    remove_file ".github/workflows/terraform-staging.yml"
-    remove_file ".github/workflows/terraform-production.yml"
+  after_bundle do
+    generator_arguments = [
+      (@terraform ? "--terraform" : "--no-terraform"),
+      "--cg-org=#{@cloud_gov_organization}",
+      "--cg-staging=#{@cloud_gov_staging_space}",
+      "--cg-prod=#{@cloud_gov_production_space}"
+    ]
+    generate "rails_template18f:github_actions", *generator_arguments
   end
   if cloud_gov_org_tktk?
     register_announcement("Github Actions", <<~EOM)

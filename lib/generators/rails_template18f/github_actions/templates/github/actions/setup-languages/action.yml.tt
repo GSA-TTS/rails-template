@@ -13,7 +13,7 @@ runs:
     - name: Set up node
       uses: actions/setup-node@v2
       with:
-        node-version: '<%= @node_version %>'
+        node-version: '<%= node_version %>'
         cache: 'yarn'
     - name: Install yarn dependencies
       shell: bash
