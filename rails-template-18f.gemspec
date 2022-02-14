@@ -8,11 +8,11 @@ Gem::Specification.new do |spec|
   spec.authors = ["Ryan Ahearn"]
   spec.email = ["ryan.ahearn@gsa.gov"]
 
-  spec.summary = "TKTK: Write a short summary, because RubyGems requires one."
+  spec.summary = "Generators for creating an 18F-flavored Rails app"
   spec.homepage = "https://github.com/18f/rails-template"
   spec.required_ruby_version = ">= 2.7.5"
 
-  spec.metadata["allowed_push_host"] = "TODO: Set to your gem server 'https://example.com'"
+  spec.metadata["allowed_push_host"] = "https://rubygems.org/"
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/18f/rails-template"
