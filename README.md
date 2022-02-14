@@ -5,7 +5,7 @@ This template will create a new Rails 7.0.x project.
 
 See the `rails-6` branch for Rails 6.1.x
 
-## Usage
+## Use for new Rails Project
 
 1. Clone this repository to your computer
 1. Change directory into the clone
@@ -102,3 +102,39 @@ ActionCable is included to enable the [Turbo Streams](https://turbo.hotwired.dev
 1. Optionally configure DAP (Digital Analytics Program)
 1. Optionally add base translation files and routes for Spanish, French, and Simplified Chinese (es.yml, fr.yml, and zh.yml)
 1. Commit the resulting project with git (unless `--skip-git` is passed)
+
+## Use for an existing Rails project
+
+### Installation
+
+Add this line to your application's Gemfile:
+
+```ruby
+gem "rails-template-18f"
+```
+
+And then run:
+
+  $ bundle install
+
+Or install it yourself as:
+
+  $ gem install rails-template-18f
+
+### Usage
+
+Run `rails generate` for a list of commands this gem can run
+
+## Development
+
+After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+
+To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+
+## Contributing
+
+Bug reports and pull requests are welcome on GitHub at https://github.com/rahearn/rails-template-18f. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/rahearn/rails-template-18f/blob/main/CODE_OF_CONDUCT.md).
+
+## Code of Conduct
+
+Everyone interacting in the 18F Rails Template project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/rahearn/rails-template-18f/blob/main/CODE_OF_CONDUCT.md).

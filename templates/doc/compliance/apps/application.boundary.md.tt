@@ -64,23 +64,7 @@ Rel(app, app_s3, "reads/writes file data", "https (443)")
 
 Person(developer, "Developer", "Application developers")
 Boundary(cicd, "CI/CD Pipeline") {
-    <% if @circleci_pipeline %>
-    System_Ext(github, "GitHub", "GSA-controlled code repository")
-    System_Ext(circleci, "CircleCI", "Continuous Integration Service")
-    <% end %>
-    <% if @github_actions %>
-    System_Ext(githuball, "Github w/ Github Actions", "GSA-controlled code repository and Continuous Integration Service")
-    <% end %>
 }
-<% if @circleci_pipeline %>
-Rel(developer, github, "Publish code", "git ssh (22)")
-Rel(github, circleci, "Commit hook notifies CircleCI to run CI/CD pipeline", "https POST (443)")
-Rel(circleci, cg_api, "Deploy App", "Auth: SpaceDeployer Service Account, https (443)")
-<% end %>
-<% if @github_actions %>
-Rel(developer, githuball, "Publish code", "git ssh (22)")
-Rel(githuball, cg_api, "Deploy App", "Auth: SpaceDeployer Service Account, https (443)")
-<% end %>
 
 <% if @dap %>
 Rel(developer, dap, "View traffic statistics", "https GET (443)")

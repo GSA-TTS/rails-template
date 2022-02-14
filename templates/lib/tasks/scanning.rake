@@ -8,18 +8,16 @@ task :brakeman do
 end
 
 namespace :bundler do
-  begin
-    require 'bundler/audit/cli'
+  require "bundler/audit/cli"
 
-    desc 'Updates the ruby-advisory-db and runs audit'
-    task :audit do
-      %w(update check).each do |command|
-        Bundler::Audit::CLI.start [command]
-      end
+  desc "Updates the ruby-advisory-db and runs audit"
+  task :audit do
+    %w[update check].each do |command|
+      Bundler::Audit::CLI.start [command]
     end
-  rescue LoadError
-    # no-op, probably in a production environment
   end
+rescue LoadError
+  # no-op, probably in a production environment
 end
 
 namespace :yarn do
@@ -47,8 +45,8 @@ def all_issues_ignored?(issues)
   present_advisories_with_frequencies = Hash.new { |hash, key| hash[key] = 0 }
 
   # Only look at audit advisories, and not audit summaries
-  issues.select{|issue_json| issue_json['type'] == 'auditAdvisory'}.each do |issue_json|
-    present_advisories_with_frequencies[issue_json['data']['advisory']['id']] += 1
+  issues.select { |issue_json| issue_json["type"] == "auditAdvisory" }.each do |issue_json|
+    present_advisories_with_frequencies[issue_json["data"]["advisory"]["id"]] += 1
   end
 
   # Advisory ID to be ignored with number of times it appears in project dependencies

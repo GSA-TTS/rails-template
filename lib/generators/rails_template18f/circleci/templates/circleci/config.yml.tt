@@ -3,8 +3,8 @@ version: 2.1
 orbs:
   ruby: circleci/ruby@1.3.0
   node: circleci/node@5.0.0
-  browser-tools: circleci/browser-tools@1.2.3
-  terraform: circleci/terraform@3.0.0
+  browser-tools: circleci/browser-tools@1.2.3<% if terraform? %>
+  terraform: circleci/terraform@3.0.0<% end %>
 
 commands:
   setup-project:
@@ -67,14 +67,14 @@ commands:
 jobs:
   build:
     docker:
-      - image: cimg/ruby:<%= @ruby_version %>
+      - image: cimg/ruby:<%= ruby_version %>
     steps:
       - setup-project
 
   test:
     parallelism: 3
     docker:
-      - image: cimg/ruby:<%= @ruby_version %>
+      - image: cimg/ruby:<%= ruby_version %>
       - image: cimg/postgres:12.9
         environment:
           POSTGRES_USER: circleci
@@ -120,7 +120,7 @@ jobs:
 
   static_security_scans:
     docker:
-      - image: cimg/ruby:<%= @ruby_version %>
+      - image: cimg/ruby:<%= ruby_version %>
     steps:
       - setup-project
       - run:
@@ -195,7 +195,7 @@ jobs:
 
   a11y_scan:
     docker:
-      - image: cimg/ruby:<%= @ruby_version %>
+      - image: cimg/ruby:<%= ruby_version %>
       - image: cimg/postgres:12.9
         environment:
           POSTGRES_USER: circleci
@@ -249,7 +249,7 @@ jobs:
       - run:
           name: Run pa11y-ci
           command: yarn run pa11y-ci
-<% if @terraform %>
+<% if terraform? %>
   terraform_plan_staging:
     executor: terraform/default
     steps:
@@ -309,26 +309,26 @@ jobs:
 <% end %>
   deploy_staging:
     docker:
-      - image: cimg/ruby:<%= @ruby_version %>
+      - image: cimg/ruby:<%= ruby_version %>
     steps:
       - setup-project
       - cg-deploy:
           cloudgov_username: CF_STAGING_USERNAME
           cloudgov_password: CF_STAGING_PASSWORD
-          cloudgov_org: <%= @cloud_gov_organization %>
-          cloudgov_space: <%= @cloud_gov_staging_space %>
+          cloudgov_org: <%= cloud_gov_organization %>
+          cloudgov_space: <%= cloud_gov_staging_space %>
           deploy_config_file: config/deployment/staging.yml
           rails_master_key: RAILS_MASTER_KEY
   deploy_production:
     docker:
-      - image: cimg/ruby:<%= @ruby_version %>
+      - image: cimg/ruby:<%= ruby_version %>
     steps:
       - setup-project
       - cg-deploy:
           cloudgov_username: CF_PRODUCTION_USERNAME
           cloudgov_password: CF_PRODUCTION_PASSWORD
-          cloudgov_org: <%= @cloud_gov_organization %>
-          cloudgov_space: <%= @cloud_gov_production_space %>
+          cloudgov_org: <%= cloud_gov_organization %>
+          cloudgov_space: <%= cloud_gov_production_space %>
           deploy_config_file: config/deployment/production.yml
           rails_master_key: PRODUCTION_RAILS_MASTER_KEY
 
@@ -348,7 +348,7 @@ workflows:
             - build
       - a11y_scan:
           requires:
-            - build<% if @terraform %>
+            - build<% if terraform? %>
       - terraform_plan_staging:
           filters:
             branches:
@@ -381,7 +381,7 @@ workflows:
             - test
             - static_security_scans
             - owasp_scan
-            - a11y_scan<% if @terraform %>
+            - a11y_scan<% if terraform? %>
             - terraform_apply_staging<% end %>
       - deploy_production:
           filters:
@@ -391,7 +391,7 @@ workflows:
             - test
             - static_security_scans
             - owasp_scan
-            - a11y_scan<% if @terraform %>
+            - a11y_scan<% if terraform? %>
             - terraform_apply_production<% end %>
   daily_scan:
     triggers:

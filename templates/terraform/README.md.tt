@@ -6,11 +6,13 @@ Prerequisite: install the `jq` JSON processor: `brew install jq`
 
 ## Initial setup
 
-1. Manually run the bootstrap module following instructions under `Terraform State Credentials` <% if @github_actions || @circleci_pipeline %>
-1. Copy bootstrap credentials to your CI/CD secrets using the instructions in the base README
-1. Create a cloud.gov SpaceDeployer by following the instructions under `SpaceDeployers`
-1. Copy SpaceDeployer credentials to your CI/CD secrets using the instructions in the base README<% else %>
-1. Follow instructions under `Set up a new environment` to create your infrastructure<% end %>
+1. Manually run the bootstrap module following instructions under `Terraform State Credentials`
+1. Setup CI/CD Pipeline to run Terraform
+  1. Copy bootstrap credentials to your CI/CD secrets using the instructions in the base README
+  1. Create a cloud.gov SpaceDeployer by following the instructions under `SpaceDeployers`
+  1. Copy SpaceDeployer credentials to your CI/CD secrets using the instructions in the base README
+1. Manually Running Terraform
+  1. Follow instructions under `Set up a new environment` to create your infrastructure
 
 ## Terraform State Credentials
 
@@ -52,14 +54,12 @@ The bootstrap module is used to create an s3 bucket for later terraform runs to 
 
 1. Copy `bucket` from `bucket_credentials` output to the backend block of `staging/providers.tf` and `production/providers.tf`
 
-<% if @github_actions || @circleci_pipeline %>
 ## SpaceDeployers
 
 A [SpaceDeployer](https://cloud.gov/docs/services/cloud-gov-service-account/) account is required to run terraform or
 deploy the application from the CI/CD pipeline. Create a new account by running:
 
 `./create_space_deployer.sh <SPACE_NAME> <ACCOUNT_NAME>`
-<% end %>
 
 ## Set up a new environment manually
 
@@ -112,8 +112,7 @@ Each environment has its own module, which relies on a shared module for everyth
   |- main.tf
   |- providers.tf
   |- secrets.auto.tfvars
-  |- variables.tf<% if @github_actions %>
-  |- .force-action-apply<% end %>
+  |- variables.tf
 - shared/
   |- s3/
      |- main.tf
@@ -138,8 +137,7 @@ In the environment-specific modules:
 - `providers.tf` lists the required providers
 - `main.tf` calls the shared Terraform code, but this is also a place where you can add any other services, resources, etc, which you would like to set up for that environment
 - `variables.tf` lists the variables that will be needed, either to pass through to the child module or for use in this module
-- `secrets.auto.tfvars` is a file which contains the information about the service-key and other secrets that should not be shared<% if @github_actions %>
-- `.force-action-apply` is a file that can be updated to force GitHub Actions to run `terraform apply` during the deploy phase<% end %>
+- `secrets.auto.tfvars` is a file which contains the information about the service-key and other secrets that should not be shared
 
 In the bootstrap module:
 - `providers.tf` lists the required providers
@@ -148,4 +146,3 @@ In the bootstrap module:
 - `run.sh` Helper script to set up a space deployer and run terraform. The terraform action (`show`/`plan`/`apply`/`destroy`) is passed as an argument
 - `teardown_creds.sh` Helper script to remove the space deployer setup as part of `run.sh`
 - `import.sh` Helper script to create a new local state file in case terraform changes are needed
-
