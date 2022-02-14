@@ -110,7 +110,7 @@ ActionCable is included to enable the [Turbo Streams](https://turbo.hotwired.dev
 Add this line to your application's Gemfile:
 
 ```ruby
-gem "rails-template-18f"
+gem "rails_template_18f", group: :development
 ```
 
 And then run:
@@ -119,7 +119,7 @@ And then run:
 
 Or install it yourself as:
 
-  $ gem install rails-template-18f
+  $ gem install rails_template_18f
 
 ### Usage
 
@@ -133,7 +133,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/rahearn/rails-template-18f. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/rahearn/rails-template-18f/blob/main/CODE_OF_CONDUCT.md).
+Bug reports and pull requests are welcome on GitHub at https://github.com/18f/rails-template. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/18f/rails-template/blob/main/CODE_OF_CONDUCT.md).
 
 ## Code of Conduct
 
