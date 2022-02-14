@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "lib/rails_template_18f/version"
+require_relative "lib/rails_template18f/version"
 
 Gem::Specification.new do |spec|
   spec.name = "rails_template_18f"
@@ -32,6 +32,7 @@ Gem::Specification.new do |spec|
   # For more information and examples about making a new gem, checkout our
   # guide at: https://bundler.io/guides/creating_gem.html
   spec.add_dependency "railties", "~> 7.0.0"
+  spec.add_dependency "activesupport", "~> 7.0.0"
 
   spec.add_development_dependency "rspec", "~> 3.11"
   spec.add_development_dependency "ammeter", "~> 1.1"
