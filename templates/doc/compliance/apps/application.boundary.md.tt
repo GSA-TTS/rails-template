@@ -39,16 +39,10 @@ Boundary(aws, "AWS GovCloud") {
 
 
 Boundary(gsa_saas, "GSA-authorized SaaS") {
-    <% if @dap %>
-    System_Ext(dap, "DAP", "Analytics collection")
-    <% end %>
     <% if @newrelic %>
     System_Ext(newrelic, "New Relic", "Monitoring SaaS")
     <% end %>
 }
-<% if @dap %>
-Rel(browser, dap, "reports usage", "https (443)")
-<% end %>
 <% if @newrelic %>
 Rel(app, newrelic, "reports telemetry (ruby agent)", "tcp (443)")
 Rel(browser, newrelic, "reports ux metrics (javascript agent)", "https (443)")
@@ -66,9 +60,6 @@ Person(developer, "Developer", "Application developers")
 Boundary(cicd, "CI/CD Pipeline") {
 }
 
-<% if @dap %>
-Rel(developer, dap, "View traffic statistics", "https GET (443)")
-<% end %>
 <% if @newrelic %>
 Rel(developer, newrelic, "Manage performance", "https (443)")
 <% end %>

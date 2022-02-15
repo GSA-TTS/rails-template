@@ -161,14 +161,6 @@ if @newrelic
   connect_policy << '"https://*.nr-data.net"'
 end
 
-if @dap
-  image_policy << '"https://www.google-analytics.com"'
-  script_policy << '"https://dap.digitalgov.gov"'
-  script_policy << '"https://www.google-analytics.com"'
-  connect_policy << '"https://dap.digitalgov.gov"'
-  connect_policy << '"https://www.google-analytics.com"'
-end
-
 gsub_file csp_initializer, /^#   config.*\|policy\|$.+^#   end$/m, <<EOM
   config.content_security_policy do |policy|
     policy.default_src :self
@@ -442,13 +434,7 @@ EOM
 
 if @dap
   after_bundle do
-    insert_into_file "app/views/layouts/application.html.erb", <<-EODAP, before: /^\s+<\/head>/
-
-    <% if Rails.env.production? %>
-      <!-- We participate in the US government's analytics program. See the data at analytics.usa.gov. -->
-      <%= javascript_include_tag "https://dap.digitalgov.gov/Universal-Federated-Analytics-Min.js?agency=GSA", async: true, id:"_fed_an_ua_tag" %>
-    <% end %>
-    EODAP
+    generate "rails_template18f:dap"
   end
   register_announcement("Digital Analytics Program", "Update the DAP agency code in app/views/layouts/application.html.erb")
 end

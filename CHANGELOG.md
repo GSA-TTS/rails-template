@@ -1,6 +1,7 @@
 ## [Unreleased]
 
 - terraform generator
+- DAP generator
 
 ## [0.1.0] - 2022-02-14
 
