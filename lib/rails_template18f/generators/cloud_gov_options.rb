@@ -2,21 +2,16 @@
 
 module RailsTemplate18f
   module Generators
-    module TerraformOptions
+    module CloudGovOptions
       extend ActiveSupport::Concern
 
       included do
         class_option :cg_org, desc: "cloud.gov organization name"
         class_option :cg_staging, desc: "cloud.gov space name for staging"
         class_option :cg_prod, desc: "cloud.gov space name for production"
-        class_option :terraform, type: :boolean, desc: "Generate actions for planning and applying terraform"
       end
 
       private
-
-      def terraform?
-        options[:terraform].nil? ? terraform_dir_exists? : options[:terraform]
-      end
 
       def cloud_gov_organization
         if options[:cg_org].present?

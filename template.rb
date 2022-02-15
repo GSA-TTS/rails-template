@@ -222,11 +222,10 @@ end
 
 copy_file "lib/tasks/scanning.rake"
 copy_file "env", ".env"
+copy_file "githooks/pre-commit", ".githooks/pre-commit", mode: :preserve
 
 unless skip_git?
   rails_command "credentials:diff --enroll"
-  template "githooks/pre-commit", ".githooks/pre-commit"
-  chmod ".githooks/pre-commit", 0o755
   append_to_file ".gitignore", <<~EOM
 
     # Ignore local dotenv overrides
@@ -377,19 +376,8 @@ after_bundle do
 end
 
 if @terraform
-  directory "terraform", mode: :preserve
-  chmod "terraform/bootstrap/run.sh", 0o755
-  chmod "terraform/bootstrap/teardown_creds.sh", 0o755
-  unless skip_git?
-    append_to_file ".gitignore", <<~EOM
-
-      # Terraform
-      .terraform.lock.hcl
-      **/.terraform/*
-      secrets.auto.tfvars
-      terraform.tfstate
-      terraform.tfstate.backup
-    EOM
+  after_bundle do
+    generate "rails_template18f:terraform"
   end
   if cloud_gov_org_tktk?
     register_announcement("Terraform", <<~EOM)

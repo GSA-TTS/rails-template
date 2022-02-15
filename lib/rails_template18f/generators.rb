@@ -5,6 +5,7 @@ module RailsTemplate18f
     extend ActiveSupport::Autoload
 
     autoload :Base
-    autoload :TerraformOptions
+    autoload :CloudGovOptions
+    autoload :PipelineOptions
   end
 end

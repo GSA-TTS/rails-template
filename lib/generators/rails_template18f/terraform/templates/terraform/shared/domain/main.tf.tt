@@ -19,7 +19,7 @@ data "cloudfoundry_app" "app" {
 ###########################################################################
 # Route must be manually created by an OrgManager before terraform is run:
 #
-# cf create-domain <%= @cloud_gov_organization %> TKTK-production-domain-name
+# cf create-domain <%= cloud_gov_organization %> TKTK-production-domain-name
 ###########################################################################
 data "cloudfoundry_domain" "origin_url" {
   name = var.domain_name

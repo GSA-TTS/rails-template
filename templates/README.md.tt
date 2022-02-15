@@ -101,10 +101,9 @@ Run everything: `bundle exec rake`
 
 When new pages are added to the application, ensure they are added to `./.pa11yci` so that they can be scanned.
 
-### Automatic linting <% if @terraform %>and terraform formatting<% end %>
+### Automatic linting
 
-To enable automatic ruby linting<% if @terraform %> and terraform formatting<% end %> on every `git commit`
-follow the instructions at the top of `.githooks/pre-commit`
+To enable automatic ruby linting on every `git commit` follow the instructions at the top of `.githooks/pre-commit`
 
 ## CI/CD
 
@@ -114,24 +113,16 @@ Each environment has dependencies on a PostgreSQL RDS instance managed by cloud.
 See [cloud.gov docs](https://cloud.gov/docs/services/relational-database/) for information on RDS.
 
 #### Staging
-
 <% if !@github_actions && !@circleci_pipeline %>
-<% if @terraform %>
-Follow the instructions in `terraform/README.md` to create the supporting services.
-<% else %>
 Before the first deploy only, create DB service with `cf create-service aws-rds micro-psql <%= app_name %>-rds-staging`
-<% end %>
+
 `cf push --strategy rolling --vars-file config/deployment/staging.yml --var rails_master_key=$(cat config/master.key)`
 <% end %>
 
 #### Production
-
 <% if !@github_actions && !@circleci_pipeline %>
-<% if @terraform %>
-Follow the instructions in `terraform/README.md` to create the supporting services.
-<% else %>
 Before the first deploy only, create DB service with `cf create-service aws-rds <<SERVICE_PLAN_NAME>> <%= app_name %>-rds-production`
-<% end %>
+
 `cf push --strategy rolling --vars-file config/deployment/production.yml --var rails_master_key=$(cat config/credentials/production.key)`
 <% end %>
 

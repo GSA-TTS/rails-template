@@ -9,9 +9,9 @@ module "s3" {
   cf_api_url      = local.cf_api_url
   cf_user         = var.cf_user
   cf_password     = var.cf_password
-  cf_org_name     = "<%= @cloud_gov_organization %>"
-  cf_space_name   = "<%= @cloud_gov_production_space %>"
-  s3_service_name = local.s3_service_name<% if @cloud_gov_organization == "sandbox-gsa" %>
+  cf_org_name     = "<%= cloud_gov_organization %>"
+  cf_space_name   = "<%= cloud_gov_production_space %>"
+  s3_service_name = local.s3_service_name<% if cloud_gov_organization == "sandbox-gsa" %>
   s3_plan_name    = "basic-sandbox"<% end %>
 }
 

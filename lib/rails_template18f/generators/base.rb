@@ -17,6 +17,16 @@ module RailsTemplate18f
           @source_root ||= File.expand_path("templates", File.dirname(source_path))
         end
       end
+
+      private
+
+      def ruby_version
+        RUBY_VERSION
+      end
+
+      def skip_git?
+        !Dir.exist?(File.expand_path(".git", destination_root))
+      end
     end
   end
 end

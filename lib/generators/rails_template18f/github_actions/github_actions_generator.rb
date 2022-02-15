@@ -6,7 +6,7 @@ module RailsTemplate18f
   module Generators
     class GithubActionsGenerator < ::Rails::Generators::Base
       include Base
-      include TerraformOptions
+      include PipelineOptions
 
       class_option :node_version, desc: "Node version to test against in actions"
 

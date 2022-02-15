@@ -6,7 +6,7 @@ module RailsTemplate18f
   module Generators
     class CircleciGenerator < ::Rails::Generators::Base
       include Base
-      include TerraformOptions
+      include PipelineOptions
 
       desc <<~DESC
         Description:
@@ -100,10 +100,6 @@ EOB
       end
 
       private
-
-      def ruby_version
-        RUBY_VERSION
-      end
 
       def terraform_secret_values
         if terraform?
