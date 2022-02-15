@@ -1,6 +1,6 @@
 locals {
-  cf_org_name      = "<%= @cloud_gov_organization %>"
-  cf_space_name    = "<%= @cloud_gov_staging_space %>"
+  cf_org_name      = "<%= cloud_gov_organization %>"
+  cf_space_name    = "<%= cloud_gov_staging_space %>"
   env              = "staging"
   recursive_delete = true
 }
@@ -17,7 +17,7 @@ module "database" {
   rds_plan_name    = "micro-psql"
 }
 
-<% if !skip_active_storage? %>
+<% if has_active_storage? %>
 module "s3" {
   source = "../shared/s3"
 

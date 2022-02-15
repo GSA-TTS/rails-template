@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
+require "rails/generators"
+
 module RailsTemplate18f
   module Generators
     class GithubActionsGenerator < ::Rails::Generators::Base
-      include ::Rails::Generators::AppName
-      include RailsTemplate18f::TerraformOptions
+      include Base
+      include PipelineOptions
 
       class_option :node_version, desc: "Node version to test against in actions"
 
@@ -12,10 +14,6 @@ module RailsTemplate18f
         Description:
           Install Github Actions workflow files
       DESC
-
-      def self.source_root
-        @source_root ||= File.expand_path("templates", __dir__)
-      end
 
       def install_actions
         directory "github", ".github"
@@ -48,7 +46,7 @@ EOB
         readme_filename = "terraform/README.md"
         insert_into_file readme_filename, "  |- .force-action-apply\n", after: "  |- secrets.auto.tfvars\n"
         insert_into_file readme_filename, <<~EOM, after: /- `secrets.auto.tfvars`.*$/
-          - `.force-action-apply` is a file that can be updated to force GitHub Actions to run `terraform apply` during the deploy phase
+          \n- `.force-action-apply` is a file that can be updated to force GitHub Actions to run `terraform apply` during the deploy phase
         EOM
       end
 

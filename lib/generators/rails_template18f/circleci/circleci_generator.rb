@@ -1,19 +1,17 @@
 # frozen_string_literal: true
 
+require "rails/generators"
+
 module RailsTemplate18f
   module Generators
     class CircleciGenerator < ::Rails::Generators::Base
-      include ::Rails::Generators::AppName
-      include RailsTemplate18f::TerraformOptions
+      include Base
+      include PipelineOptions
 
       desc <<~DESC
         Description:
           Install CircleCI pipeline files
       DESC
-
-      def self.source_root
-        @source_root ||= File.expand_path(File.join(File.dirname(__FILE__), "templates"))
-      end
 
       def install_needed_gems
         gem "rspec_junit_formatter", "~> 0.5", group: :test
