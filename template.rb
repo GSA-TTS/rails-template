@@ -377,7 +377,12 @@ end
 
 if @terraform
   after_bundle do
-    generate "rails_template18f:terraform"
+    generator_arguments = [
+      "--cg-org=#{@cloud_gov_organization}",
+      "--cg-staging=#{@cloud_gov_staging_space}",
+      "--cg-prod=#{@cloud_gov_production_space}"
+    ]
+    generate "rails_template18f:terraform", *generator_arguments
   end
   if cloud_gov_org_tktk?
     register_announcement("Terraform", <<~EOM)
