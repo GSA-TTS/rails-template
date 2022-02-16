@@ -48,24 +48,24 @@ unless Gem::Dependency.new("rails", "~> 7.0.0").match?("rails", Rails.gem_versio
 end
 
 # ask setup questions
-@terraform = yes?("Create terraform files for cloud.gov services? (y/n)")
+terraform = yes?("Create terraform files for cloud.gov services? (y/n)")
 @cloud_gov_organization = ask("What is your cloud.gov organization name? (Leave blank to fill in later)")
 default_staging_space = "staging"
-@cloud_gov_staging_space = ask("What is your cloud.gov staging space name? (Default: #{default_staging_space})")
+cloud_gov_staging_space = ask("What is your cloud.gov staging space name? (Default: #{default_staging_space})")
 default_prod_space = "prod"
-@cloud_gov_production_space = ask("What is your cloud.gov production space name? (Default: #{default_prod_space})")
+cloud_gov_production_space = ask("What is your cloud.gov production space name? (Default: #{default_prod_space})")
 @cloud_gov_organization = "TKTK-cloud.gov-org-name" if @cloud_gov_organization.blank?
-@cloud_gov_staging_space = default_staging_space if @cloud_gov_staging_space.blank?
-@cloud_gov_production_space = default_prod_space if @cloud_gov_production_space.blank?
+cloud_gov_staging_space = default_staging_space if cloud_gov_staging_space.blank?
+cloud_gov_production_space = default_prod_space if cloud_gov_production_space.blank?
 
 @github_actions = yes?("Create Github Actions? (y/n)")
 @circleci_pipeline = yes?("Create CircleCI config? (y/n)")
-@newrelic = yes?("Create FEDRAMP New Relic config files? (y/n)")
-@dap = yes?("If this will be a public site, should we include Digital Analytics Program code? (y/n)")
-@supported_languages = [:en]
-@supported_languages.push(:es) if yes?("Add Spanish to supported locales, with starter es.yml? (y/n)")
-@supported_languages.push(:fr) if yes?("Add French to supported locales, with starter fr.yml? (y/n)")
-@supported_languages.push(:zh) if yes?("Add Simplified Chinese to supported locales, with starter zh.yml? (y/n)")
+newrelic = yes?("Create FEDRAMP New Relic config files? (y/n)")
+dap = yes?("If this will be a public site, should we include Digital Analytics Program code? (y/n)")
+supported_languages = []
+supported_languages.push(:es) if yes?("Add Spanish to supported locales, with starter es.yml? (y/n)")
+supported_languages.push(:fr) if yes?("Add French to supported locales, with starter fr.yml? (y/n)")
+supported_languages.push(:zh) if yes?("Add Simplified Chinese to supported locales, with starter zh.yml? (y/n)")
 
 running_node_version = `node --version`.gsub(/^v/, "").strip
 @node_version = ask("What version of NodeJS are you using? (Default: #{running_node_version})")
@@ -168,7 +168,7 @@ uncomment_lines csp_initializer, "Rails.application"
 uncomment_lines csp_initializer, /end$/
 uncomment_lines csp_initializer, "content_security_policy_nonce"
 
-if @newrelic
+if newrelic
   after_bundle do
     generate "rails_template18f:newrelic"
   end
@@ -185,7 +185,6 @@ gem_group :development, :test do
   gem "brakeman", "~> 5.2"
   gem "bundler-audit", "~> 0.9"
   gem "standard", "~> 1.7"
-  gem "i18n-tasks", "~> 0.9"
 end
 if ENV["RT_DEV"] == "true"
   gem "rails_template_18f", group: :development, path: ENV["PWD"]
@@ -212,26 +211,6 @@ unless skip_git?
     spec/examples.txt
   EOM
 end
-
-# Setup translations
-@supported_languages.each do |language|
-  template "config/locales/#{language}.yml", force: true
-end
-application "config.i18n.available_locales = #{@supported_languages}"
-application "config.i18n.fallbacks = [:en]"
-after_bundle do
-  # Recommended by i18n-tasks
-  run "cp $(i18n-tasks gem-path)/templates/config/i18n-tasks.yml config/"
-end
-insert_into_file "app/helpers/application_helper.rb", <<'EOH', before: /^end$/
-  def format_active_locale(locale_string)
-    link_classes = "usa-nav__link"
-    if locale_string.to_sym == I18n.locale
-      link_classes = "#{link_classes} usa-current"
-    end
-    link_to t("shared.languages.#{locale_string}"), root_path(locale: locale_string), class: link_classes
-  end
-EOH
 
 # setup USWDS
 copy_file "browserslistrc", ".browserslistrc" if webpack?
@@ -305,27 +284,11 @@ after_bundle do
 
   # Setup the PagesController, locale routes, and home (root) route
   generate :controller, "pages", "home", "--skip-routes", "--no-helper", "--no-assets"
+  route "root 'pages#home'"
 
-  if @supported_languages.count > 1
-    locale_switching = <<~EOM
-      around_action :switch_locale
+  # Setup translations
+  generate "rails_template18f:i18n", "--languages=#{supported_languages.join(",")}", "--force"
 
-      def switch_locale(&action)
-        locale = params[:locale] || I18n.default_locale
-        I18n.with_locale(locale, &action)
-      end
-    EOM
-    insert_into_file "app/controllers/application_controller.rb", locale_switching, before: /^end/
-
-    route <<-'EOM'
-      scope "(:locale)", locale: /#{I18n.available_locales.join('|')}/ do
-        # Your application routes here
-        root 'pages#home'
-      end
-    EOM
-  else
-    route "root 'pages#home'"
-  end
   gsub_file "spec/requests/pages_spec.rb", "/pages/home", "/"
   gsub_file "spec/views/pages/home.html.erb_spec.rb", "  pending \"add some examples to (or delete) \#{__FILE__}\"", <<-EOM
   it "displays the gov banner" do
@@ -348,12 +311,12 @@ after_bundle do
   run "cp .gitignore .cfignore" unless skip_git?
 end
 
-if @terraform
+if terraform
   after_bundle do
     generator_arguments = [
       "--cg-org=#{@cloud_gov_organization}",
-      "--cg-staging=#{@cloud_gov_staging_space}",
-      "--cg-prod=#{@cloud_gov_production_space}"
+      "--cg-staging=#{cloud_gov_staging_space}",
+      "--cg-prod=#{cloud_gov_production_space}"
     ]
     generate "rails_template18f:terraform", *generator_arguments
   end
@@ -371,10 +334,10 @@ end
 if @github_actions
   after_bundle do
     generator_arguments = [
-      (@terraform ? "--terraform" : "--no-terraform"),
+      (terraform ? "--terraform" : "--no-terraform"),
       "--cg-org=#{@cloud_gov_organization}",
-      "--cg-staging=#{@cloud_gov_staging_space}",
-      "--cg-prod=#{@cloud_gov_production_space}"
+      "--cg-staging=#{cloud_gov_staging_space}",
+      "--cg-prod=#{cloud_gov_production_space}"
     ]
     generate "rails_template18f:github_actions", *generator_arguments
   end
@@ -391,10 +354,10 @@ end
 if @circleci_pipeline
   after_bundle do
     generator_arguments = [
-      (@terraform ? "--terraform" : "--no-terraform"),
+      (terraform ? "--terraform" : "--no-terraform"),
       "--cg-org=#{@cloud_gov_organization}",
-      "--cg-staging=#{@cloud_gov_staging_space}",
-      "--cg-prod=#{@cloud_gov_production_space}"
+      "--cg-staging=#{cloud_gov_staging_space}",
+      "--cg-prod=#{cloud_gov_production_space}"
     ]
     generate "rails_template18f:circleci", *generator_arguments
   end
@@ -409,7 +372,7 @@ register_announcement("Documentation", <<~EOM)
   * Remember to keep your Logical Data Model up to date in doc/compliance/apps/data.logical.md
 EOM
 
-if @dap
+if dap
   after_bundle do
     generate "rails_template18f:dap"
   end

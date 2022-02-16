@@ -12,11 +12,11 @@ en:
       secure_heading: Secure .gov websites use HTTPS
       us_flag: U.S. Flag
     header:
-      title: <%= app_name.titleize %>
-      menu: Menu
       close: Close
-      primary: Primary navigation
       demo_banner: TEST SITE - Do not use real personal information (demo purposes only) - TEST SITE
+      menu: Menu
+      primary: Primary navigation
+      title: <%= app_name.titleize %>
     languages:
       en: English
       es: Español

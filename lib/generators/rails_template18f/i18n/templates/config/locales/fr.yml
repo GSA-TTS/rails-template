@@ -8,15 +8,12 @@ fr:
       lock: Verrou
       locked_padlock: Verrou fermé
       official_site: Un site web officiel du gouvernement des États-Unis
-      secure_description_html: Un <strong>verrou</strong> (%{lock_icon}) ou
-        <strong>https://</strong> signifie que vous êtes connecté en toute
-        sécurité au site Web .gov. Partagez des informations sensibles
-        uniquement sur des sites Web officiels et sécurisés.
+      secure_description_html: Un <strong>verrou</strong> (%{lock_icon}) ou <strong>https://</strong> signifie que vous êtes connecté en toute sécurité au site Web .gov. Partagez des informations sensibles uniquement sur des sites Web officiels et sécurisés.
       secure_heading: Les sites Web sécurisés .gov utilisent HTTPS
       us_flag: Drapeau américain
     header:
-      menu: Menu
       close: Fermer
-      primary: Navigation primaire
       demo_banner: SITE DE TEST - N’utilisez pas de véritables données personnelles (il s’agit d’une démonstration seulement) - SITE DE TEST
+      menu: Menu
+      primary: Navigation primaire
     skip_link: Passer au contenu principal

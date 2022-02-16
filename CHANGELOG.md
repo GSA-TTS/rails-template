@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+- i18n generator
+
 ## [0.2.0] - 2022-02-16
 
 - terraform generator
