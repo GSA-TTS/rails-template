@@ -97,10 +97,10 @@ ActionCable is included to enable the [Turbo Streams](https://turbo.hotwired.dev
 1. Optionally create Github Actions workflows for testing and cloud.gov deploy
 1. Optionally create terraform modules supporting staging & production cloud.gov spaces
 1. Optionally create CircleCI workflows for testing and cloud.gov deploy
-1. Optionally create [Architecture Decision Records](https://adr.github.io/) for above setup
 1. Optionally create a New Relic config with FEDRAMP-specific host
 1. Optionally configure DAP (Digital Analytics Program)
 1. Optionally add base translation files and routes for Spanish, French, and Simplified Chinese (es.yml, fr.yml, and zh.yml)
+1. Create [Architecture Decision Records](https://adr.github.io/) for above setup
 1. Commit the resulting project with git (unless `--skip-git` is passed)
 
 ## Use for an existing Rails project

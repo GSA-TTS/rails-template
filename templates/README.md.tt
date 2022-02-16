@@ -53,10 +53,9 @@ TBD
 
 The system's Content-Security-Policy header prevents `<script>` and `<style>` tags from working without further
 configuration. Use `<%%= javascript_tag nonce: true %>` for inline javascript.
-<% if @adrs %>
+
 See the [CSP compliant script tag helpers](./doc/adr/0004-rails-csp-compliant-script-tag-helpers.md) ADR for
 more information on setting these up successfully.
-<% end %>
 
 ## Internationalization
 
@@ -141,33 +140,7 @@ Otherwise, they are set as a `((variable))` within `manifest.yml` and the variab
 
 Configuration that changes from staging to production, but is public, should be added to `config/deployment/staging.yml` and `config/deployment/production.yml`
 
-<% if @newrelic %>
-## Monitoring with New Relic
-
-The [New Relic Ruby agent](https://docs.newrelic.com/docs/apm/agents/ruby-agent/getting-started/introduction-new-relic-ruby) has been installed for monitoring this application.
-
-The config lives at `config/newrelic.yml`, and points to a [FEDRAMP version of the New Relic service as its host](https://docs.newrelic.com/docs/security/security-privacy/compliance/fedramp-compliant-endpoints/). To access the metrics dashboard, you will need to be connected to VPN.
-
-### Getting started
-
-To get started sending metrics via New Relic APM:
-1. Replace `<APPNAME>` in `config/newrelic.yml` with what is registered for your application in New Relic
-1. Add your New Relic license key to the Rails credentials with key `new_relic_key`.
-1. Comment out the `agent_enabled: false` line in `config/newrelic.yml`
-1. Add the [Javascript snippet provided by New Relic](https://docs.newrelic.com/docs/browser/browser-monitoring/installation/install-browser-monitoring-agent) into `application.html.erb`. It is recommended to vary this based on environment (i.e. include one snippet for staging and another for production).
-<% end %>
-
-<% if @dap %>
-## Analytics
-
-Digital Analytics Program (DAP) code has been included for the Production environment, associated with GSA.
-
-If <%= app_name.titleize %> is for another agency, update the agency line in `app/views/layouts/application.html.erb`
-<% end %>
-
 ## Documentation
-
-<% if @adrs %>
 
 Architectural Decision Records (ADR) are stored in `doc/adr`
 To create a new ADR, first install [ADR-tools](https://github.com/npryce/adr-tools) if you don't
@@ -178,7 +151,6 @@ Then create the ADR:
 *  `adr new Title Of Architectural Decision`
 
 This will create a new, numbered ADR in the `doc/adr` directory.
-<% end %>
 
 Compliance diagrams are stored in `doc/compliance`. See the README there for more information on
 generating diagram updates.
@@ -188,8 +160,8 @@ generating diagram updates.
 *This will continue to evolve as the project moves forward.*
 
 * Pull down the most recent main before checking out a branch
-* Write your code<% if @adrs %>
-* If a big architectural decision was made, add an ADR<% end %>
+* Write your code
+* If a big architectural decision was made, add an ADR
 * Submit a PR
   * If you added functionality, please add tests.
   * All tests must pass!
