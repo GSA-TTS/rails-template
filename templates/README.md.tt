@@ -53,10 +53,9 @@ TBD
 
 The system's Content-Security-Policy header prevents `<script>` and `<style>` tags from working without further
 configuration. Use `<%%= javascript_tag nonce: true %>` for inline javascript.
-<% if @adrs %>
+
 See the [CSP compliant script tag helpers](./doc/adr/0004-rails-csp-compliant-script-tag-helpers.md) ADR for
 more information on setting these up successfully.
-<% end %>
 
 ## Internationalization
 
@@ -157,8 +156,6 @@ To get started sending metrics via New Relic APM:
 <% end %>
 ## Documentation
 
-<% if @adrs %>
-
 Architectural Decision Records (ADR) are stored in `doc/adr`
 To create a new ADR, first install [ADR-tools](https://github.com/npryce/adr-tools) if you don't
 already have it installed.
@@ -168,7 +165,6 @@ Then create the ADR:
 *  `adr new Title Of Architectural Decision`
 
 This will create a new, numbered ADR in the `doc/adr` directory.
-<% end %>
 
 Compliance diagrams are stored in `doc/compliance`. See the README there for more information on
 generating diagram updates.
@@ -178,8 +174,8 @@ generating diagram updates.
 *This will continue to evolve as the project moves forward.*
 
 * Pull down the most recent main before checking out a branch
-* Write your code<% if @adrs %>
-* If a big architectural decision was made, add an ADR<% end %>
+* Write your code
+* If a big architectural decision was made, add an ADR
 * Submit a PR
   * If you added functionality, please add tests.
   * All tests must pass!

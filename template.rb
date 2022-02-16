@@ -60,7 +60,6 @@ default_prod_space = "prod"
 
 @github_actions = yes?("Create Github Actions? (y/n)")
 @circleci_pipeline = yes?("Create CircleCI config? (y/n)")
-@adrs = yes?("Create initial Architecture Decision Records? (y/n)")
 @newrelic = yes?("Create FEDRAMP New Relic config files? (y/n)")
 @dap = yes?("If this will be a public site, should we include Digital Analytics Program code? (y/n)")
 @supported_languages = [:en]
@@ -422,11 +421,7 @@ if @circleci_pipeline
   EOM
 end
 
-if @adrs
-  directory "doc"
-else
-  directory "doc/compliance"
-end
+directory "doc"
 register_announcement("Documentation", <<~EOM)
   * Include a short description of your application in doc/compliance/apps/application.boundary.md
   * Remember to keep your Logical Data Model up to date in doc/compliance/apps/data.logical.md
