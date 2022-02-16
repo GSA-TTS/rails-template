@@ -24,10 +24,28 @@ module RailsTemplate18f
       end
 
       def update_readme
-        insert_into_file "README.md", readme_cicd, after: "## CI/CD\n"
-        insert_into_file "README.md", readme_staging_deploy, after: "#### Staging\n"
-        insert_into_file "README.md", readme_prod_deploy, after: "#### Production\n"
-        insert_into_file "README.md", readme_credentials, after: "#### Credentials and other Secrets\n"
+        if file_content("README.md").match?(/^## CI\/CD$/)
+          insert_into_file "README.md", readme_cicd, after: "## CI/CD\n"
+          insert_into_file "README.md", readme_staging_deploy, after: "#### Staging\n"
+          insert_into_file "README.md", readme_prod_deploy, after: "#### Production\n"
+          insert_into_file "README.md", readme_credentials, after: "#### Credentials and other Secrets\n"
+        else
+          append_to_file "README.md", <<~EOM
+            ## CI/CD
+            #{readme_cicd}
+
+            ### Deployment
+
+            #### Staging
+            #{readme_staging_deploy}
+
+            #### Production
+            #{readme_prod_deploy}
+
+            #### Credentials and other Secrets
+            #{readme_credentials}
+          EOM
+        end
       end
 
       def update_boundary_diagram

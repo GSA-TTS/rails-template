@@ -15,7 +15,7 @@ module RailsTemplate18f
       def update_content_security_policy
         csp_file = "config/initializers/content_security_policy.rb"
         gsub_file csp_file, /(policy.script_src .*)$/, '\1, "https://js-agent.newrelic.com", "https://*.nr-data.net"'
-        if File.read(File.expand_path(csp_file, destination_root)).match?(/policy.connect_src/)
+        if file_content(csp_file).match?(/policy.connect_src/)
           gsub_file csp_file, /(policy.connect_src .*)$/, '\1, "https://*.nr-data.net"'
         else
           gsub_file csp_file, /((#?)(\s+)policy.script_src .*)$/, "\\1\n\\2\\3policy.connect_src :self, \"https://*.nr-data.net\""
@@ -35,7 +35,12 @@ module RailsTemplate18f
       end
 
       def update_readme
-        insert_into_file "README.md", readme, before: /^## Documentation$/
+        insertion_regex = /^## Documentation$/
+        if file_content("README.md").match?(insertion_regex)
+          insert_into_file "README.md", readme, before: insertion_regex
+        else
+          append_to_file "README.md", readme
+        end
       end
 
       def update_boundary_diagram

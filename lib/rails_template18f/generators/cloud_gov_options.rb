@@ -17,7 +17,7 @@ module RailsTemplate18f
         if options[:cg_org].present?
           return options[:cg_org]
         elsif terraform_dir_exists?
-          staging_main = File.read(terraform_path.join("staging", "main.tf"))
+          staging_main = file_content("terraform/staging/main.tf")
           if (matches = staging_main.match(/cf_org_name\s+= "(?<org_name>.*)"/))
             return matches[:org_name]
           end
@@ -29,7 +29,7 @@ module RailsTemplate18f
         if options[:cg_staging].present?
           return options[:cg_staging]
         elsif terraform_dir_exists?
-          staging_main = File.read(terraform_path.join("staging", "main.tf"))
+          staging_main = file_content("terraform/staging/main.tf")
           if (matches = staging_main.match(/cf_space_name\s+= "(?<space_name>.*)"/))
             return matches[:space_name]
           end
@@ -41,7 +41,7 @@ module RailsTemplate18f
         if options[:cg_prod].present?
           return options[:cg_prod]
         elsif terraform_dir_exists?
-          prod_main = File.read(terraform_path.join("production", "main.tf"))
+          prod_main = file_content("terraform/production/main.tf")
           if (matches = prod_main.match(/cf_space_name\s+= "(?<space_name>.*)"/))
             return matches[:space_name]
           end
@@ -49,12 +49,8 @@ module RailsTemplate18f
         "prod"
       end
 
-      def terraform_path
-        Pathname.new File.expand_path("terraform", destination_root)
-      end
-
       def terraform_dir_exists?
-        Dir.exist? terraform_path
+        Dir.exist? File.expand_path("terraform", destination_root)
       end
     end
   end

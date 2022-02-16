@@ -20,6 +20,10 @@ module RailsTemplate18f
 
       private
 
+      def file_content(filename)
+        File.read(File.expand_path(filename, destination_root))
+      end
+
       def ruby_version
         RUBY_VERSION
       end
