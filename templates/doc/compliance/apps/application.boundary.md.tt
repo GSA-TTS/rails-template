@@ -11,6 +11,7 @@ LAYOUT_WITH_LEGEND()
 title application boundary view
 
 Person_Ext(public, "Public", "A member of the public")
+Person(developer, "Developer", "Application developers")
 
 Boundary(device, "Computing Device", "Windows, OS X, Linux, iOS, Android"){
     System_Ext(browser, "Web Browser", "any modern version")
@@ -39,14 +40,10 @@ Boundary(aws, "AWS GovCloud") {
 
 
 Boundary(gsa_saas, "GSA-authorized SaaS") {
-    <% if @newrelic %>
-    System_Ext(newrelic, "New Relic", "Monitoring SaaS")
-    <% end %>
 }
-<% if @newrelic %>
-Rel(app, newrelic, "reports telemetry (ruby agent)", "tcp (443)")
-Rel(browser, newrelic, "reports ux metrics (javascript agent)", "https (443)")
-<% end %>
+
+Boundary(cicd, "CI/CD Pipeline") {
+}
 
 Rel(browser, aws_alb, "request info, submit requests", "https GET/POST (443)")
 Rel(aws_alb, cloudgov_router, "proxies requests", "https GET/POST (443)")
@@ -54,14 +51,6 @@ Rel(cloudgov_router, app, "proxies requests", "https GET/POST (443)")
 Rel(app, app_db, "reads/writes primary data", "psql (5432)")
 <% if !skip_active_storage? %>
 Rel(app, app_s3, "reads/writes file data", "https (443)")
-<% end %>
-
-Person(developer, "Developer", "Application developers")
-Boundary(cicd, "CI/CD Pipeline") {
-}
-
-<% if @newrelic %>
-Rel(developer, newrelic, "Manage performance", "https (443)")
 <% end %>
 @enduml
 ```

@@ -150,26 +150,16 @@ else
   "policy.style_src :self"
 end
 
-script_policy = [":self"]
-connect_policy = [":self"]
-image_policy = [":self", ":data"]
-
-if @newrelic
-  script_policy << '"https://js-agent.newrelic.com"'
-  script_policy << '"https://*.nr-data.net"'
-  connect_policy << '"https://*.nr-data.net"'
-end
-
 gsub_file csp_initializer, /^#   config.*\|policy\|$.+^#   end$/m, <<EOM
   config.content_security_policy do |policy|
     policy.default_src :self
     policy.font_src :self
     policy.form_action :self
     policy.frame_ancestors :none
-    policy.img_src #{image_policy.join(", ")}
+    policy.img_src :self, :data
     policy.object_src :none
-    policy.script_src #{script_policy.join(", ")}
-    policy.connect_src #{connect_policy.join(", ")}
+    policy.script_src :self
+    policy.connect_src :self
     #{style_policy}
   end
 EOM
@@ -179,21 +169,13 @@ uncomment_lines csp_initializer, /end$/
 uncomment_lines csp_initializer, "content_security_policy_nonce"
 
 if @newrelic
-  gem "newrelic_rpm", "~> 8.4"
-  copy_file "config/newrelic.yml"
-
+  after_bundle do
+    generate "rails_template18f:newrelic"
+  end
   register_announcement("New Relic", <<~EOM)
     A New Relic config file has been written to `config/newrelic.yml`
 
-    To get started sending metrics via New Relic APM:
-    1. Replace `<APPNAME>` with what is registered for your application in New Relic
-    2. Add your New Relic license key to the Rails credentials with key `new_relic_key`.
-    3. Comment out the `agent_enabled: false` line
-
-    To enable browser monitoring:
-    4. Embed the Javascript snippet provided  by New Relic into `application.html.erb`.
-    It is recommended to vary this based on environment  (i.e. include one snippet
-    for staging and another for production).
+    See instructions in README to get started sending data to New Relic
   EOM
 end
 

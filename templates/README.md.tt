@@ -139,21 +139,7 @@ Otherwise, they are set as a `((variable))` within `manifest.yml` and the variab
 #### Non-secrets
 
 Configuration that changes from staging to production, but is public, should be added to `config/deployment/staging.yml` and `config/deployment/production.yml`
-<% if @newrelic %>
-## Monitoring with New Relic
 
-The [New Relic Ruby agent](https://docs.newrelic.com/docs/apm/agents/ruby-agent/getting-started/introduction-new-relic-ruby) has been installed for monitoring this application.
-
-The config lives at `config/newrelic.yml`, and points to a [FEDRAMP version of the New Relic service as its host](https://docs.newrelic.com/docs/security/security-privacy/compliance/fedramp-compliant-endpoints/). To access the metrics dashboard, you will need to be connected to VPN.
-
-### Getting started
-
-To get started sending metrics via New Relic APM:
-1. Replace `<APPNAME>` in `config/newrelic.yml` with what is registered for your application in New Relic
-1. Add your New Relic license key to the Rails credentials with key `new_relic_key`.
-1. Comment out the `agent_enabled: false` line in `config/newrelic.yml`
-1. Add the [Javascript snippet provided by New Relic](https://docs.newrelic.com/docs/browser/browser-monitoring/installation/install-browser-monitoring-agent) into `application.html.erb`. It is recommended to vary this based on environment (i.e. include one snippet for staging and another for production).
-<% end %>
 ## Documentation
 
 Architectural Decision Records (ADR) are stored in `doc/adr`

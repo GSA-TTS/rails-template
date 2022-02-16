@@ -9,5 +9,6 @@ def source_paths
 end
 
 template "README.md", force: true
+template "manifest.yml"
 template "doc/compliance/apps/application.boundary.md"
 copy_file "githooks/pre-commit", ".githooks/pre-commit", mode: :preserve
