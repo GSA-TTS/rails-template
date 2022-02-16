@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [0.2.0] - 2022-02-16
+
 - terraform generator
 - DAP generator
 - Newrelic generator
