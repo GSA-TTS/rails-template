@@ -28,6 +28,12 @@ module RailsTemplate18f
             run "cp $(i18n-tasks gem-path)/templates/rspec/i18n_spec.rb spec/"
           end
         end
+        insert_into_file "config/i18n-tasks.yml", "\n#{indent("- app/assets/builds", 4)}", after: "exclude:"
+        uncomment_lines "config/i18n-tasks.yml", "ignore_missing:"
+        insert_into_file "config/i18n-tasks.yml", indent(<<~EOM), after: "ignore_missing:\n"
+          - 'shared.languages.*'
+          - 'shared.header.{title,close,demo_banner,menu}'
+        EOM
       end
 
       def install_translations
