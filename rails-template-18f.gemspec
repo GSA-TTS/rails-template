@@ -33,6 +33,7 @@ Gem::Specification.new do |spec|
   # guide at: https://bundler.io/guides/creating_gem.html
   spec.add_dependency "railties", "~> 7.0.0"
   spec.add_dependency "activesupport", "~> 7.0.0"
+  spec.add_dependency "thor", "~> 1.0"
 
   spec.add_development_dependency "rspec", "~> 3.11"
   spec.add_development_dependency "ammeter", "~> 1.1"
