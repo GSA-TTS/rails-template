@@ -1,0 +1,30 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+$gem_path = File.expand_path('..', __dir__)
+
+require "thor"
+
+class CLI < Thor
+  include Thor::Actions
+
+  desc "new APP_DIRECTORY [options] [rails new arguments]", "Run rails new with 18F flavor"
+  option :hotwire, type: :boolean, default: false, desc: "Enable hotwire JS framework"
+  long_desc <<-LONGDESC
+    Create a new rails application in <APP_DIRECTORY> as customized by
+
+    * railsrc: https://github.com/18F/rails-template/blob/main/railsrc
+
+    * template.rb: https://github.com/18F/rails-template/blob/main/template.rb
+
+    with --hotwire option, includes the Hotwire JS framework
+
+    all other arguments will be passed as-is to `rails new`
+  LONGDESC
+  def new(app_directory, *rails_arguments)
+    railsrc = options[:hotwire] ? "railsrc-hotwire" : "railsrc"
+    run "rails new #{app_directory} --rc=#{File.join($gem_path, railsrc)} #{rails_arguments.join(" ")}"
+  end
+end
+
+CLI.start(ARGV)
