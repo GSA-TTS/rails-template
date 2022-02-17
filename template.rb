@@ -168,17 +168,7 @@ uncomment_lines csp_initializer, "Rails.application"
 uncomment_lines csp_initializer, /end$/
 uncomment_lines csp_initializer, "content_security_policy_nonce"
 
-if newrelic
-  after_bundle do
-    generate "rails_template18f:newrelic"
-  end
-  register_announcement("New Relic", <<~EOM)
-    A New Relic config file has been written to `config/newrelic.yml`
-
-    See instructions in README to get started sending data to New Relic
-  EOM
-end
-
+# install development & testing gems
 gem_group :development, :test do
   gem "rspec-rails", "~> 5.1"
   gem "dotenv-rails", "~> 2.7"
@@ -212,7 +202,7 @@ unless skip_git?
   EOM
 end
 
-# setup USWDS
+# setup USWDS and asset pipeline
 copy_file "browserslistrc", ".browserslistrc" if webpack?
 uncomment_lines "Gemfile", "sassc-rails" # use sassc-rails for asset minification in prod
 after_bundle do
@@ -264,7 +254,7 @@ after_bundle do
     @import "uswds-settings.scss";
     @import "../../../node_modules/uswds/dist/scss/uswds.scss";
   EOCSS
-  gsub_file "app/views/layouts/application.html.erb", "<html>", "<html lang=\"en\">"
+  gsub_file "app/views/layouts/application.html.erb", "<html>", '<html lang="<%= I18n.locale %>">'
   gsub_file "app/views/layouts/application.html.erb", /^\s+<%= yield %>/, <<-EOHTML
     <%= render "application/usa_banner" %>
     <%= render "application/header" %>
@@ -279,15 +269,13 @@ end
 directory "app/views/application"
 
 after_bundle do
+  # install and configure RSpec
   generate "rspec:install"
   gsub_file "spec/spec_helper.rb", /^=(begin|end)$/, ""
 
-  # Setup the PagesController, locale routes, and home (root) route
+  # Setup the PagesController and home (root) route
   generate :controller, "pages", "home", "--skip-routes", "--no-helper", "--no-assets"
   route "root 'pages#home'"
-
-  # Setup translations
-  generate "rails_template18f:i18n", "--languages=#{supported_languages.join(",")}", "--force"
 
   gsub_file "spec/requests/pages_spec.rb", "/pages/home", "/"
   gsub_file "spec/views/pages/home.html.erb_spec.rb", "  pending \"add some examples to (or delete) \#{__FILE__}\"", <<-EOM
@@ -297,19 +285,39 @@ after_bundle do
   end
   EOM
 
-  if run_db_setup
-    rails_command "db:create"
-    rails_command "db:migrate"
+  # Setup translations
+  generate "rails_template18f:i18n", "--languages=#{supported_languages.join(",")}", "--force"
+end
+
+# install ADRs and compliance documentation
+directory "doc"
+register_announcement("Documentation", <<~EOM)
+  * Include a short description of your application in doc/compliance/apps/application.boundary.md
+  * Remember to keep your Logical Data Model up to date in doc/compliance/apps/data.logical.md
+EOM
+
+if newrelic
+  after_bundle do
+    generate "rails_template18f:newrelic"
   end
+  register_announcement("New Relic", <<~EOM)
+    A New Relic config file has been written to `config/newrelic.yml`
+
+    See instructions in README to get started sending data to New Relic
+  EOM
+end
+
+if dap
+  after_bundle do
+    generate "rails_template18f:dap"
+  end
+  register_announcement("Digital Analytics Program", "Update the DAP agency code in app/views/layouts/application.html.erb")
 end
 
 # infrastructure & deploy
 template "manifest.yml"
 copy_file "lib/tasks/cf.rake"
 directory "config/deployment"
-after_bundle do
-  run "cp .gitignore .cfignore" unless skip_git?
-end
 
 if terraform
   after_bundle do
@@ -366,19 +374,6 @@ if @circleci_pipeline
   EOM
 end
 
-directory "doc"
-register_announcement("Documentation", <<~EOM)
-  * Include a short description of your application in doc/compliance/apps/application.boundary.md
-  * Remember to keep your Logical Data Model up to date in doc/compliance/apps/data.logical.md
-EOM
-
-if dap
-  after_bundle do
-    generate "rails_template18f:dap"
-  end
-  register_announcement("Digital Analytics Program", "Update the DAP agency code in app/views/layouts/application.html.erb")
-end
-
 # setup production credentials file
 require "rails/generators"
 require "rails/generators/rails/encryption_key_file/encryption_key_file_generator"
@@ -407,6 +402,11 @@ EOM
 
 # ensure this is the very last step
 after_bundle do
+  if run_db_setup
+    rails_command "db:create"
+    rails_command "db:migrate"
+  end
+
   # x86_64-linux is required to install gems on any linux system such as cloud.gov or CI pipelines
   run "bundle lock --add-platform x86_64-linux"
 
@@ -416,10 +416,11 @@ after_bundle do
   run "bundle exec standardrb --fix"
 
   unless skip_git?
+    run "cp .gitignore .cfignore"
     git add: "."
     git commit: "-a -m 'Initial commit'"
   end
 
-  # Post-install announcement
+  # Post-install announcements
   print_announcements
 end
