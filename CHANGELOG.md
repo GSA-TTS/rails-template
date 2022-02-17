@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [0.3.0] - 2022-02-17
+
 - i18n generator
 - helper script to run rails new without cloning repo
 
