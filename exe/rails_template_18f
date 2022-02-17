@@ -1,8 +1,6 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-$gem_path = File.expand_path('..', __dir__)
-
 require "thor"
 
 class CLI < Thor
@@ -22,8 +20,9 @@ class CLI < Thor
     all other arguments will be passed as-is to `rails new`
   LONGDESC
   def new(app_directory, *rails_arguments)
+    gem_path = File.expand_path("..", __dir__)
     railsrc = options[:hotwire] ? "railsrc-hotwire" : "railsrc"
-    run "rails new #{app_directory} --rc=#{File.join($gem_path, railsrc)} #{rails_arguments.join(" ")}"
+    run "rails new #{app_directory} --rc=#{File.join(gem_path, railsrc)} --template=#{File.join(gem_path, "template.rb")} #{rails_arguments.join(" ")}"
   end
 end
 

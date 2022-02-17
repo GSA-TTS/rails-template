@@ -4,6 +4,7 @@ PATH
     rails_template_18f (0.2.0)
       activesupport (~> 7.0.0)
       railties (~> 7.0.0)
+      thor (~> 1.0)
 
 GEM
   remote: https://rubygems.org/
