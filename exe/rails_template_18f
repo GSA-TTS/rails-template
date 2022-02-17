@@ -2,6 +2,7 @@
 # frozen_string_literal: true
 
 require "thor"
+require_relative "../lib/rails_template18f/version"
 
 class CLI < Thor
   include Thor::Actions
@@ -23,6 +24,11 @@ class CLI < Thor
     gem_path = File.expand_path("..", __dir__)
     railsrc = options[:hotwire] ? "railsrc-hotwire" : "railsrc"
     run "rails new #{app_directory} --rc=#{File.join(gem_path, railsrc)} --template=#{File.join(gem_path, "template.rb")} #{rails_arguments.join(" ")}"
+  end
+
+  desc "version", "Output gem version"
+  def version
+    puts RailsTemplate18f::VERSION
   end
 end
 
