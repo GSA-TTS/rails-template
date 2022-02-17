@@ -30,6 +30,10 @@ class CLI < Thor
   def version
     puts RailsTemplate18f::VERSION
   end
+
+  def self.exit_on_failure?
+    true
+  end
 end
 
 CLI.start(ARGV)
