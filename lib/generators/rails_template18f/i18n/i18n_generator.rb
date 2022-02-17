@@ -46,8 +46,13 @@ module RailsTemplate18f
       end
 
       def configure_i18n
-        application "config.i18n.available_locales = #{supported_languages}"
         application "config.i18n.fallbacks = [:en]"
+        available_regex = /^(\s*config.i18n.available_locales).*$/
+        if file_content("config/application.rb").match?(available_regex)
+          gsub_file "config/application.rb", available_regex, "\\1 = #{supported_languages}"
+        else
+          application "config.i18n.available_locales = #{supported_languages}"
+        end
       end
 
       def install_nav_helper
