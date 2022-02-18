@@ -31,6 +31,7 @@ Boundary(aws, "AWS GovCloud") {
                 Container(app, "<&layers> <%= app_name.titleize %>", "Ruby <%= @ruby_version %>, Rails <%= Rails.version %>", "TKTK Application Description")
                 ContainerDb(app_db, "Application DB", "AWS RDS (PostgreSQL)", "Primary data storage")
                 <% if !skip_active_storage? %>
+                Container(clamav, "File Scanning API", "ClamAV", "Internal application for scanning user uploads")
                 ContainerDb(app_s3, "File Storage", "AWS S3", "User-uploaded file storage")
                 <% end %>
             }
