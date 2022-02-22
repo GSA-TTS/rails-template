@@ -349,6 +349,12 @@ if !skip_active_job?
   end
 end
 
+if !skip_active_storage?
+  after_bundle do
+    generate "rails_template18f:clamav"
+  end
+end
+
 if @github_actions
   after_bundle do
     generator_arguments = [

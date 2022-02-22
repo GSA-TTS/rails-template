@@ -31,6 +31,14 @@ module RailsTemplate18f
       def skip_git?
         !Dir.exist?(File.expand_path(".git", destination_root))
       end
+
+      def has_active_job?
+        defined?(::ActiveJob)
+      end
+
+      def has_active_storage?
+        defined?(::ActiveStorage)
+      end
     end
   end
 end
