@@ -12,6 +12,10 @@ def cloud_gov_production_space
   "prod"
 end
 
+def has_active_job?
+  false
+end
+
 def has_active_storage?
   false
 end
