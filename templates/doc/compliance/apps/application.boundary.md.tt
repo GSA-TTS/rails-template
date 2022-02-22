@@ -30,6 +30,10 @@ Boundary(aws, "AWS GovCloud") {
             System_Boundary(inventory, "Application") {
                 Container(app, "<&layers> <%= app_name.titleize %>", "Ruby <%= @ruby_version %>, Rails <%= Rails.version %>", "TKTK Application Description")
                 ContainerDb(app_db, "Application DB", "AWS RDS (PostgreSQL)", "Primary data storage")
+                <% if !skip_active_job? %>
+                Container(worker, "<&layers> Sidekiq workers", "Ruby <%= @ruby_version %>, Sidekiq", "Perform background work and data processing")
+                ContainerDb(redis, "Redis Database", "AWS ElastiCache (Redis)", "Background job queue")
+                <% end %>
                 <% if !skip_active_storage? %>
                 ContainerDb(app_s3, "File Storage", "AWS S3", "User-uploaded file storage")
                 <% end %>
@@ -49,6 +53,11 @@ Rel(browser, aws_alb, "request info, submit requests", "https GET/POST (443)")
 Rel(aws_alb, cloudgov_router, "proxies requests", "https GET/POST (443)")
 Rel(cloudgov_router, app, "proxies requests", "https GET/POST (443)")
 Rel(app, app_db, "reads/writes primary data", "psql (5432)")
+<% if !skip_active_job? %>
+Rel(app, redis, "enqueue job parameters", "redis")
+Rel(worker, redis, "dequeues job parameters", "redis")
+Rel(worker, app_db, "reads/writes primary data", "psql (5432)")
+<% end %>
 <% if !skip_active_storage? %>
 Rel(app, app_s3, "reads/writes file data", "https (443)")
 <% end %>

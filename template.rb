@@ -10,6 +10,10 @@ def skip_git?
   !!options[:skip_git]
 end
 
+def skip_active_job?
+  !!options[:skip_active_job]
+end
+
 def webpack?
   adjusted_javascript_option == "webpack"
 end
@@ -337,6 +341,12 @@ if terraform
     EOM
   end
   register_announcement("Terraform", "Run the bootstrap script and update the appropriate CI/CD environment variables defined in the Deployment section of the README")
+end
+
+if !skip_active_job?
+  after_bundle do
+    generate "rails_template18f:sidekiq"
+  end
 end
 
 if @github_actions
