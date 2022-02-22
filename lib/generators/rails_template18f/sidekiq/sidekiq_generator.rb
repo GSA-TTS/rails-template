@@ -49,6 +49,20 @@ module RailsTemplate18f
           end
         EOR
       end
+
+      def update_boundary_diagram
+        boundary_filename = "doc/compliance/apps/application.boundary.md"
+
+        insert_into_file boundary_filename, indent(<<~EOB, 16), after: /ContainerDb\(app_db.*$\n/
+          Container(worker, "<&layers> Sidekiq workers", "Ruby <%= @ruby_version %>, Sidekiq", "Perform background work and data processing")
+          ContainerDb(redis, "Redis Database", "AWS ElastiCache (Redis)", "Background job queue")
+        EOB
+        insert_into_file boundary_filename, <<~EOB, before: "@enduml"
+          Rel(app, redis, "enqueue job parameters", "redis")
+          Rel(worker, redis, "dequeues job parameters", "redis")
+          Rel(worker, app_db, "reads/writes primary data", "psql (5432)")
+        EOB
+      end
     end
   end
 end
