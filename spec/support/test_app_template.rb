@@ -22,4 +22,4 @@ template "doc/compliance/apps/application.boundary.md"
 copy_file "githooks/pre-commit", ".githooks/pre-commit", mode: :preserve
 run "mkdir spec"
 directory "config/deployment"
-create_file "Procfile.dev", "web: rails server"
+create_file "Procfile.dev", "web: rails server\n"

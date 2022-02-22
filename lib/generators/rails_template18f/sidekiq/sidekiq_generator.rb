@@ -17,7 +17,7 @@ module RailsTemplate18f
       end
 
       def configure_server_runner
-        append_to_file "Procfile.dev", "\nworker: bundle exec sidekiq"
+        append_to_file "Procfile.dev", "worker: bundle exec sidekiq"
         insert_into_file "manifest.yml", indent(<<~EOYAML), after: /processes:$\n/
           - type: worker
             instances: ((worker_instances))
