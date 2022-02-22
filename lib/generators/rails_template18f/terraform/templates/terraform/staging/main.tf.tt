@@ -16,7 +16,19 @@ module "database" {
   recursive_delete = local.recursive_delete
   rds_plan_name    = "micro-psql"
 }
+<% if has_active_job? %>
+module "redis" {
+  source = "../shared/redis"
 
+  cf_user          = var.cf_user
+  cf_password      = var.cf_password
+  cf_org_name      = local.cf_org_name
+  cf_space_name    = local.cf_space_name
+  env              = local.env
+  recursive_delete = local.recursive_delete
+  redis_plan_name  = "redis-dev"
+}
+<% end %>
 <% if has_active_storage? %>
 module "s3" {
   source = "../shared/s3"

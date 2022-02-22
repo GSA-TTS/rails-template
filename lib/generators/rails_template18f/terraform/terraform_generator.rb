@@ -87,6 +87,10 @@ module RailsTemplate18f
         false
       end
 
+      def has_active_job?
+        defined?(::ActiveJob)
+      end
+
       def has_active_storage?
         defined?(::ActiveStorage)
       end

@@ -8,8 +8,18 @@ def source_paths
   ]
 end
 
+def skip_active_job?
+  false
+end
+
+def skip_active_storage?
+  true
+end
+
 template "README.md", force: true
 template "manifest.yml"
 template "doc/compliance/apps/application.boundary.md"
 copy_file "githooks/pre-commit", ".githooks/pre-commit", mode: :preserve
 run "mkdir spec"
+directory "config/deployment"
+create_file "Procfile.dev", "web: rails server\n"
