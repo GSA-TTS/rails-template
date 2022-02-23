@@ -4,7 +4,7 @@ require "rails/generators"
 
 module RailsTemplate18f
   module Generators
-    class ClamavGenerator < ::Rails::Generators::Base
+    class ActiveStorageGenerator < ::Rails::Generators::Base
       include Base
 
       desc <<~DESC
@@ -12,7 +12,7 @@ module RailsTemplate18f
           Document use of Clamav as ActiveStorage scanner
       DESC
 
-      def configure_local_runner
+      def configure_local_clamav_runner
         append_to_file "Procfile.dev", "clamav: docker run --rm -p 9443:9443 ajilaag/clamav-rest:20211229\n"
       end
 

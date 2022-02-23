@@ -351,7 +351,7 @@ end
 
 if !skip_active_storage?
   after_bundle do
-    generate "rails_template18f:clamav"
+    generate "rails_template18f:active_storage"
   end
 end
 
