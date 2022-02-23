@@ -16,6 +16,26 @@ RSpec.describe RailsTemplate18f::Generators::ActiveStorageGenerator, type: :gene
     run_generator
   end
 
+  it "installs faraday" do
+    run_generator
+    expect(file("Gemfile")).to contain('gem "faraday", "~> 2.2"')
+    expect(file("Gemfile")).to contain('gem "faraday-multipart", "~> 1.0"')
+  end
+
+  it "copies the file upload job and model" do
+    run_generator
+    expect(file("app/models/file_upload.rb")).to exist
+    expect(file("spec/models/file_upload_spec.rb")).to exist
+    expect(file("app/jobs/file_scan_job.rb")).to exist
+    expect(file("spec/jobs/file_scan_job_spec.rb")).to exist
+  end
+
+  it "configures the env var" do
+    run_generator
+    expect(file(".env")).to contain("CLAMAV_API_URL=https://localhost:9443/")
+    expect(file("manifest.yml")).to contain("CLAMAV_API_URL: \"https://tmp-clamapi-((env)).apps.internal:9443/")
+  end
+
   it "updates the boundary diagram" do
     run_generator
     expect(file("doc/compliance/apps/application.boundary.md")).to contain('Container(clamav, "File Scanning API", "ClamAV", "Internal application for scanning user uploads")')

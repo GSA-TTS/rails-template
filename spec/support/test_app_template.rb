@@ -17,6 +17,7 @@ def skip_active_storage?
 end
 
 template "README.md", force: true
+copy_file "env", ".env"
 template "manifest.yml"
 directory "doc"
 copy_file "githooks/pre-commit", ".githooks/pre-commit", mode: :preserve

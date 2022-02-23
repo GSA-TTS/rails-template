@@ -24,6 +24,7 @@ module RailsTemplate18f
             memory: ((worker_memory))
             command: bundle exec sidekiq
         EOYAML
+        insert_into_file "manifest.yml", "\n  - #{app_name}-redis-((env))", after: "services:"
         inside "config/deployment" do
           append_to_file "staging.yml", <<~EOYAML
             worker_instances: 1

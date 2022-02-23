@@ -12,12 +12,37 @@ module RailsTemplate18f
           Document use of Clamav as ActiveStorage scanner
       DESC
 
+      def run_active_storage_install
+        rails_command "active_storage:install"
+      end
+
+      def install_faraday
+        gem "faraday", "~> 2.2"
+        gem "faraday-multipart", "~> 1.0"
+      end
+
+      def create_scanned_upload_model_and_job
+        generate :migration, "CreateFileUploads", "file:attachment", "record:references{polymorphic}", "scan_status:string"
+        migration_file = Dir.glob(File.expand_path(File.join("db", "migrate", "[0-9]*_*.rb"), destination_root)).grep(/\d+_create_file_uploads.rb$/).first
+        unless migration_file.nil?
+          gsub_file migration_file, ":scan_status", ":scan_status, null: false, default: \"uploaded\""
+        end
+        directory "app"
+        directory "spec"
+      end
+
       def configure_local_clamav_runner
         append_to_file "Procfile.dev", "clamav: docker run --rm -p 9443:9443 ajilaag/clamav-rest:20211229\n"
       end
 
-      def run_active_storage_install
-        rails_command "active_storage:install"
+      def configure_clamav_env_var
+        append_to_file ".env", <<~EOM
+
+
+          # CLAMAV_API_URL tells FileScanJob where to send files for virus scans
+          CLAMAV_API_URL=https://localhost:9443/
+        EOM
+        insert_into_file "manifest.yml", "    CLAMAV_API_URL: \"https://#{app_name}-clamapi-((env)).apps.internal:9443/\"\n", before: /^\s+processes:/
       end
 
       def update_boundary_diagram
@@ -53,6 +78,12 @@ module RailsTemplate18f
       no_tasks do
         def data_model_uml
           <<~UML
+            class file_uploads {
+              * id : bigint <<generated>>
+              * scan_status : string
+              * record_id : bigint
+              * record_type : string
+            }
             class active_storage_attachments {
               * id : bigint <<generated>>
               * name : string
@@ -76,6 +107,7 @@ module RailsTemplate18f
               * id : bigint <<generated>>
               * variation_digest : string
             }
+            file_uploads ||--|| active_storage_attachments
             active_storage_attachments ||--|{ active_storage_blobs
             active_storage_variant_records ||--|{ active_storage_blobs
           UML
