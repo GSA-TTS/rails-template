@@ -17,7 +17,7 @@ module RailsTemplate18f
       end
 
       def configure_server_runner
-        append_to_file "Procfile.dev", "worker: bundle exec sidekiq"
+        append_to_file "Procfile.dev", "worker: bundle exec sidekiq\n"
         insert_into_file "manifest.yml", indent(<<~EOYAML), after: /processes:$\n/
           - type: worker
             instances: ((worker_instances))
@@ -54,7 +54,7 @@ module RailsTemplate18f
         boundary_filename = "doc/compliance/apps/application.boundary.md"
 
         insert_into_file boundary_filename, indent(<<~EOB, 16), after: /ContainerDb\(app_db.*$\n/
-          Container(worker, "<&layers> Sidekiq workers", "Ruby <%= @ruby_version %>, Sidekiq", "Perform background work and data processing")
+          Container(worker, "<&layers> Sidekiq workers", "Ruby #{ruby_version}, Sidekiq", "Perform background work and data processing")
           ContainerDb(redis, "Redis Database", "AWS ElastiCache (Redis)", "Background job queue")
         EOB
         insert_into_file boundary_filename, <<~EOB, before: "@enduml"

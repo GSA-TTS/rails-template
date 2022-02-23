@@ -26,7 +26,7 @@ RSpec.describe RailsTemplate18f::Generators::SidekiqGenerator, type: :generator 
   end
 
   it "updates the boundary diagram" do
-    expect(file("doc/compliance/apps/application.boundary.md")).to contain('Container(worker, "<&layers> Sidekiq workers", "Ruby <%= @ruby_version %>, Sidekiq", "Perform background work and data processing")')
+    expect(file("doc/compliance/apps/application.boundary.md")).to contain("Container(worker, \"<&layers> Sidekiq workers\", \"Ruby #{RUBY_VERSION}, Sidekiq\", \"Perform background work and data processing\")")
     expect(file("doc/compliance/apps/application.boundary.md")).to contain('ContainerDb(redis, "Redis Database", "AWS ElastiCache (Redis)", "Background job queue")')
     expect(file("doc/compliance/apps/application.boundary.md")).to contain('Rel(app, redis, "enqueue job parameters", "redis")')
     expect(file("doc/compliance/apps/application.boundary.md")).to contain('Rel(worker, redis, "dequeues job parameters", "redis")')
