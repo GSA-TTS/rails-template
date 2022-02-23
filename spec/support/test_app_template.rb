@@ -18,7 +18,7 @@ end
 
 template "README.md", force: true
 template "manifest.yml"
-template "doc/compliance/apps/application.boundary.md"
+directory "doc/compliance"
 copy_file "githooks/pre-commit", ".githooks/pre-commit", mode: :preserve
 run "mkdir spec"
 directory "config/deployment"

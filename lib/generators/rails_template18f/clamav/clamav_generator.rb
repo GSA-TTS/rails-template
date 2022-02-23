@@ -13,7 +13,11 @@ module RailsTemplate18f
       DESC
 
       def configure_local_runner
-        append_to_file "Procfile.dev", "clamav: docker run -p 9443:9443 ajilaag/clamav-rest:20211229"
+        append_to_file "Procfile.dev", "clamav: docker run --rm -p 9443:9443 ajilaag/clamav-rest:20211229\n"
+      end
+
+      def run_active_storage_install
+        rails_command "active_storage:install"
       end
 
       def update_boundary_diagram
@@ -31,6 +35,42 @@ module RailsTemplate18f
             Rel(worker, app_s3, "reads/writes file data", "https (443)")
             Rel(worker, clamav, "scans files", "https (9443)")
           EOB
+        end
+      end
+
+      def update_data_model_uml
+        insert_into_file "doc/compliance/apps/data.logical.md", data_model_uml, before: "@enduml"
+      end
+
+      no_tasks do
+        def data_model_uml
+          <<~UML
+            class active_storage_attachments {
+              * id : bigint <<generated>>
+              * name : string
+              * record_type : string
+              * record_id : bigint
+              * blob_id : bigint
+              * created_at : timestamp without time zone
+            }
+            class active_storage_blobs {
+              * id : bigint <<generated>>
+              * key : string
+              * filename : string
+              content_type : string
+              metadata : text
+              * service_name : string
+              * byte_size : bigint
+              checksum : string
+              * created_at : timestamp without time zone
+            }
+            class active_storage_variant_records {
+              * id : bigint <<generated>>
+              * variation_digest : string
+            }
+            active_storage_attachments ||--|{ active_storage_blobs
+            active_storage_variant_records ||--|{ active_storage_blobs
+          UML
         end
       end
     end
