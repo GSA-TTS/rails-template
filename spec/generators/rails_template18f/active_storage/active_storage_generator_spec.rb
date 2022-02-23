@@ -27,4 +27,9 @@ RSpec.describe RailsTemplate18f::Generators::ActiveStorageGenerator, type: :gene
     run_generator
     expect(file("doc/compliance/apps/data.logical.md")).to contain(generator.data_model_uml)
   end
+
+  it "creates a new ADR" do
+    run_generator
+    expect(file("doc/adr/0005-clamav-file-scanning.md")).to contain("# 5. ClamAV File Scanning")
+  end
 end

@@ -42,6 +42,14 @@ module RailsTemplate18f
         insert_into_file "doc/compliance/apps/data.logical.md", data_model_uml, before: "@enduml"
       end
 
+      def generate_adr
+        adr_dir = File.expand_path(File.join("doc", "adr"), destination_root)
+        if Dir.exist? adr_dir
+          @next_adr_id = `ls #{adr_dir} | tail -n 1 | awk -F '-' '{print $1}'`.strip.to_i + 1
+          template "doc/adr/clamav.md", "doc/adr/#{"%04d" % @next_adr_id}-clamav-file-scanning.md"
+        end
+      end
+
       no_tasks do
         def data_model_uml
           <<~UML

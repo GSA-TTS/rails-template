@@ -6,10 +6,6 @@ module RailsTemplate18f
       extend ActiveSupport::Concern
       include ::Rails::Generators::AppName
 
-      included do
-        self.source_path = RailsTemplate18f::Generators.const_source_location(name).first
-      end
-
       class_methods do
         attr_accessor :source_path
 
@@ -18,14 +14,27 @@ module RailsTemplate18f
         end
       end
 
+      included do
+        self.source_path = RailsTemplate18f::Generators.const_source_location(name).first
+      end
+
       private
 
       def file_content(filename)
-        File.read(File.expand_path(filename, destination_root))
+        file_path = File.expand_path(filename, destination_root)
+        if File.exist? file_path
+          File.read(file_path)
+        else
+          ""
+        end
       end
 
       def ruby_version
         RUBY_VERSION
+      end
+
+      def terraform_dir_exists?
+        Dir.exist? File.expand_path("terraform", destination_root)
       end
 
       def skip_git?
