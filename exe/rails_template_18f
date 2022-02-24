@@ -26,6 +26,27 @@ class CLI < Thor
     run "rails new #{app_directory} --rc=#{File.join(gem_path, railsrc)} --template=#{File.join(gem_path, "template.rb")} #{rails_arguments.join(" ")}"
   end
 
+  desc "update", "Run rails app:update with some enhancements"
+  long_desc <<-LONGDESC
+    Run `rails app:update` with frameworks fully defined by what is commented out at the top
+    of config/application.rb
+
+    Example: to enable ActiveStorage
+
+    1) Uncomment `require "active_storage/engine"` in `config/application.rb`
+
+    2) Run `bin/rails active_storage:install`
+
+    3) Run bundle exec rails_template_18f update
+
+    4) Optional: run other rails_template18f generators that may be applicable
+  LONGDESC
+  def update
+    require_relative "../lib/rails_template18f/app_updater"
+    require "rails/command"
+    Rails::Command.invoke "app:update"
+  end
+
   desc "version", "Output gem version"
   def version
     puts RailsTemplate18f::VERSION

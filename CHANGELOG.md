@@ -1,5 +1,6 @@
 ## [Unreleased]
 
+- helper script to run rails app:update
 - cloud.gov configuration helper generator
 - activestorage/clamav generator
 - activejob/sidekiq generator
