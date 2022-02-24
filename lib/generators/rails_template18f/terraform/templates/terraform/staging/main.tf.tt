@@ -33,12 +33,13 @@ module "redis" {
 module "s3" {
   source = "../shared/s3"
 
-  cf_user         = var.cf_user
-  cf_password     = var.cf_password
-  cf_org_name     = local.cf_org_name
-  cf_space_name   = local.cf_space_name
-  s3_service_name = "<%= app_name %>-s3-${local.env}"<% if cloud_gov_organization == "sandbox-gsa" %>
-  s3_plan_name    = "basic-sandbox"<% end %>
+  cf_user          = var.cf_user
+  cf_password      = var.cf_password
+  cf_org_name      = local.cf_org_name
+  cf_space_name    = local.cf_space_name
+  recursive_delete = local.recursive_delete
+  s3_service_name  = "<%= app_name %>-s3-${local.env}"<% if cloud_gov_organization == "sandbox-gsa" %>
+  s3_plan_name     = "basic-sandbox"<% end %>
 }
 
 ###########################################################################
