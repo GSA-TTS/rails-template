@@ -21,6 +21,14 @@ module RailsTemplate18f
             generate_terraform_app
           }
         end
+
+        def setup_active_storage_destination
+          destination destination_path
+          before {
+            prepare_destination
+            generate_storage_app
+          }
+        end
       end
 
       def self.included(klass)
@@ -33,6 +41,10 @@ module RailsTemplate18f
 
       def generate_terraform_app
         `rails new tmp --template=spec/support/terraform_app_template.rb #{common_arguments}`
+      end
+
+      def generate_storage_app
+        `rails new tmp --template=spec/support/test_app_template.rb --skip-test --skip-git --skip-bundle`
       end
 
       def common_arguments

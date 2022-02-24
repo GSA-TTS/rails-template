@@ -79,21 +79,6 @@ module RailsTemplate18f
           EOM
         end
       end
-
-      private
-
-      def terraform_dir_exists?
-        # prevents cloud_gov_* helpers from trying to read non-existant .tf files
-        false
-      end
-
-      def has_active_job?
-        defined?(::ActiveJob)
-      end
-
-      def has_active_storage?
-        defined?(::ActiveStorage)
-      end
     end
   end
 end

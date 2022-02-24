@@ -48,10 +48,6 @@ module RailsTemplate18f
         end
         "prod"
       end
-
-      def terraform_dir_exists?
-        Dir.exist? File.expand_path("terraform", destination_root)
-      end
     end
   end
 end

@@ -17,8 +17,10 @@ def skip_active_storage?
 end
 
 template "README.md", force: true
+copy_file "env", ".env"
+copy_file "config/environments/ci.rb"
 template "manifest.yml"
-template "doc/compliance/apps/application.boundary.md"
+directory "doc"
 copy_file "githooks/pre-commit", ".githooks/pre-commit", mode: :preserve
 run "mkdir spec"
 directory "config/deployment"

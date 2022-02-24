@@ -4,7 +4,10 @@ require "generators/rails_template18f/sidekiq/sidekiq_generator"
 RSpec.describe RailsTemplate18f::Generators::SidekiqGenerator, type: :generator do
   setup_default_destination
 
-  before { run_generator }
+  before {
+    expect(generator).to receive(:generate).with("rails_template18f:cloud_gov_config")
+    run_generator
+  }
 
   it "adds the sidekiq gem" do
     expect(file("Gemfile")).to contain('gem "sidekiq", "~> 6.4"')
@@ -26,7 +29,7 @@ RSpec.describe RailsTemplate18f::Generators::SidekiqGenerator, type: :generator 
   end
 
   it "updates the boundary diagram" do
-    expect(file("doc/compliance/apps/application.boundary.md")).to contain('Container(worker, "<&layers> Sidekiq workers", "Ruby <%= @ruby_version %>, Sidekiq", "Perform background work and data processing")')
+    expect(file("doc/compliance/apps/application.boundary.md")).to contain("Container(worker, \"<&layers> Sidekiq workers\", \"Ruby #{RUBY_VERSION}, Sidekiq\", \"Perform background work and data processing\")")
     expect(file("doc/compliance/apps/application.boundary.md")).to contain('ContainerDb(redis, "Redis Database", "AWS ElastiCache (Redis)", "Background job queue")')
     expect(file("doc/compliance/apps/application.boundary.md")).to contain('Rel(app, redis, "enqueue job parameters", "redis")')
     expect(file("doc/compliance/apps/application.boundary.md")).to contain('Rel(worker, redis, "dequeues job parameters", "redis")')
