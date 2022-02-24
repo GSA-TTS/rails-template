@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+- activestorage/clamav generator
+- activejob/sidekiq generator
 - i18n-js generator
 
 ## [0.3.0] - 2022-02-17

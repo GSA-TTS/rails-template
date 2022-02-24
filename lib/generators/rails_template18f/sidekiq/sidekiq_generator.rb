@@ -28,11 +28,11 @@ module RailsTemplate18f
         inside "config/deployment" do
           append_to_file "staging.yml", <<~EOYAML
             worker_instances: 1
-            web_memory: 256M
+            worker_memory: 256M
           EOYAML
           append_to_file "production.yml", <<~EOYAML
             worker_instances: 1
-            web_memory: 512M
+            worker_memory: 512M
           EOYAML
         end
       end

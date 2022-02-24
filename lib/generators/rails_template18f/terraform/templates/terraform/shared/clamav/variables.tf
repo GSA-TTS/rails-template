@@ -35,6 +35,12 @@ variable "clamav_image" {
   description = "Docker image to deploy the clamav api app"
 }
 
+variable "clamav_memory" {
+  type        = number
+  description = "Memory in MB to allocate to clamav app"
+  default     = 3072
+}
+
 variable "max_file_size" {
   type        = string
   description = "Maximum file size the API will accept for scanning"

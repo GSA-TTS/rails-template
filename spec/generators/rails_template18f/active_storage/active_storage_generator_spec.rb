@@ -2,7 +2,7 @@
 require "generators/rails_template18f/active_storage/active_storage_generator"
 
 RSpec.describe RailsTemplate18f::Generators::ActiveStorageGenerator, type: :generator do
-  setup_default_destination
+  setup_active_storage_destination
 
   before { allow(generator).to receive(:rails_command) }
 
@@ -16,10 +16,23 @@ RSpec.describe RailsTemplate18f::Generators::ActiveStorageGenerator, type: :gene
     run_generator
   end
 
-  it "installs faraday" do
+  it "configures the s3 upload service" do
+    run_generator
+    expect(file("config/environments/production.rb")).to contain("config.active_storage.service = :amazon")
+    expect(file("config/environments/ci.rb")).to contain("config.active_storage.service = :local")
+    expect(file("config/storage.yml")).to contain(/^amazon:$/)
+    expect(file("config/storage.yml")).to contain(/^  service: S3$/)
+    expect(file("config/storage.yml")).to contain(/^  access_key_id: <%= CloudGovConfig.dig\(:s3, :credentials, :access_key_id\) %>$/)
+    expect(file("config/storage.yml")).to contain(/^  secret_access_key: <%= CloudGovConfig.dig\(:s3, :credentials, :secret_access_key\) %>$/)
+    expect(file("config/storage.yml")).to contain(/^  region: us-gov-west-1$/)
+    expect(file("config/storage.yml")).to contain(/^  bucket: <%= CloudGovConfig.dig\(:s3, :credentials, :bucket\) %>$/)
+  end
+
+  it "installs gems" do
     run_generator
     expect(file("Gemfile")).to contain('gem "faraday", "~> 2.2"')
     expect(file("Gemfile")).to contain('gem "faraday-multipart", "~> 1.0"')
+    expect(file("Gemfile")).to contain('gem "aws-sdk-s3", "~> 1.112"')
   end
 
   it "copies the file upload job and model" do
@@ -32,8 +45,9 @@ RSpec.describe RailsTemplate18f::Generators::ActiveStorageGenerator, type: :gene
 
   it "configures the env var" do
     run_generator
-    expect(file(".env")).to contain("CLAMAV_API_URL=https://localhost:9443/")
-    expect(file("manifest.yml")).to contain("CLAMAV_API_URL: \"https://tmp-clamapi-((env)).apps.internal:9443/")
+    expect(file(".env")).to contain("CLAMAV_API_URL=https://localhost:9443")
+    expect(file("manifest.yml")).to contain("CLAMAV_API_URL: \"https://tmp-clamapi-((env)).apps.internal:9443")
+    expect(file("manifest.yml")).to contain("  - tmp-s3-((env))")
   end
 
   it "updates the boundary diagram" do

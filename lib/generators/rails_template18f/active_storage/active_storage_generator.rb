@@ -12,13 +12,28 @@ module RailsTemplate18f
           Document use of Clamav as ActiveStorage scanner
       DESC
 
-      def run_active_storage_install
+      def configure_active_storage
         rails_command "active_storage:install"
+        comment_lines "config/environments/production.rb", /active_storage\.service/
+        insert_into_file "config/environments/production.rb", "\n  config.active_storage.service = :amazon", after: /active_storage\.service.*$/
+        environment "config.active_storage.service = :local", env: "ci"
+        append_to_file "config/storage.yml", <<~EOYAML
+
+          amazon:
+            service: S3
+            access_key_id: <%= CloudGovConfig.dig(:s3, :credentials, :access_key_id) %>
+            secret_access_key: <%= CloudGovConfig.dig(:s3, :credentials, :secret_access_key) %>
+            region: us-gov-west-1
+            bucket: <%= CloudGovConfig.dig(:s3, :credentials, :bucket) %>
+        EOYAML
       end
 
-      def install_faraday
+      def install_gems
         gem "faraday", "~> 2.2"
         gem "faraday-multipart", "~> 1.0"
+        gem_group :production do
+          gem "aws-sdk-s3", "~> 1.112"
+        end
       end
 
       def create_scanned_upload_model_and_job
@@ -40,9 +55,10 @@ module RailsTemplate18f
 
 
           # CLAMAV_API_URL tells FileScanJob where to send files for virus scans
-          CLAMAV_API_URL=https://localhost:9443/
+          CLAMAV_API_URL=https://localhost:9443
         EOM
-        insert_into_file "manifest.yml", "    CLAMAV_API_URL: \"https://#{app_name}-clamapi-((env)).apps.internal:9443/\"\n", before: /^\s+processes:/
+        insert_into_file "manifest.yml", "    CLAMAV_API_URL: \"https://#{app_name}-clamapi-((env)).apps.internal:9443\"\n", before: /^\s+processes:/
+        insert_into_file "manifest.yml", "\n  - #{app_name}-s3-((env))", after: "services:"
       end
 
       def update_boundary_diagram

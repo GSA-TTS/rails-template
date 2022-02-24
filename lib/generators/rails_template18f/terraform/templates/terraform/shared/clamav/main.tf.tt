@@ -29,7 +29,7 @@ resource "cloudfoundry_route" "clamav_route" {
 resource "cloudfoundry_app" "clamav_api" {
   name         = "<%= app_name %>-clamav-api-${var.env}"
   space        = data.cloudfoundry_space.space.id
-  memory       = 4096
+  memory       = var.clamav_memory
   disk_quota   = 2048
   timeout      = 600
   docker_image = var.clamav_image
