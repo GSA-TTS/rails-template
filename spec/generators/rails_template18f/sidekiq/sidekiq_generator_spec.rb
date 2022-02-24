@@ -4,7 +4,10 @@ require "generators/rails_template18f/sidekiq/sidekiq_generator"
 RSpec.describe RailsTemplate18f::Generators::SidekiqGenerator, type: :generator do
   setup_default_destination
 
-  before { run_generator }
+  before {
+    expect(generator).to receive(:generate).with("rails_template18f:cloud_gov_config")
+    run_generator
+  }
 
   it "adds the sidekiq gem" do
     expect(file("Gemfile")).to contain('gem "sidekiq", "~> 6.4"')

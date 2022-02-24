@@ -13,6 +13,7 @@ module RailsTemplate18f
       DESC
 
       def configure_active_storage
+        generate "rails_template18f:cloud_gov_config"
         rails_command "active_storage:install"
         comment_lines "config/environments/production.rb", /active_storage\.service/
         insert_into_file "config/environments/production.rb", "\n  config.active_storage.service = :amazon", after: /active_storage\.service.*$/

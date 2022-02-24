@@ -12,6 +12,7 @@ RSpec.describe RailsTemplate18f::Generators::ActiveStorageGenerator, type: :gene
   end
 
   it "creates the active_storage migration file" do
+    expect(generator).to receive(:rails_command).with "generate rails_template18f:cloud_gov_config ", Hash
     expect(generator).to receive(:rails_command).with "active_storage:install"
     run_generator
   end
@@ -36,6 +37,7 @@ RSpec.describe RailsTemplate18f::Generators::ActiveStorageGenerator, type: :gene
   end
 
   it "copies the file upload job and model" do
+    expect(generator).to receive(:rails_command).with "generate migration CreateFileUploads file:attachment record:references{polymorphic} scan_status:string", Hash
     run_generator
     expect(file("app/models/file_upload.rb")).to exist
     expect(file("spec/models/file_upload_spec.rb")).to exist

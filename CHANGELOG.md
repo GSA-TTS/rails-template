@@ -1,5 +1,6 @@
 ## [Unreleased]
 
+- cloud.gov configuration helper generator
 - activestorage/clamav generator
 - activejob/sidekiq generator
 - i18n-js generator

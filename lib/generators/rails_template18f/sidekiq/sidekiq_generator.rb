@@ -38,6 +38,7 @@ module RailsTemplate18f
       end
 
       def configure_active_job
+        generate "rails_template18f:cloud_gov_config"
         copy_file "config/initializers/redis.rb"
         application "config.active_job.queue_adapter = :sidekiq"
       end
