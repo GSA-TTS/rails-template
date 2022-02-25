@@ -34,7 +34,7 @@ module RailsTemplate18f
       end
 
       def update_readme
-        gsub_file "README.md", /^(### Automatic linting)/, '\1 and terraform formatting'
+        gsub_file "README.md", /^(### Automatic linting)\s*$/, '\1 and terraform formatting'
         gsub_file "README.md", /(ruby linting) (on every)/, '\1 and terraform formatting \2'
         gsub_file "README.md", /^Before the first deploy only.*$/, "Follow the instructions in `terraform/README.md` to create the supporting services."
       end
