@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "bundler"
+
 module RailsTemplate18f
   module Generators
     module Base
@@ -19,6 +21,19 @@ module RailsTemplate18f
       end
 
       private
+
+      def bundle_install
+        Bundler.with_original_env do
+          in_root do
+            run "bundle install"
+            yield if block_given?
+          end
+        end
+      end
+
+      def gem_installed?(gem_name)
+        file_content("Gemfile").match?(/gem "#{gem_name}"/)
+      end
 
       def file_content(filename)
         file_path = File.expand_path(filename, destination_root)

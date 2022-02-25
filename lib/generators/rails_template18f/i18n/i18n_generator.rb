@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "rails/generators"
-require "bundler"
 
 module RailsTemplate18f
   module Generators
@@ -16,17 +15,17 @@ module RailsTemplate18f
           Always installs configuration for English
       DESC
 
-      def install_helper_gem_and_tasks
-        return if file_content("Gemfile").match?(/gem "i18n-tasks"/)
+      def install_gem
+        return if gem_installed?("i18n-tasks")
         gem_group :development, :test do
           gem "i18n-tasks", "~> 0.9"
         end
-        Bundler.with_original_env do
-          in_root do
-            run "bundle install"
-            run "cp $(i18n-tasks gem-path)/templates/config/i18n-tasks.yml config/"
-            run "cp $(i18n-tasks gem-path)/templates/rspec/i18n_spec.rb spec/"
-          end
+      end
+
+      def install_helper_tasks
+        bundle_install do
+          run "cp $(i18n-tasks gem-path)/templates/config/i18n-tasks.yml config/"
+          run "cp $(i18n-tasks gem-path)/templates/rspec/i18n_spec.rb spec/"
         end
         insert_into_file "config/i18n-tasks.yml", "\n#{indent("- app/assets/builds", 4)}", after: "exclude:"
         uncomment_lines "config/i18n-tasks.yml", "ignore_missing:"

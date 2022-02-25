@@ -12,8 +12,8 @@ RSpec.describe RailsTemplate18f::Generators::ActiveStorageGenerator, type: :gene
   end
 
   it "creates the active_storage migration file" do
-    expect(generator).to receive(:rails_command).with "generate rails_template18f:cloud_gov_config ", Hash
-    expect(generator).to receive(:rails_command).with "active_storage:install"
+    expect(generator).to receive(:rails_command).with("generate rails_template18f:cloud_gov_config ", {abort_on_failure: false, inline: true})
+    expect(generator).to receive(:rails_command).with("active_storage:install", {inline: true})
     run_generator
   end
 

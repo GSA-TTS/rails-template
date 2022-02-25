@@ -5,7 +5,7 @@ RSpec.describe RailsTemplate18f::Generators::SidekiqGenerator, type: :generator 
   setup_default_destination
 
   before {
-    expect(generator).to receive(:generate).with("rails_template18f:cloud_gov_config")
+    expect(generator).to receive(:generate).with("rails_template18f:cloud_gov_config", {inline: true})
     run_generator
   }
 

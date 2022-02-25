@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "rails/generators"
-require "bundler"
 
 module RailsTemplate18f
   module Generators
@@ -16,15 +15,15 @@ module RailsTemplate18f
       DESC
 
       def install_gem_and_tasks
-        return if file_content("Gemfile").match?(/gem "i18n-js"/)
+        return if gem_installed?("i18n-js")
         gem "i18n-js", "~> 3.9"
-        Bundler.with_original_env do
-          in_root do
-            run "bundle install"
-            run "yarn add i18n-js"
-            generate "i18n:js:config"
-          end
+        bundle_install do
+          run "yarn add i18n-js"
+          generate "i18n:js:config"
         end
+      end
+
+      def configure_translation_yaml
         append_to_file "config/i18n-js.yml", <<~EOYAML
           # remove `only` to include all translations
           translations:

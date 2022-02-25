@@ -13,8 +13,8 @@ module RailsTemplate18f
       DESC
 
       def configure_active_storage
-        generate "rails_template18f:cloud_gov_config"
-        rails_command "active_storage:install"
+        generate "rails_template18f:cloud_gov_config", inline: true
+        rails_command "active_storage:install", inline: true
         comment_lines "config/environments/production.rb", /active_storage\.service/
         insert_into_file "config/environments/production.rb", "\n  config.active_storage.service = :amazon", after: /active_storage\.service.*$/
         environment "config.active_storage.service = :local", env: "ci"
@@ -30,15 +30,22 @@ module RailsTemplate18f
       end
 
       def install_gems
-        gem "faraday", "~> 2.2"
-        gem "faraday-multipart", "~> 1.0"
-        gem_group :production do
-          gem "aws-sdk-s3", "~> 1.112"
+        faraday_installed = gem_installed?("faraday")
+        middleware_installed = gem_installed?("faraday-multipart")
+        sdk_installed = gem_installed?("aws-sdk-s3")
+        return if faraday_installed && middleware_installed && sdk_installed
+        gem "faraday", "~> 2.2" unless faraday_installed
+        gem "faraday-multipart", "~> 1.0" unless middleware_installed
+        unless sdk_installed
+          gem_group :production do
+            gem "aws-sdk-s3", "~> 1.112"
+          end
         end
+        bundle_install
       end
 
       def create_scanned_upload_model_and_job
-        generate :migration, "CreateFileUploads", "file:attachment", "record:references{polymorphic}", "scan_status:string"
+        generate :migration, "CreateFileUploads", "file:attachment", "record:references{polymorphic}", "scan_status:string", inline: true
         migration_file = Dir.glob(File.expand_path(File.join("db", "migrate", "[0-9]*_*.rb"), destination_root)).grep(/\d+_create_file_uploads.rb$/).first
         unless migration_file.nil?
           gsub_file migration_file, ":scan_status", ":scan_status, null: false, default: \"uploaded\""

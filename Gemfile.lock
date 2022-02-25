@@ -3,6 +3,7 @@ PATH
   specs:
     rails_template_18f (0.4.0)
       activesupport (~> 7.0.0)
+      colorize (~> 0.8)
       railties (~> 7.0.0)
       thor (~> 1.0)
 
@@ -125,7 +126,6 @@ PLATFORMS
 DEPENDENCIES
   ammeter (~> 1.1)
   byebug
-  colorize (~> 0.8)
   rails_template_18f!
   rake (~> 13.0)
   rspec (~> 3.11)

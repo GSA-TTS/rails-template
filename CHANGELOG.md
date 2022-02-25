@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+- update gem dependencies
+- fix issues when included gem hadn't been previously installed
+
 ## [0.4.0] - 2022-02-24
 
 - helper script to run rails app:update

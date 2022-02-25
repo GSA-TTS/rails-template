@@ -13,10 +13,11 @@ module RailsTemplate18f
       DESC
 
       def install_climate_control
-        return if file_content("Gemfile").match?(/gem "climate_control"/)
+        return if gem_installed?("climate_control")
         gem_group :test do
           gem "climate_control", "~> 1.0"
         end
+        bundle_install
       end
 
       def install_model_and_test

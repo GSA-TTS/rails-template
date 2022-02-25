@@ -191,7 +191,9 @@ copy_file "env", ".env"
 copy_file "githooks/pre-commit", ".githooks/pre-commit", mode: :preserve
 
 unless skip_git?
-  rails_command "credentials:diff --enroll"
+  after_bundle do
+    rails_command "credentials:diff --enroll"
+  end
   append_to_file ".gitignore", <<~EOM
 
     # Ignore local dotenv overrides

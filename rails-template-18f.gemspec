@@ -34,6 +34,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "railties", "~> 7.0.0"
   spec.add_dependency "activesupport", "~> 7.0.0"
   spec.add_dependency "thor", "~> 1.0"
+  spec.add_dependency "colorize", "~> 0.8"
 
   spec.add_development_dependency "rspec", "~> 3.11"
   spec.add_development_dependency "ammeter", "~> 1.1"

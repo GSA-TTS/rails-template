@@ -13,7 +13,9 @@ module RailsTemplate18f
       DESC
 
       def install_gem
+        return if gem_installed?("sidekiq")
         gem "sidekiq", "~> 6.4"
+        bundle_install
       end
 
       def configure_server_runner
@@ -38,7 +40,7 @@ module RailsTemplate18f
       end
 
       def configure_active_job
-        generate "rails_template18f:cloud_gov_config"
+        generate "rails_template18f:cloud_gov_config", inline: true
         copy_file "config/initializers/redis.rb"
         application "config.active_job.queue_adapter = :sidekiq"
       end

@@ -14,7 +14,10 @@ module RailsTemplate18f
       DESC
 
       def install_needed_gems
-        gem "rspec_junit_formatter", "~> 0.5", group: :test
+        gem_name = "rspec_junit_formatter"
+        return if gem_installed? gem_name
+        gem gem_name, "~> 0.5", group: :test
+        bundle_install
       end
 
       def install_pipeline
