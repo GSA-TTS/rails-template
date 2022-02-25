@@ -61,7 +61,6 @@ module RailsTemplate18f
       def configure_clamav_env_var
         append_to_file ".env", <<~EOM
 
-
           # CLAMAV_API_URL tells FileScanJob where to send files for virus scans
           CLAMAV_API_URL=https://localhost:9443
         EOM
