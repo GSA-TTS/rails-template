@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [0.4.1] - 2022-02-25
+
 - update gem dependencies
 - fix issues when included gem hadn't been previously installed
 
