@@ -20,9 +20,8 @@ bundle exec rake assets:precompile
 # run the server
 bundle exec rails server &
 server_pid=$!
-# pause to ensure the server has started
-sleep 5
 
+dockerize -wait http://localhost:3000 -timeout 1m
 
 $@
 exit_status=$?
