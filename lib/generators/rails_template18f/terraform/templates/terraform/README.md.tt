@@ -2,7 +2,7 @@
 
 This directory holds the terraform modules for maintaining your complete persistent infrastructure.
 
-Prerequisite: install the `jq` JSON processor: `brew install jq`
+Prerequisite: install the `jq` JSON processor: `brew bundle` or `brew install jq`
 
 ## Initial setup
 

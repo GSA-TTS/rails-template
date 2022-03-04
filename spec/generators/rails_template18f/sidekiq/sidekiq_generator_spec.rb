@@ -35,4 +35,8 @@ RSpec.describe RailsTemplate18f::Generators::SidekiqGenerator, type: :generator 
     expect(file("doc/compliance/apps/application.boundary.md")).to contain('Rel(worker, redis, "dequeues job parameters", "redis")')
     expect(file("doc/compliance/apps/application.boundary.md")).to contain('Rel(worker, app_db, "reads/writes primary data", "psql (5432)")')
   end
+
+  it "adds redis to Brewfile" do
+    expect(file("Brewfile")).to contain('brew "redis"')
+  end
 end

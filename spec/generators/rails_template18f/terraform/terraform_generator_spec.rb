@@ -19,4 +19,8 @@ RSpec.describe RailsTemplate18f::Generators::TerraformGenerator, type: :generato
     expect(file("README.md")).to_not contain("Before the first deploy only")
     expect(file("README.md")).to contain("Follow the instructions in `terraform/README.md` to create the supporting services.")
   end
+
+  it "adds jq to Brewfile" do
+    expect(file("Brewfile")).to contain('brew "jq"')
+  end
 end

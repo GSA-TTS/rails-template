@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+- use Brewfile for installing homebrew-based dependencies
+- move test site banner to the _usa_banner.html.erb partial
+- use dockerize within bin/with-server to wait for rails to start
+
 ## [0.4.1] - 2022-02-25
 
 - update gem dependencies

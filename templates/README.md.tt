@@ -12,16 +12,15 @@ guide for an introduction to the framework.
 
 * Install Ruby <%= @ruby_version %>
 * Install NodeJS <%= @node_version %>
-* Install PostgreSQL: `brew install postgresql`
-  * Add postgres to your PATH if it wasn't done automatically
-  `echo 'export PATH="/usr/local/opt/postgresql/bin:$PATH"' >> ~/.zshrc`
-  * Start the server
-  `brew services start postgresql`
+* Install homebrew dependencies: `brew bundle`
+  * [PostgreSQL](https://www.postgresql.org/)
+  * [Dockerize](https://github.com/jwilder/dockerize)
+  * [ADR Tools](https://github.com/npryce/adr-tools)
+  * [Chromedriver](https://sites.google.com/chromium.org/driver/)
+    * Chromedriver must be allowed to run. You can either do that by:
+      * The command line: `xattr -d com.apple.quarantine $(which chromedriver)` (this is the only option if you are on Big Sur)
+      * Manually: clicking "allow" when you run the integration tests for the first time and a dialogue opens up
 * Install Ruby dependencies: `bundle install`
-* Install chromedriver for integration tests: `brew install --cask chromedriver`
-  * Chromedriver must be allowed to run. You can either do that by:
-    * The command line: `xattr -d com.apple.quarantine $(which chromedriver)` (this is the only option if you are on Big Sur)
-    * Manually: clicking "allow" when you run the integration tests for the first time and a dialogue opens up
 * Install JS dependencies: `yarn install`
 * Create database: `bundle exec rake db:create`
 * Run migrations: `bundle exec rake db:migrate`
@@ -145,7 +144,7 @@ Configuration that changes from staging to production, but is public, should be 
 Architectural Decision Records (ADR) are stored in `doc/adr`
 To create a new ADR, first install [ADR-tools](https://github.com/npryce/adr-tools) if you don't
 already have it installed.
-* `brew install adr-tools`
+* `brew bundle` or `brew install adr-tools`
 
 Then create the ADR:
 *  `adr new Title Of Architectural Decision`

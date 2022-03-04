@@ -19,6 +19,15 @@ module RailsTemplate18f
         chmod "terraform/bootstrap/teardown_creds.sh", 0o755
       end
 
+      def install_jq
+        append_to_file "Brewfile", <<~EOB
+
+          # used in terraform/create_space_deployer.sh
+          brew "jq"
+        EOB
+        insert_into_file "README.md", indent("* [jq](https://stedolan.github.io/jq/)\n"), after: /\* Install homebrew dependencies: `brew bundle`\n/
+      end
+
       def ignore_files
         unless skip_git?
           append_to_file ".gitignore", <<~EOM

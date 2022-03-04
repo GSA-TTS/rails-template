@@ -87,6 +87,13 @@ register_announcement("Documentation", <<~EOM)
   * Review any TBD sections of the README and update where appropriate.
 EOM
 
+# ensure dependencies are installed
+copy_file "Brewfile"
+insert_into_file "bin/setup", <<EOSETUP, after: /Add necessary setup steps to this file.\n/
+  puts "== Installing homebrew dependencies =="
+  system("brew bundle --no-lock")
+EOSETUP
+
 # setup nvmrc
 file ".nvmrc", @node_version
 
@@ -195,6 +202,9 @@ unless skip_git?
     rails_command "credentials:diff --enroll"
   end
   append_to_file ".gitignore", <<~EOM
+
+    # Ignore Brewfile debug info
+    Brewfile.lock.json
 
     # Ignore local dotenv overrides
     .env*.local

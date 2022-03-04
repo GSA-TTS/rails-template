@@ -17,6 +17,7 @@ def skip_active_storage?
 end
 
 template "README.md", force: true
+copy_file "Brewfile"
 copy_file "env", ".env"
 copy_file "config/environments/ci.rb"
 template "manifest.yml"
