@@ -192,6 +192,12 @@ if ENV["RT_DEV"] == "true"
 else
   gem "rails_template_18f", group: :development
 end
+after_bundle do
+  gsub_file "bin/dev", /foreman start -f (.*)$/, <<~'EOM'
+    # pass /dev/null for the environment file to prevent weird interactions between foreman and dotenv
+    foreman start -e /dev/null -f \1
+  EOM
+end
 
 copy_file "lib/tasks/scanning.rake"
 copy_file "env", ".env"
