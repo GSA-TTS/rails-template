@@ -8,7 +8,7 @@ RSpec.describe RailsTemplate18f::Generators::I18nGenerator, type: :generator do
     before { run_generator ["--force"] }
 
     it "adds the i18n tasks gem and config" do
-      expect(file("Gemfile")).to contain('gem "i18n-tasks", "~> 0.9"')
+      expect(file("Gemfile")).to contain('gem "i18n-tasks", "~> 1.0"')
       expect(file("config/i18n-tasks.yml")).to exist
       expect(file("spec/i18n_spec.rb")).to exist
     end

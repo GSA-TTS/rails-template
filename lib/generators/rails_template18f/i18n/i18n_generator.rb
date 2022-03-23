@@ -18,7 +18,7 @@ module RailsTemplate18f
       def install_gem
         return if gem_installed?("i18n-tasks")
         gem_group :development, :test do
-          gem "i18n-tasks", "~> 0.9"
+          gem "i18n-tasks", "~> 1.0"
         end
       end
 
