@@ -37,7 +37,11 @@ RSpec.describe CloudGovConfig, type: :model do
       end
 
       it "returns nil for a missing path" do
-        expect(subject.dig(:s3, :credentials, :other)).to be_nil
+        expect(subject.dig(:s3, :missing)).to be_nil
+      end
+
+      it "returns nil for a missing service" do
+        expect(subject.dig(:rds, :credentials)).to be_nil
       end
     end
   end

@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+- add extra branch test coverage to CloudGovConfig
+
 ## [0.5.1] - 2022-03-17
 
 - fix interaction between foreman and dotenv by disabling foreman's env loading
