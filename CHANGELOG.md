@@ -1,6 +1,7 @@
 ## [Unreleased]
 
 - add extra branch test coverage to CloudGovConfig
+- replace forked version of @csstools/postcss-sass with released version
 
 ## [0.5.1] - 2022-03-17
 

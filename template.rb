@@ -241,8 +241,7 @@ after_bundle do
   EOJSON
   # Replace postcss-nesting with sass since USWDS uses sass
   run "yarn remove postcss-nesting"
-  # include fork of @csstools/postcss-sass until that library is updated for postcss 8
-  run "yarn add https://github.com/sinankeskin/postcss-sass"
+  run "yarn add @csstools/postcss-sass"
   run "yarn add postcss-scss"
   insert_into_file "postcss.config.js", "  syntax: 'postcss-scss',\n", before: /^\s+plugins/
   gsub_file "postcss.config.js", "postcss-nesting", "@csstools/postcss-sass"
@@ -271,8 +270,6 @@ after_bundle do
   end
   directory "app/assets"
   append_to_file "app/assets/stylesheets/application.postcss.css", <<~EOCSS
-    /* KNOWN ISSUE: only changes to application.postcss.css will trigger an automatic rebuild */
-    /* restart your server or run `yarn build:css` when changing other files */
     @import "uswds-settings.scss";
     @import "../../../node_modules/uswds/dist/scss/uswds.scss";
   EOCSS
