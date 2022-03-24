@@ -1,0 +1,52 @@
+# frozen_string_literal: true
+
+require "rails/generators"
+
+module RailsTemplate18f
+  module Generators
+    class OscalGenerator < ::Rails::Generators::Base
+      include Base
+
+      class_option :oscal_repo, required: true, desc: "Github Repo containing Compliance-Template fork"
+
+      desc <<~DESC
+        Description:
+          Add a fork of https://github.com/GSA-TTS/compliance-template.git as a
+          submodule for documenting security controls.
+
+          This generator is still experimental.
+
+          Prerequisite:
+
+          Fork the compliance-template repo for your own use. Updates to the documentation
+          will be pushed to this fork, not the rails app repository.
+      DESC
+
+      def copy_template_files
+        git submodule: "add #{options[:oscal_repo]} doc/compliance/oscal"
+      end
+
+      def update_readme
+        if file_content("README.md").match?("## Documentation")
+          insert_into_file "README.md", readme_contents, after: "## Documentation\n"
+        else
+          append_to_file "README.md", "\n## Documentation\n#{readme_contents}"
+        end
+      end
+
+      no_tasks do
+        def readme_contents
+          <<~README
+
+            ### Compliance Documentation
+
+            Security Controls should be documented within doc/compliance/oscal.
+
+            See git's [submodule documentation](https://git-scm.com/book/en/v2/Git-Tools-Submodules)
+            for more information on tracking changes to these files.
+          README
+        end
+      end
+    end
+  end
+end

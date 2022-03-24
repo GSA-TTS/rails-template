@@ -141,6 +141,8 @@ Configuration that changes from staging to production, but is public, should be 
 
 ## Documentation
 
+### Architectural Decision Records
+
 Architectural Decision Records (ADR) are stored in `doc/adr`
 To create a new ADR, first install [ADR-tools](https://github.com/npryce/adr-tools) if you don't
 already have it installed.
