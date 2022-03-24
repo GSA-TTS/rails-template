@@ -239,6 +239,8 @@ after_bundle do
     "build:css": "postcss ./app/assets/stylesheets/application.postcss.css -o ./app/assets/builds/application.css"
   },
   EOJSON
+  # include verbose flag for dev postcss output
+  gsub_file "Procfile.dev", "yarn build:css --watch", "yarn build:css --verbose --watch"
   # Replace postcss-nesting with sass since USWDS uses sass
   run "yarn remove postcss-nesting"
   run "yarn add @csstools/postcss-sass"
