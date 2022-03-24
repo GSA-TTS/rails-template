@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [0.5.2] - 2022-03-24
+
 - add extra branch test coverage to CloudGovConfig
 - replace forked version of @csstools/postcss-sass with released version
 - upgrade i18n-tasks gem to 1.0
