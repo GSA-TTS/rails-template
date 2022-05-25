@@ -22,13 +22,15 @@ bundle exec rails server &
 server_pid=$!
 
 dockerize -wait http://localhost:3000 -timeout 1m
-
-$@
 exit_status=$?
 
+if [[ $exit_status -eq 0 ]]; then
+  $@
+  exit_status=$?
+fi
 
 # shut down the server and cleanup after ourselves
-bundle exec rake assets:clobber
 kill $server_pid
+bundle exec rake assets:clobber
 
 exit $exit_status
