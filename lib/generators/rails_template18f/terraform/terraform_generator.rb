@@ -15,6 +15,7 @@ module RailsTemplate18f
 
       def install
         directory "terraform", mode: :preserve
+        chmod "terraform/set_space_egress.sh", 0o755
         chmod "terraform/bootstrap/run.sh", 0o755
         chmod "terraform/bootstrap/teardown_creds.sh", 0o755
       end

@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+- check that server started properly before running anything in `bin/with-server`
+- add helper script for setting cloud.gov egress rules
+
 ## [0.5.2] - 2022-03-24
 
 - add extra branch test coverage to CloudGovConfig
