@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [0.5.3] - 2022-06-06
+
 - check that server started properly before running anything in `bin/with-server`
 - add helper script for setting cloud.gov egress rules
 
