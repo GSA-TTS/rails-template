@@ -226,25 +226,25 @@ end
 
 # setup USWDS and asset pipeline
 copy_file "browserslistrc", ".browserslistrc" if webpack?
-uncomment_lines "Gemfile", "sassc-rails" # use sassc-rails for asset minification in prod
 after_bundle do
   run 'npm set-script build:css "postcss ./app/assets/stylesheets/application.postcss.scss -o ./app/assets/builds/application.css"'
   # include verbose flag for dev postcss output
   gsub_file "Procfile.dev", "yarn build:css --watch", "yarn build:css --verbose --watch"
   # Replace postcss-nesting with sass since USWDS uses sass
   run "yarn remove postcss-nesting"
-  run "yarn add @csstools/postcss-sass postcss-scss"
+  run "yarn add @csstools/postcss-sass postcss-scss postcss-minify"
   insert_into_file "postcss.config.js", "  syntax: 'postcss-scss',\n", before: /^\s+plugins/
   insert_into_file "package.json", <<-EOJSON, before: /^\s+\}$/
   },
   "resolutions": {
     "@csstools/postcss-sass/@csstools/sass-import-resolve": "https://github.com/rahearn/sass-import-resolve"
   EOJSON
-  gsub_file "postcss.config.js", "postcss-nesting'),", <<-EOJS
+  gsub_file "postcss.config.js", "postcss-nesting'),", <<-EOJS.strip
 @csstools/postcss-sass')({
       includePaths: ['./node_modules/@uswds/uswds/packages'],
     }),
   EOJS
+  insert_into_file "postcss.config.js", "    process.env.NODE_ENV === 'production' ? require('postcss-minify') : null,\n", before: /^\s+\],/
   run "yarn add @uswds/uswds"
   appjs_file = "app/javascript/application.js"
   append_to_file appjs_file, "\nimport \"@uswds/uswds\"\n"
