@@ -239,10 +239,10 @@ after_bundle do
   "resolutions": {
     "@csstools/postcss-sass/@csstools/sass-import-resolve": "https://github.com/rahearn/sass-import-resolve"
   EOJSON
-  gsub_file "postcss.config.js", "postcss-nesting'),", <<-EOJS.strip
-@csstools/postcss-sass')({
-      includePaths: ['./node_modules/@uswds/uswds/packages'],
-    }),
+  gsub_file "postcss.config.js", "postcss-nesting'),", <<~EOJS.strip
+    @csstools/postcss-sass')({
+          includePaths: ['./node_modules/@uswds/uswds/packages'],
+        }),
   EOJS
   insert_into_file "postcss.config.js", "    process.env.NODE_ENV === 'production' ? require('postcss-minify') : null,\n", before: /^\s+\],/
   run "yarn add @uswds/uswds"
