@@ -226,35 +226,33 @@ end
 
 # setup USWDS and asset pipeline
 copy_file "browserslistrc", ".browserslistrc" if webpack?
-uncomment_lines "Gemfile", "sassc-rails" # use sassc-rails for asset minification in prod
 after_bundle do
-  js_startup = if webpack?
-    "webpack --config webpack.config.js"
-  else
-    "esbuild app/javascript/*.* --bundle --sourcemap --outdir=app/assets/builds"
-  end
-  insert_into_file "package.json", <<-EOJSON, before: /^\s+"dependencies"/
-  "scripts": {
-    "build": "#{js_startup}",
-    "build:css": "postcss ./app/assets/stylesheets/application.postcss.css -o ./app/assets/builds/application.css"
-  },
-  EOJSON
+  run 'npm set-script build:css "postcss ./app/assets/stylesheets/application.postcss.scss -o ./app/assets/builds/application.css"'
   # include verbose flag for dev postcss output
   gsub_file "Procfile.dev", "yarn build:css --watch", "yarn build:css --verbose --watch"
   # Replace postcss-nesting with sass since USWDS uses sass
   run "yarn remove postcss-nesting"
-  run "yarn add @csstools/postcss-sass"
-  run "yarn add postcss-scss"
+  run "yarn add @csstools/postcss-sass postcss-scss postcss-minify"
   insert_into_file "postcss.config.js", "  syntax: 'postcss-scss',\n", before: /^\s+plugins/
-  gsub_file "postcss.config.js", "postcss-nesting", "@csstools/postcss-sass"
-  run "yarn add uswds"
+  insert_into_file "package.json", <<-EOJSON, before: /^\s+\}$/
+  },
+  "resolutions": {
+    "@csstools/postcss-sass/@csstools/sass-import-resolve": "https://github.com/rahearn/sass-import-resolve"
+  EOJSON
+  gsub_file "postcss.config.js", "postcss-nesting'),", <<~EOJS.strip
+    @csstools/postcss-sass')({
+          includePaths: ['./node_modules/@uswds/uswds/packages'],
+        }),
+  EOJS
+  insert_into_file "postcss.config.js", "    process.env.NODE_ENV === 'production' ? require('postcss-minify') : null,\n", before: /^\s+\],/
+  run "yarn add @uswds/uswds"
   appjs_file = "app/javascript/application.js"
-  append_to_file appjs_file, "\nimport \"uswds\"\n"
+  append_to_file appjs_file, "\nimport \"@uswds/uswds\"\n"
   if hotwire?
     append_to_file appjs_file, <<~EOJS
 
       // make sure USWDS components are wired to their behavior after a Turbo navigation
-      import components from "uswds/src/js/components"
+      import components from "@uswds/uswds/src/js/components"
       let initialLoad = true;
       document.addEventListener("turbo:load", () => {
         if (initialLoad) {
@@ -272,9 +270,12 @@ after_bundle do
   end
   directory "app/assets"
   append_to_file "app/assets/stylesheets/application.postcss.css", <<~EOCSS
-    @import "uswds-settings.scss";
-    @import "../../../node_modules/uswds/dist/scss/uswds.scss";
+    @forward "uswds-settings.scss";
+    @forward "uswds-components.scss";
   EOCSS
+  inside "app/assets/stylesheets" do
+    File.rename("application.postcss.css", "application.postcss.scss")
+  end
   gsub_file "app/views/layouts/application.html.erb", "<html>", '<html lang="<%= I18n.locale %>">'
   gsub_file "app/views/layouts/application.html.erb", /^\s+<%= yield %>/, <<-EOHTML
     <%= render "application/usa_banner" %>

@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+- include USWDS 3.0 for new apps
+- use postcss-minify instead of the sass gem for CSS minimization
+
 ## [0.5.3] - 2022-06-06
 
 - check that server started properly before running anything in `bin/with-server`
