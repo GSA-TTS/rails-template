@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [0.6.0] - 2022-06-07
+
 - include USWDS 3.0 for new apps
 - use postcss-minify instead of the sass gem for CSS minimization
 
