@@ -7,7 +7,7 @@ module RailsTemplate18f
     class OscalGenerator < ::Rails::Generators::Base
       include Base
 
-      class_option :oscal_repo, required: true, desc: "Github Repo containing Compliance-Template fork"
+      class_option :oscal_repo, required: true, desc: "GitHub Repo containing Compliance-Template fork"
       class_option :detach, type: :boolean, default: false, desc: "Copy OSCAL files into repo, rather than using a submodule"
 
       desc <<~DESC

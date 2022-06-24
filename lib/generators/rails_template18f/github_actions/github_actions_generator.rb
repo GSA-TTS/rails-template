@@ -12,7 +12,7 @@ module RailsTemplate18f
 
       desc <<~DESC
         Description:
-          Install Github Actions workflow files
+          Install GitHub Actions workflow files
       DESC
 
       def install_actions
@@ -51,7 +51,7 @@ module RailsTemplate18f
       def update_boundary_diagram
         boundary_filename = "doc/compliance/apps/application.boundary.md"
         insert_into_file boundary_filename, <<EOB, after: "Boundary(cicd, \"CI/CD Pipeline\") {\n"
-    System_Ext(githuball, "GitHub w/ Github Actions", "GSA-controlled code repository and Continuous Integration Service")
+    System_Ext(githuball, "GitHub w/ GitHub Actions", "GSA-controlled code repository and Continuous Integration Service")
 EOB
         insert_into_file boundary_filename, <<~EOB, before: "@enduml"
           Rel(developer, githuball, "Publish code", "git ssh (22)")
@@ -68,6 +68,10 @@ EOB
         EOM
       end
 
+      def update_oscal_docs
+        update_cicd_oscal_docs("GitHub Actions")
+      end
+
       no_tasks do
         def readme_cicd
           <<~EOM
@@ -82,7 +86,7 @@ EOB
           <<~EOM
 
             Deploys to staging#{terraform? ? ", including applying changes in terraform," : ""} happen
-            on every push to the `main` branch in Github.
+            on every push to the `main` branch in GitHub.
 
             The following secrets must be set within the `staging` [environment secrets](https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-an-environment)
             to enable a deploy to work:
@@ -100,7 +104,7 @@ EOB
           <<~EOM
 
             Deploys to production#{terraform? ? ", including applying changes in terraform," : ""} happen
-            on every push to the `production` branch in Github.
+            on every push to the `production` branch in GitHub.
 
             The following secrets must be set within the `production` [environment secrets](https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-an-environment)
             to enable a deploy to work:

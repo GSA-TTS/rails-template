@@ -62,7 +62,7 @@ cloud_gov_production_space = ask("What is your cloud.gov production space name? 
 cloud_gov_staging_space = default_staging_space if cloud_gov_staging_space.blank?
 cloud_gov_production_space = default_prod_space if cloud_gov_production_space.blank?
 
-@github_actions = yes?("Create Github Actions? (y/n)")
+@github_actions = yes?("Create GitHub Actions? (y/n)")
 @circleci_pipeline = yes?("Create CircleCI config? (y/n)")
 newrelic = yes?("Create FEDRAMP New Relic config files? (y/n)")
 dap = yes?("If this will be a public site, should we include Digital Analytics Program code? (y/n)")
@@ -384,11 +384,11 @@ if @github_actions
     generate "rails_template18f:github_actions", *generator_arguments
   end
   if cloud_gov_org_tktk?
-    register_announcement("Github Actions", <<~EOM)
+    register_announcement("GitHub Actions", <<~EOM)
       * Fill in the cloud.gov organization information in .github/workflows/deploy-staging.yml
     EOM
   end
-  register_announcement("Github Actions", <<~EOM)
+  register_announcement("GitHub Actions", <<~EOM)
     * Create environment variable secrets for deploy users as defined in the Deployment section of the README
   EOM
 end
