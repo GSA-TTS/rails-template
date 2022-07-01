@@ -330,6 +330,12 @@ if compliance_template
     ]
     generate "rails_template18f:oscal", *generator_arguments
   end
+  register_announcement("OSCAL Documentation", <<~EOM)
+    OSCAL files have been generated with some default implementation statements in `doc/compliance/oscal`
+
+    All generated statements must be reviewed for accuracy with your system's implementation before being
+    submitted for authorization.
+  EOM
 end
 
 after_bundle do
