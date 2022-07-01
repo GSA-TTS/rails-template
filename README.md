@@ -91,6 +91,7 @@ ActionCable is included to enable the [Turbo Streams](https://turbo.hotwired.dev
 1. Create boundary and logical data model compliance diagrams
 1. Create `manifest.yml` and variable files for cloud.gov deployment
 1. Optionally run the `rake db:create` and `rake db:migrate` setup steps
+1. Optionally integrate with https://github.com/GSA-TTS/compliance-template
 1. Optionally create GitHub Actions workflows for testing and cloud.gov deploy
 1. Optionally create terraform modules supporting staging & production cloud.gov spaces
 1. Optionally create CircleCI workflows for testing and cloud.gov deploy

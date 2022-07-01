@@ -52,6 +52,13 @@ unless Gem::Dependency.new("rails", "~> 7.0.0").match?("rails", Rails.gem_versio
 end
 
 # ask setup questions
+compliance_template = yes?("Include OSCAL files from compliance-template? (y/n)")
+compliance_template_repo = "git@github.com:GSA-TTS/compliance-template.git"
+compliance_template_submodule = compliance_template && yes?("Clone #{compliance_template_repo} as a git submodule? (y/n)")
+if compliance_template_submodule
+  compliance_template_repo = ask("What is the git clone address of your compliance-template fork?")
+end
+
 terraform = yes?("Create terraform files for cloud.gov services? (y/n)")
 @cloud_gov_organization = ask("What is your cloud.gov organization name? (Leave blank to fill in later)")
 default_staging_space = "staging"
@@ -306,9 +313,6 @@ after_bundle do
     expect(rendered).to match "An official website of the United States government"
   end
   EOM
-
-  # Setup translations
-  generate "rails_template18f:i18n", "--languages=#{supported_languages.join(",")}", "--force"
 end
 
 # install ADRs and compliance documentation
@@ -317,6 +321,21 @@ register_announcement("Documentation", <<~EOM)
   * Include a short description of your application in doc/compliance/apps/application.boundary.md
   * Remember to keep your Logical Data Model up to date in doc/compliance/apps/data.logical.md
 EOM
+
+if compliance_template
+  after_bundle do
+    generator_arguments = [
+      "--oscal_repo=#{compliance_template_repo}",
+      (compliance_template_submodule ? "--no-detach" : "--detach")
+    ]
+    generate "rails_template18f:oscal", *generator_arguments
+  end
+end
+
+after_bundle do
+  # Setup translations
+  generate "rails_template18f:i18n", "--languages=#{supported_languages.join(",")}", "--force"
+end
 
 if newrelic
   after_bundle do
