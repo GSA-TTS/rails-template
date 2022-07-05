@@ -35,4 +35,12 @@ RSpec.describe RailsTemplate18f::Generators::NewrelicGenerator, type: :generator
   it "sets ENV var for deployed app" do
     expect(file("manifest.yml")).to contain(/^    NEW_RELIC_LOG: stdout$/)
   end
+
+  it "updates the SI-4.2 control implementation" do
+    expect(file("doc/compliance/oscal/dist/system-security-plans/lato/si-4.2.md")).to contain(<<~EOS)
+      **tmp Implementation:**
+
+      tmp is monitored using New Relic Application Performance Monitoring (APM),
+    EOS
+  end
 end

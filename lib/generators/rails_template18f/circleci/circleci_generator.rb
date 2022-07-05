@@ -65,6 +65,10 @@ EOB
         EOB
       end
 
+      def update_oscal_docs
+        update_cicd_oscal_docs("CircleCI")
+      end
+
       no_tasks do
         def readme_cicd
           <<~EOM
@@ -79,7 +83,7 @@ EOB
           <<~EOM
 
             Deploys to staging#{terraform? ? ", including applying changes in terraform," : ""} happen
-            on every push to the `main` branch in Github.
+            on every push to the `main` branch in GitHub.
 
             The following secrets must be set within [CircleCI Environment Variables](https://circleci.com/docs/2.0/env-vars/)
             to enable a deploy to work:
@@ -97,7 +101,7 @@ EOB
           <<~EOM
 
             Deploys to production#{terraform? ? ", including applying changes in terraform," : ""} happen
-            on every push to the `production` branch in Github.
+            on every push to the `production` branch in GitHub.
 
             The following secrets must be set within [CircleCI Environment Variables](https://circleci.com/docs/2.0/env-vars/)
             to enable a deploy to work:

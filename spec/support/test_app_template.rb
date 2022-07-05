@@ -4,7 +4,8 @@
 def source_paths
   [
     "#{__dir__}/../../templates",
-    "#{__dir__}/../../lib/generators/rails_template18f/terraform/templates"
+    "#{__dir__}/../../lib/generators/rails_template18f/terraform/templates",
+    "#{__dir__}/templates"
   ]
 end
 
@@ -22,6 +23,7 @@ copy_file "env", ".env"
 copy_file "config/environments/ci.rb"
 template "manifest.yml"
 directory "doc"
+directory "doc/compliance/oscal"
 copy_file "githooks/pre-commit", ".githooks/pre-commit", mode: :preserve
 run "mkdir spec"
 directory "config/deployment"
