@@ -9,6 +9,7 @@ module RailsTemplate18f
 
       class_option :oscal_repo, required: true, desc: "GitHub Repo containing Compliance-Template fork"
       class_option :detach, type: :boolean, default: false, desc: "Copy OSCAL files into repo, rather than using a submodule"
+      class_option :branch, desc: "Name of the branch to switch to when using a submodule. Defaults to `app_name`"
 
       desc <<~DESC
         Description:
@@ -29,6 +30,9 @@ module RailsTemplate18f
           remove_dir "doc/compliance/oscal/.git"
         else
           git submodule: "add #{options[:oscal_repo]} doc/compliance/oscal"
+          inside "doc/compliance/oscal" do
+            git switch: "-c #{branch_name}"
+          end
         end
       end
 
@@ -41,6 +45,10 @@ module RailsTemplate18f
       end
 
       no_tasks do
+        def branch_name
+          options[:branch].present? ? options[:branch] : app_name
+        end
+
         def readme_contents
           if detach?
             <<~README

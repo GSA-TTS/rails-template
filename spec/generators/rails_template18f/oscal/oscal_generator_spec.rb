@@ -12,6 +12,10 @@ RSpec.describe RailsTemplate18f::Generators::OscalGenerator, type: :generator do
       expect(subject).to match("git submodule add #{ct_repo} doc/compliance/oscal")
     end
 
+    it "switches to a new branch" do
+      expect(subject).to match("git switch -c oscal")
+    end
+
     it "adds instructions to README" do
       expect(subject).to match(/insert\s+README\.md/)
     end
