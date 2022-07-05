@@ -483,7 +483,8 @@ after_bundle do
     EOM
     if compliance_template_submodule
       inside "doc/compliance/oscal" do
-        git commit: "-a -m 'rails-template generated control statements'"
+        run "git add -A"
+        run "git diff-index --quiet HEAD || git commit -am 'rails-template generated control statements'"
       end
     end
     git add: "."

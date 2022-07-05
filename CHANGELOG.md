@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+- fix issue with initial git commit when no OSCAL docs were updated during initial app creation
+
 ## [0.7.0] - 2022-07-05
 
 - OSCAL generator to integrate with https://github.com/GSA-TTS/compliance-template
