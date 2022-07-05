@@ -476,6 +476,16 @@ after_bundle do
 
   unless skip_git?
     run "cp .gitignore .cfignore"
+    append_to_file ".cfignore", <<~EOM
+
+      # compliance documentation
+      /doc/compliance/
+    EOM
+    if compliance_template_submodule
+      inside "doc/compliance/oscal" do
+        git commit: "-a -m 'rails-template generated control statements'"
+      end
+    end
     git add: "."
     git commit: "-a -m 'Initial commit'"
   end
