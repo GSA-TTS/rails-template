@@ -1,6 +1,8 @@
 ## [Unreleased]
 
-- experimental generator to integrate the oscal compliance template
+## [0.7.0] - 2022-07-05
+
+- OSCAL generator to integrate with https://github.com/GSA-TTS/compliance-template
 
 ## [0.6.0] - 2022-06-07
 
