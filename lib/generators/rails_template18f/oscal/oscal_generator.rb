@@ -44,30 +44,54 @@ module RailsTemplate18f
         end
       end
 
+      def configure_submodule
+        unless detach?
+          git config: "-f .gitmodules submodule.\"doc/compliance/oscal\".branch #{branch_name}"
+          git config: "diff.submodule log"
+          git config: "status.submodulesummary 1"
+          git config: "push.recurseSubmodules check"
+        end
+      end
+
       no_tasks do
         def branch_name
           options[:branch].present? ? options[:branch] : app_name
         end
 
         def readme_contents
-          if detach?
-            <<~README
+          content = <<~README
 
-              ### Compliance Documentation
+            ### Compliance Documentation
 
-              Security Controls should be documented within doc/compliance/oscal.
-            README
-          else
-            <<~README
+            Security Controls should be documented within doc/compliance/oscal.
+          README
+          return content if detach?
+          <<~README
+            #{content}
 
-              ### Compliance Documentation
+            #### Git Submodule Commands
 
-              Security Controls should be documented within doc/compliance/oscal.
+            See git's [submodule documentation](https://git-scm.com/book/en/v2/Git-Tools-Submodules)
+            for more information on tracking changes to these files.
 
-              See git's [submodule documentation](https://git-scm.com/book/en/v2/Git-Tools-Submodules)
-              for more information on tracking changes to these files.
-            README
-          end
+            ##### Cloning this project
+
+            `git clone --recurse-submodules <<REPO_ADDRESS>>`
+
+            ##### Pull changes including OSCAL changes
+
+            `git pull --recurse-submodules`
+
+            ##### Push changes including OSCAL changes
+
+            `git push --recurse-submodules=check` _then_ `git push --recurse-submodules=on-demand`
+
+            ##### Helpful config settings:
+
+            * `git config diff.submodule log`
+            * `git config status.submodulesummary 1`
+            * `git config push.recurseSubmodules check`
+          README
         end
 
         def detach?

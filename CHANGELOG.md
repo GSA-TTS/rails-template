@@ -1,6 +1,7 @@
 ## [Unreleased]
 
 - fix issue with initial git commit when no OSCAL docs were updated during initial app creation
+- add extra content to project README about working with submodules
 
 ## [0.7.0] - 2022-07-05
 
