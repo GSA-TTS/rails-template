@@ -145,7 +145,7 @@ EOB
         elsif File.exist?(nvmrc_path)
           File.read(nvmrc_path).strip
         else
-          "16.13"
+          "16.15"
         end
       end
 
