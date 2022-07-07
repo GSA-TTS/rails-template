@@ -63,7 +63,7 @@ module RailsTemplate18f
       def insert_into_oscal(filename, content, after: "## What is the solution and how is it implemented?\n")
         content = <<~EOS
 
-          **#{app_name} Implementation:**
+          ### #{app_name}
 
           #{content}
         EOS

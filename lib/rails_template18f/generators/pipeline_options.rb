@@ -94,18 +94,11 @@ module RailsTemplate18f
         insert_into_oscal "sa-11.md", <<~EOS, after: "## Implementation a.\n"
           The CI/CD pipeline utilizes multiple tools to perform static code analysis for security and privacy:
 
-          ### Brakeman
-          Brakeman is a static code scanner designed to find security issues in Ruby on Rails code. It can flag potential SQL injection,
+          * **Brakeman** is a static code scanner designed to find security issues in Ruby on Rails code. It can flag potential SQL injection,
           Command Injection, open redirects, and other common vulnerabilities.
-
-          ### Bundle Audit
-          bundle-audit checks Ruby dependencies against a database of known CVE numbers.
-
-          ### Yarn Audit
-          yarn audit checks Javascript dependencies against a database of known CVE numbers.
-
-          ### OWASP ZAP
-          OWASP ZAP is a dynamic security scanner that can simulate actual attacks on a running server.
+          * **bundle-audit** checks Ruby dependencies against a database of known CVE numbers.
+          * **yarn audit** checks Javascript dependencies against a database of known CVE numbers.
+          * **OWASP ZAP** is a dynamic security scanner that can simulate actual attacks on a running server.
 
           An additional RAILS_ENV has been created called ci. It inherits from production to ensure that the system being tested is as close as possible to production while allowing for overrides such as bypassing authentication in a secure way.
         EOS

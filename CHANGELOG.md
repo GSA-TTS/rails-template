@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+- update default node version in github actions to 16.15
+- update OSCAL message format to include the app_name as an OSCAL component once assembled
+
 ## [0.7.1] - 2022-07-05
 
 - fix issue with initial git commit when no OSCAL docs were updated during initial app creation

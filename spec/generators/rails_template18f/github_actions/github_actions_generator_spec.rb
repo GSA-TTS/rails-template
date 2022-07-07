@@ -32,7 +32,7 @@ RSpec.describe RailsTemplate18f::Generators::GithubActionsGenerator, type: :gene
 
     it "updates the CA-7 control implementation" do
       expect(file("doc/compliance/oscal/dist/system-security-plans/lato/ca-7.md")).to contain(<<~EOS)
-        **tmp Implementation:**
+        ### tmp
 
         * tmp DevOps staff review OWASP and Dependency scans every build, or at least weekly.
         * tmp DevOps staff and the GSA ISSO review Web Application vulnerability scans on a weekly basis.
