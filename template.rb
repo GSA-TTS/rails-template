@@ -321,6 +321,9 @@ register_announcement("Documentation", <<~EOM)
   * Include a short description of your application in doc/compliance/apps/application.boundary.md
   * Remember to keep your Logical Data Model up to date in doc/compliance/apps/data.logical.md
 EOM
+after_bundle do
+  generate "rails_template18f:rails_erd"
+end
 
 if compliance_template
   after_bundle do
