@@ -59,11 +59,6 @@ RSpec.describe RailsTemplate18f::Generators::ActiveStorageGenerator, type: :gene
     expect(file("doc/compliance/apps/application.boundary.md")).to contain('Rel(app, app_s3, "reads/writes file data", "https (443)")')
   end
 
-  it "updates the logical data model" do
-    run_generator
-    expect(file("doc/compliance/apps/data.logical.md")).to contain(generator.data_model_uml)
-  end
-
   it "creates a new ADR" do
     run_generator
     expect(file("doc/adr/0005-clamav-file-scanning.md")).to contain("# 5. ClamAV File Scanning")

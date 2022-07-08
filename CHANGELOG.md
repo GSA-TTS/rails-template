@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+- use rails-erd gem for auto-updating logical data models
+
 ## [0.7.2] - 2022-07-07
 
 - update default node version in github actions to 16.15

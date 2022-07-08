@@ -1,12 +1,17 @@
 # Compliance artifacts
 
-## What is this?
-
 In order to maintain and revise compliance materials with minimal fuss, we store all artifacts as text source (eg Markdown, PlantUML, OSCAL), then generate rendered materials for consumption by downstream entities in the assessment and authorization process.
 
 This directory initially just contains system architecture diagrams corresponding to sections 1-12 of a typical System Security Plan (SSP) document.
 
 The source for other things (OSCAL for control descriptions, evidence generation scripts, etc) will appear here over time.
+
+## Documents
+
+### Application Boundary
+
+The UML source of the application boundary is stored at doc/compliance/apps/application.boundary.md.
+The rendered output is saved to doc/compliance/rendered/apps/application.boundary.svg
 
 ## Development
 
