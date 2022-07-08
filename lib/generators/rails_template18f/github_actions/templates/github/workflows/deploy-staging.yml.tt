@@ -50,4 +50,6 @@ jobs:
           cf_password: ${{ secrets.CF_PASSWORD }}
           cf_org: <%= cloud_gov_organization %>
           cf_space: <%= cloud_gov_staging_space %>
-          push_arguments: "--vars-file config/deployment/staging.yml --var rails_master_key=$RAILS_MASTER_KEY"
+          push_arguments: >-
+            --vars-file config/deployment/staging.yml
+            --var rails_master_key=$RAILS_MASTER_KEY

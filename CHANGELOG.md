@@ -1,6 +1,7 @@
 ## [Unreleased]
 
 - use rails-erd gem for auto-updating logical data models
+- use cleaner multi-line strings for GitHub Actions deploy steps
 
 ## [0.7.2] - 2022-07-07
 
