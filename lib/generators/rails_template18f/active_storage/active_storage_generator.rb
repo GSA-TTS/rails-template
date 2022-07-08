@@ -86,10 +86,6 @@ module RailsTemplate18f
         end
       end
 
-      def update_data_model_uml
-        insert_into_file "doc/compliance/apps/data.logical.md", data_model_uml, before: "@enduml"
-      end
-
       def generate_adr
         adr_dir = File.expand_path(File.join("doc", "adr"), destination_root)
         if Dir.exist? adr_dir
@@ -106,45 +102,6 @@ module RailsTemplate18f
           insert_into_oscal "si-3.md", <<~EOS, after: "## Implementation b.\n"
             ClamAV is configured to automatically update malicious code detection signatures on a daily basis.
           EOS
-        end
-      end
-
-      no_tasks do
-        def data_model_uml
-          <<~UML
-            class file_uploads {
-              * id : bigint <<generated>>
-              * scan_status : string
-              * record_id : bigint
-              * record_type : string
-            }
-            class active_storage_attachments {
-              * id : bigint <<generated>>
-              * name : string
-              * record_type : string
-              * record_id : bigint
-              * blob_id : bigint
-              * created_at : timestamp without time zone
-            }
-            class active_storage_blobs {
-              * id : bigint <<generated>>
-              * key : string
-              * filename : string
-              content_type : string
-              metadata : text
-              * service_name : string
-              * byte_size : bigint
-              checksum : string
-              * created_at : timestamp without time zone
-            }
-            class active_storage_variant_records {
-              * id : bigint <<generated>>
-              * variation_digest : string
-            }
-            file_uploads ||--|| active_storage_attachments
-            active_storage_attachments ||--|{ active_storage_blobs
-            active_storage_variant_records ||--|{ active_storage_blobs
-          UML
         end
       end
     end
