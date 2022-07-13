@@ -37,3 +37,20 @@ jobs:
 
       - name: Run yarn audit
         run: bundle exec rake yarn:audit
+
+  ruby-bom:
+    name: Ruby SBOM Generation
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/setup-languages
+      - name: Install cyclonedx
+        run: gem install cyclonedx-ruby
+      - name: Generate BOM
+        run: cyclonedx-ruby -p . -o ruby_bom.xml
+      - name: Save BOM
+        uses: actions/upload-artifact@v3
+        with:
+          name: ruby-bom
+          path: ./ruby_bom.xml
