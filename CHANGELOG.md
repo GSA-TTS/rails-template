@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [0.8.0] - 2022-07-14
+
 - use rails-erd gem for auto-updating logical data models
 - use cleaner multi-line strings for GitHub Actions deploy steps
 - generate an SBOM for ruby dependencies in either Github Actions or CircleCI using cyclonedx-ruby
