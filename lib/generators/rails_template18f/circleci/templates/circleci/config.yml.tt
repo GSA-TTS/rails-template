@@ -133,6 +133,20 @@ jobs:
           name: Yarn audit
           command: bundle exec rake yarn:audit
 
+  sbom_generation:
+    docker:
+      - image: cimg/ruby:<%= ruby_version %>
+    steps:
+      - setup-project
+      - run:
+          name: Install cyclonedx
+          command: gem install cyclonedx-ruby
+      - run:
+          name: Generate BOM
+          command: cyclonedx-ruby -p . -o ruby_bom.xml
+      - store_artifacts:
+          path: ./ruby_bom.xml
+
   owasp_scan:
     machine:
       image: ubuntu-2004:202111-02
@@ -341,6 +355,9 @@ workflows:
           requires:
             - build
       - static_security_scans:
+          requires:
+            - build
+      - sbom_generation:
           requires:
             - build
       - owasp_scan:
