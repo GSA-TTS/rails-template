@@ -7,6 +7,9 @@ brew "postgresql@12", link: true
 # used in bin/with-server script
 brew "dockerize"
 
+# used in bin/ops/create_service_account.sh
+brew "jq"
+
 # helper scripts for creating new ADRs
 brew "adr-tools"
 

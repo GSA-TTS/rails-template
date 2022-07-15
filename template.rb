@@ -141,6 +141,9 @@ end
 
 # setup pa11y and owasp scanning
 directory "bin", mode: :preserve
+chmod "bin/ops/create_service_account.sh", 0o755
+chmod "bin/ops/destroy_service_account.sh", 0o755
+chmod "bin/ops/set_space_egress.sh", 0o755
 copy_file "pa11yci", ".pa11yci"
 copy_file "editorconfig", ".editorconfig"
 copy_file "zap.conf"
@@ -429,6 +432,11 @@ if @circleci_pipeline
       "--cg-prod=#{cloud_gov_production_space}"
     ]
     generate "rails_template18f:circleci", *generator_arguments
+  end
+  if cloud_gov_org_tktk?
+    register_announcement("CircleCI", <<~EOM)
+      * Fill in the cloud.gov organization information in .circleci/config.yml
+    EOM
   end
   register_announcement("CircleCI", <<~EOM)
     * Create project environment variables for deploy users as defined in the Deployment section of the README

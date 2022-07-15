@@ -59,7 +59,7 @@ The bootstrap module is used to create an s3 bucket for later terraform runs to 
 A [SpaceDeployer](https://cloud.gov/docs/services/cloud-gov-service-account/) account is required to run terraform or
 deploy the application from the CI/CD pipeline. Create a new account by running:
 
-`./create_service_account.sh -s <SPACE_NAME> -u <ACCOUNT_NAME>`
+`../bin/ops/create_service_account.sh -s <SPACE_NAME> -u <ACCOUNT_NAME>`
 
 ## Set up a new environment manually
 
@@ -75,7 +75,7 @@ The below steps rely on you first configuring access to the Terraform state in s
     # something that communicates the purpose of the deployer
     # for example: circleci-deployer for the credentials CircleCI uses to
     # deploy the application or <your_name>-terraform for credentials to run terraform manually
-    ../create_service_account.sh -s <SPACE_NAME> -u <ACCOUNT_NAME> > secrets.auto.tfvars
+    ../../bin/ops/create_service_account.sh -s <SPACE_NAME> -u <ACCOUNT_NAME> > secrets.auto.tfvars
     ```
 
     The script will output the `username` (as `cf_user`) and `password` (as `cf_password`) for your `<ACCOUNT_NAME>`. Read more in the [cloud.gov service account documentation](https://cloud.gov/docs/services/cloud-gov-service-account/).
@@ -93,7 +93,7 @@ The below steps rely on you first configuring access to the Terraform state in s
 1. Remove the space deployer service instance if it doesn't need to be used again, such as when manually running terraform once.
     ```bash
     # <SPACE_NAME> and <ACCOUNT_NAME> have the same values as used above.
-    ../destroy_service_account.sh -s <SPACE_NAME> -u <ACCOUNT_NAME>
+    ../../bin/ops/destroy_service_account.sh -s <SPACE_NAME> -u <ACCOUNT_NAME>
     ```
 
 ## Structure

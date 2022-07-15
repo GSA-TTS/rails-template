@@ -2,6 +2,7 @@
 
 - add a doc/compliance/TODO.md file with tasks that can sometimes be useful on the ATO journey.
 - generalize create_space_deployer.sh to create_service_account.sh to make it easier to create SpaceAuditor users
+- move support scripts set_space_egress.sh, create_service_account.sh, and destroy_service_account.sh out of terraform generator
 
 ## [0.8.0] - 2022-07-14
 

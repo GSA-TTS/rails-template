@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if [[ ! -f "secrets.auto.tfvars" ]]; then
-  ../create_service_account.sh -s <%= cloud_gov_production_space %> -u config-bootstrap-deployer > secrets.auto.tfvars
+  ../../bin/ops/create_service_account.sh -s <%= cloud_gov_production_space %> -u config-bootstrap-deployer > secrets.auto.tfvars
 fi
 
 if [[ $# -gt 0 ]]; then

@@ -15,6 +15,7 @@ guide for an introduction to the framework.
 * Install homebrew dependencies: `brew bundle`
   * [PostgreSQL](https://www.postgresql.org/)
   * [Dockerize](https://github.com/jwilder/dockerize)
+  * [jq](https://stedolan.github.io/jq/)
   * [ADR Tools](https://github.com/npryce/adr-tools)
   * [Chromedriver](https://sites.google.com/chromium.org/driver/)
     * Chromedriver must be allowed to run. You can either do that by:

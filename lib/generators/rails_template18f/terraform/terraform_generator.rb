@@ -15,20 +15,8 @@ module RailsTemplate18f
 
       def install
         directory "terraform", mode: :preserve
-        chmod "terraform/create_service_account.sh", 0o755
-        chmod "terraform/destroy_service_account.sh", 0o755
-        chmod "terraform/set_space_egress.sh", 0o755
         chmod "terraform/bootstrap/run.sh", 0o755
         chmod "terraform/bootstrap/teardown_creds.sh", 0o755
-      end
-
-      def install_jq
-        append_to_file "Brewfile", <<~EOB
-
-          # used in terraform/create_service_account.sh
-          brew "jq"
-        EOB
-        insert_into_file "README.md", indent("* [jq](https://stedolan.github.io/jq/)\n"), after: /\* Install homebrew dependencies: `brew bundle`\n/
       end
 
       def ignore_files
