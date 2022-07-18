@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+- Create rails_template18f:public_egress generator for integrating with cg-egress-proxy
+- [Use exec when starting rails server](https://docs.cloudfoundry.org/devguide/deploy-apps/manifest-attributes.html#start-commands:~:text=To%20resolve%20this,process.%20For%20example%3A)
+
 ## [1.2.0] - 2024-09-20
 
 - new applications are now on Rails 7.2.x
