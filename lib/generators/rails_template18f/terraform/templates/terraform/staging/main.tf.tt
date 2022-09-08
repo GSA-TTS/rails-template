@@ -2,43 +2,46 @@ locals {
   cf_org_name      = "<%= cloud_gov_organization %>"
   cf_space_name    = "<%= cloud_gov_staging_space %>"
   env              = "staging"
+  app_name         = "<%= app_name %>"
   recursive_delete = true
 }
 
 module "database" {
-  source = "../shared/database"
+  source = "github.com/18f/terraform-cloudgov//database"
 
   cf_user          = var.cf_user
   cf_password      = var.cf_password
   cf_org_name      = local.cf_org_name
   cf_space_name    = local.cf_space_name
   env              = local.env
+  app_name         = local.app_name
   recursive_delete = local.recursive_delete
   rds_plan_name    = "micro-psql"
 }
 <% if has_active_job? %>
 module "redis" {
-  source = "../shared/redis"
+  source = "github.com/18f/terraform-cloudgov//redis"
 
   cf_user          = var.cf_user
   cf_password      = var.cf_password
   cf_org_name      = local.cf_org_name
   cf_space_name    = local.cf_space_name
   env              = local.env
+  app_name         = local.app_name
   recursive_delete = local.recursive_delete
   redis_plan_name  = "redis-dev"
 }
 <% end %>
 <% if has_active_storage? %>
 module "s3" {
-  source = "../shared/s3"
+  source = "github.com/18f/terraform-cloudgov//s3"
 
   cf_user          = var.cf_user
   cf_password      = var.cf_password
   cf_org_name      = local.cf_org_name
   cf_space_name    = local.cf_space_name
   recursive_delete = local.recursive_delete
-  s3_service_name  = "<%= app_name %>-s3-${local.env}"<% if cloud_gov_organization == "sandbox-gsa" %>
+  s3_service_name  = "${local.app_name}-s3-${local.env}"<% if cloud_gov_organization == "sandbox-gsa" %>
   s3_plan_name     = "basic-sandbox"<% end %>
 }
 
@@ -49,13 +52,14 @@ module "s3" {
 # 2) Your organization has sufficient memory. Each clamav app requires 3GB
 ###########################################################################
 # module "clamav" {
-#   source = "../shared/clamav"
+#   source = "github.com/18f/terraform-cloudgov//clamav"
 #
 #   cf_user       = var.cf_user
 #   cf_password   = var.cf_password
 #   cf_org_name   = local.cf_org_name
 #   cf_space_name = local.cf_space_name
 #   env           = local.env
+#   app_name      = local.app_name
 #   clamav_image  = "ajilaag/clamav-rest:20211229"
 #   max_file_size = "30M"
 # }
