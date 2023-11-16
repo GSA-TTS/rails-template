@@ -49,5 +49,5 @@ jobs:
           cf_username: ${{ secrets.CF_USERNAME }}
           cf_password: ${{ secrets.CF_PASSWORD }}
           cf_org: <%= cloud_gov_organization %>
-          cf_space: <%= cloud_gov_staging_space %>
-          cf_command: push -vars-file config/deployment/staging.yml --var rails_master_key=${{ env.RAILS_MASTER_KEY }} --strategy rolling
+          cf_space: <%= cloud_gov_production_space %>
+          cf_command: push -vars-file config/deployment/production.yml --var rails_master_key=${{ env.RAILS_MASTER_KEY }} --strategy rolling
