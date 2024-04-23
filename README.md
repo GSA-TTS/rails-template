@@ -17,11 +17,11 @@ $ gem install rails_template_18f
 
 2. Decide whether to install Rails with Hotwire, a framework for client-side interactivity using JavaScript
   - **For entirely server-side rendered applications**, without any Javascript:
-    - Use the default configuration (`rails_template_18f <project name> --no-hotwire`)
+    - Use the default configuration (`rails_template_18f new <project name> --no-hotwire`)
   - **For applications that need [a bit of client-side interactivity][aBitOfJS]**, but not a full single page application like React or Vue:
-    - Use Hotwire (`rails_template_18f <project name> --hotwire`)
+    - Use Hotwire (`rails_template_18f new <project name> --hotwire`)
   - **For single-page applications** where most of the interaction will take place via JavaScript, and which will use a framework like React or Vue:
-    - Use the default configuration (`rails_template_18f <project name> --no-hotwire`)
+    - Use the default configuration (`rails_template_18f new <project name> --no-hotwire`)
 
 The `--hotwire` flag means that [Hotwire](https://hotwired.dev/) and [ActionCable](https://guides.rubyonrails.org/action_cable_overview.html) are installed. ActionCable is included to enable the [Turbo Streams](https://turbo.hotwired.dev/handbook/streams) functionality of Hotwire.
 
