@@ -58,6 +58,15 @@ compliance_template_submodule = compliance_template && yes?("Clone #{compliance_
 if compliance_template_submodule
   compliance_template_repo = ask("What is the git clone address of your compliance-template fork?")
 end
+if compliance_template_repo.blank?
+  register_announcement("OSCAL Documentation", <<~EOM)
+    Skipping OSCAL files as the compliance-template fork was left blank.
+
+    Re-run the oscal generator after creating your template fork to get started with OSCAL.
+  EOM
+  compliance_template = false
+  compliance_template_submodule = false
+end
 
 terraform = yes?("Create terraform files for cloud.gov services? (y/n)")
 @cloud_gov_organization = ask("What is your cloud.gov organization name? (Leave blank to fill in later)")
