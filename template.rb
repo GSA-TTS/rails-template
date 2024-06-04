@@ -237,7 +237,7 @@ end
 # setup USWDS and asset pipeline
 copy_file "browserslistrc", ".browserslistrc" if webpack?
 after_bundle do
-  run 'npm set-script build:css "postcss ./app/assets/stylesheets/application.postcss.scss -o ./app/assets/builds/application.css"'
+  run 'npm pkg set scripts.build:css="postcss ./app/assets/stylesheets/application.postcss.scss -o ./app/assets/builds/application.css"'
   # include verbose flag for dev postcss output
   gsub_file "Procfile.dev", "yarn build:css --watch", "yarn build:css --verbose --watch"
   # Replace postcss-nesting with sass since USWDS uses sass
