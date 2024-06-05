@@ -42,7 +42,7 @@ jobs:
         run: terraform apply -auto-approve -input=false
       <% end %>
       - name: Deploy app
-        uses: 18F/cg-deploy-action@main
+        uses: cloud-gov/cg-cli-tools@main
         env:
           RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
         with:
@@ -50,6 +50,4 @@ jobs:
           cf_password: ${{ secrets.CF_PASSWORD }}
           cf_org: <%= cloud_gov_organization %>
           cf_space: <%= cloud_gov_production_space %>
-          push_arguments: >-
-            --vars-file config/deployment/production.yml
-            --var rails_master_key=$RAILS_MASTER_KEY
+          cf_command: push -vars-file config/deployment/production.yml --var rails_master_key=${{ env.RAILS_MASTER_KEY }} --strategy rolling
