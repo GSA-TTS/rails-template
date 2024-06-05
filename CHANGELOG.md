@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+- Replace deprecated github action for cloud.gov deploys with cg-supported one
+- Update terraform modules use for the actual module api - and specify the module version in use
+
 ## [0.8.1] - 2024-06-04
 
 - fix error when compliance-template fork question is left blank
