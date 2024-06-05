@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# this script is used by docker-compose and Dockerfile to start up a servrer
+# this script is used by docker-compose and Dockerfile.ci to start up a server
 # for running OWASP in CircleCI
 
 dockerize -wait tcp://db:5432 -timeout 1m
