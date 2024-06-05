@@ -62,8 +62,8 @@ EOB
       def update_terraform_readme
         return unless terraform?
         readme_filename = "terraform/README.md"
-        insert_into_file readme_filename, "  |- .force-action-apply\n", after: "  |- secrets.auto.tfvars\n"
-        insert_into_file readme_filename, <<~EOM, after: /- `secrets.auto.tfvars`.*$/
+        insert_into_file readme_filename, "  |- .force-action-apply\n", after: "- <env>/\n"
+        insert_into_file readme_filename, <<~EOM, after: /.*environment-specific modules:$/
           \n- `.force-action-apply` is a file that can be updated to force GitHub Actions to run `terraform apply` during the deploy phase
         EOM
       end
