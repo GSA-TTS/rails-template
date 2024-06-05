@@ -202,11 +202,11 @@ uncomment_lines csp_initializer, "content_security_policy_nonce"
 
 # install development & testing gems
 gem_group :development, :test do
-  gem "rspec-rails", "~> 5.1"
-  gem "dotenv-rails", "~> 2.7"
-  gem "brakeman", "~> 5.2"
+  gem "rspec-rails", "~> 6.1"
+  gem "dotenv-rails", "~> 3.1"
+  gem "brakeman", "~> 6.1"
   gem "bundler-audit", "~> 0.9"
-  gem "standard", "~> 1.7"
+  gem "standard", "~> 1.36"
 end
 if ENV["RT_DEV"] == "true"
   gem "rails_template_18f", group: :development, path: ENV["PWD"]

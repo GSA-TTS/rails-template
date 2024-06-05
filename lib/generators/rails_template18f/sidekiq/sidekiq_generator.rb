@@ -14,7 +14,7 @@ module RailsTemplate18f
 
       def install_gem
         return if gem_installed?("sidekiq")
-        gem "sidekiq", "~> 6.4"
+        gem "sidekiq", "~> 7.2"
         bundle_install
       end
 

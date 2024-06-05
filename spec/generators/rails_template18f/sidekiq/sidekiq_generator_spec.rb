@@ -10,7 +10,7 @@ RSpec.describe RailsTemplate18f::Generators::SidekiqGenerator, type: :generator 
   }
 
   it "adds the sidekiq gem" do
-    expect(file("Gemfile")).to contain('gem "sidekiq", "~> 6.4"')
+    expect(file("Gemfile")).to contain('gem "sidekiq", "~> 7.2"')
   end
 
   it "adds sidekiq to manifest and Procfile.dev" do
