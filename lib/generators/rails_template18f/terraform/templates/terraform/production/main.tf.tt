@@ -3,46 +3,34 @@ locals {
   cf_space_name    = "<%= cloud_gov_production_space %>"
   env              = "production"
   app_name         = "<%= app_name %>"
-  recursive_delete = false
 }
 
 module "database" {
-  source = "github.com/18f/terraform-cloudgov//database"
+  source = "github.com/gsa-tts/terraform-cloudgov//database?ref=v1.0.0"
 
-  cf_user          = var.cf_user
-  cf_password      = var.cf_password
-  cf_org_name      = local.cf_org_name
-  cf_space_name    = local.cf_space_name
-  env              = local.env
-  app_name         = local.app_name
-  recursive_delete = local.recursive_delete
-  rds_plan_name    = "TKTK-production-rds-plan"
+  cf_org_name   = local.cf_org_name
+  cf_space_name = local.cf_space_name
+  name          = "${local.app_name}-rds-${local.env}"
+  rds_plan_name = "TKTK-production-rds-plan"
 }
 <% if has_active_job? %>
 module "redis" {
-  source = "github.com/18f/terraform-cloudgov//redis"
+  source = "github.com/gsa-tts/terraform-cloudgov//redis?ref=v1.0.0"
 
-  cf_user          = var.cf_user
-  cf_password      = var.cf_password
-  cf_org_name      = local.cf_org_name
-  cf_space_name    = local.cf_space_name
-  env              = local.env
-  app_name         = local.app_name
-  recursive_delete = local.recursive_delete
-  redis_plan_name  = "TKTK-production-redis-plan"
+  cf_org_name     = local.cf_org_name
+  cf_space_name   = local.cf_space_name
+  name            = "${local.app_name}-redis-${local.env}"
+  redis_plan_name = "TKTK-production-redis-plan"
 }
 <% end %>
 <% if has_active_storage? %>
 module "s3" {
-  source = "github.com/18f/terraform-cloudgov//s3"
+  source = "github.com/gsa-tts/terraform-cloudgov//s3?ref=v1.0.0"
 
-  cf_user          = var.cf_user
-  cf_password      = var.cf_password
-  cf_org_name      = local.cf_org_name
-  cf_space_name    = local.cf_space_name
-  recursive_delete = local.recursive_delete
-  s3_service_name  = "${local.app_name}-s3-${local.env}"<% if cloud_gov_organization == "sandbox-gsa" %>
-  s3_plan_name     = "basic-sandbox"<% end %>
+  cf_org_name   = local.cf_org_name
+  cf_space_name = local.cf_space_name
+  name          = "${local.app_name}-s3-${local.env}"<% if cloud_gov_organization == "sandbox-gsa" %>
+  s3_plan_name  = "basic-sandbox"<% end %>
 }
 
 ###########################################################################
@@ -52,16 +40,14 @@ module "s3" {
 # 2) Your organization has sufficient memory. Each clamav app requires 3GB
 ###########################################################################
 # module "clamav" {
-#   source = "github.com/18f/terraform-cloudgov//clamav"
+#   source = "github.com/gsa-tts/terraform-cloudgov//clamav?ref=v1.0.0"
 #
-#   cf_user       = var.cf_user
-#   cf_password   = var.cf_password
-#   cf_org_name   = local.cf_org_name
-#   cf_space_name = local.cf_space_name
-#   env           = local.env
-#   app_name      = local.app_name
-#   clamav_image  = "ajilaag/clamav-rest:20211229"
-#   max_file_size = "30M"
+#   cf_org_name    = local.cf_org_name
+#   cf_space_name  = local.cf_space_name
+#   app_name_or_id = "${local.app_name}-${local.env}"
+#   name           = "${local.app_name}-clamapi-${local.env}"
+#   clamav_image   = "ghcr.io/gsa-tts/clamav-rest/clamav:20240602"
+#   max_file_size  = "30M"
 # }
 <% end %>
 
@@ -73,15 +59,12 @@ module "s3" {
 #     `cf create-domain <%= cloud_gov_organization %> TKTK-production-domain-name`
 ###########################################################################
 # module "domain" {
-#   source = "github.com/18f/terraform-cloudgov//domain"
+#   source = "github.com/gsa-tts/terraform-cloudgov//domain?ref=v1.0.0"
 #
-#   cf_user          = var.cf_user
-#   cf_password      = var.cf_password
-#   cf_org_name      = local.cf_org_name
-#   cf_space_name    = local.cf_space_name
-#   env              = local.env
-#   app_name         = local.app_name
-#   recursive_delete = local.recursive_delete
-#   cdn_plan_name    = "domain"
-#   domain_name      = "TKTK-production-domain-name"
+#   cf_org_name    = local.cf_org_name
+#   cf_space_name  = local.cf_space_name
+#   app_name_or_id = "${local.app_name}-${local.env}"
+#   cdn_plan_name  = "domain"
+#   domain_name    = "TKTK-production-domain-name"
+#   host_name      = "TKTK-production-hostname (optional)"
 # }
