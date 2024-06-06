@@ -47,7 +47,7 @@ commands:
       - run:
           name: Install Cloud Foundry CLI
           command: |
-            curl -v -L -o cf-cli_amd64.deb 'https://packages.cloudfoundry.org/stable?release=debian64&version=v7&source=github'
+            curl -v -L -o cf-cli_amd64.deb 'https://packages.cloudfoundry.org/stable?release=debian64&version=v8&source=github'
             sudo dpkg -i cf-cli_amd64.deb
       - run:
           name: Login with service account
