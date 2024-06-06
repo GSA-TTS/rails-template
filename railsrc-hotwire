@@ -1,6 +1,7 @@
 --skip-active-storage
 --skip-action-text
 --skip-action-mailbox
+--skip-docker
 --skip-test
 --javascript=webpack
 --css=postcss

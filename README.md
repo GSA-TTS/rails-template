@@ -2,9 +2,9 @@
 ============================
 The 18F Rails template starts or upgrades Rails projects so that they're more secure, follow compliance rules, and are nearly ready to deploy onto cloud.gov. This gem sets up security checks and compliance diagrams, adds the U.S. Web Design System (USWDS), and much much more — [see the full list of features](#features).
 
-This template will create a new Rails 7.0.x project.
+This template will create a new Rails 7.1.x project.
 
-[See the `rails-6` branch for Rails 6.1.x](https://github.com/18F/rails-template/tree/rails-6)
+[See the `rails-7.0` branch for Rails 7.0.x](https://github.com/gsa-tts/rails-template/tree/rails-7.0)
 
 ## Installation
 
@@ -43,6 +43,7 @@ There are a variety of options that customize your Rails application.
 --skip-action-cable     # Don't include ActionCable websocket implementation
 --skip-action-mailbox   # Don't include inbound email
 --skip-hotwire          # Don't include Hotwire JS library
+--skip-docker           # Don't include Dockerfile meant for production use
 --skip-test             # Skip built-in test framework. (We include RSpec)
 --javascript=webpack    # Use webpack for JS bundling
 --css=postcss           # Use the PostCSS framework for bundling CSS
@@ -56,7 +57,6 @@ There are a variety of options that customize your Rails application.
 |--------|-------------|
 | `--no-skip-<framework>` | Each of the skipped frameworks listed above (also in `railsrc`) can be overridden on the command line. For example: `--no-skip-active-storage` will include support for `ActiveStorage` document uploads |
 | `--javascript=esbuild` | Use [esbuild](https://esbuild.github.io/) instead of [webpack](https://webpack.js.org/) for JavaScript bundling. Note that maintaining IE11 support with esbuild may be tricky. |
-| `--no-skip-<FRAMEWORK>` | Each of the skipped frameworks in `railsrc` can be overridden on the command line. For example: `--no-skip-active-storage` will include support for `ActiveStorage` document uploads |
 
 You probably won't want to customize the template — that defeats the purpose of using this gem!
 
@@ -128,8 +128,8 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/18f/rails-template. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/18f/rails-template/blob/main/CODE_OF_CONDUCT.md).
+Bug reports and pull requests are welcome on GitHub at https://github.com/gsa-tts/rails-template. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/gsa-tts/rails-template/blob/main/CODE_OF_CONDUCT.md).
 
 ## Code of conduct
 
-Everyone interacting in the 18F Rails Template project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/rahearn/rails-template-18f/blob/main/CODE_OF_CONDUCT.md).
+Everyone interacting in the 18F Rails Template project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/gsa-tts/rails-template/blob/main/CODE_OF_CONDUCT.md).

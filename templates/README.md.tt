@@ -23,9 +23,8 @@ guide for an introduction to the framework.
       * Manually: clicking "allow" when you run the integration tests for the first time and a dialogue opens up
 * Install Ruby dependencies: `bundle install`
 * Install JS dependencies: `yarn install`
-* Create database: `bundle exec rake db:create`
-* Run migrations: `bundle exec rake db:migrate`
-* Run the server: `bundle exec rails s`
+* Create database and run migrations: `bundle exec rake db:setup`
+* Run the server: `bin/dev`
 * Visit the site: http://localhost:3000
 
 ### Local Configuration

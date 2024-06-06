@@ -31,12 +31,12 @@ Gem::Specification.new do |spec|
 
   # For more information and examples about making a new gem, checkout our
   # guide at: https://bundler.io/guides/creating_gem.html
-  spec.add_dependency "railties", "~> 7.0.0"
-  spec.add_dependency "activesupport", "~> 7.0.0"
-  spec.add_dependency "thor", "~> 1.0"
-  spec.add_dependency "colorize", "~> 0.8"
+  spec.add_dependency "railties", "~> 7.1.0"
+  spec.add_dependency "activesupport", "~> 7.1.0"
+  spec.add_dependency "thor", "~> 1.3"
+  spec.add_dependency "colorize", "~> 1.1"
 
-  spec.add_development_dependency "rspec", "~> 3.11"
+  spec.add_development_dependency "rspec", "~> 3.13"
   spec.add_development_dependency "ammeter", "~> 1.1"
-  spec.add_development_dependency "standard", "~> 1.3"
+  spec.add_development_dependency "standard", "~> 1.36"
 end

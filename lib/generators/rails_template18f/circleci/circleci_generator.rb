@@ -23,7 +23,7 @@ module RailsTemplate18f
       def install_pipeline
         directory "circleci", ".circleci"
         copy_file "docker-compose.ci.yml"
-        template "Dockerfile"
+        template "Dockerfile.ci"
         copy_file "bin/ci-server-start", mode: :preserve
       end
 

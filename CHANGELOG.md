@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+- new applications are now on Rails 7.1.x
+
 ## [0.8.2] - 2024-06-06
 
 - Replace deprecated github action for cloud.gov deploys with cg-supported one

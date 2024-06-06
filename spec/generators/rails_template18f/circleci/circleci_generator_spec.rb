@@ -18,7 +18,7 @@ RSpec.describe RailsTemplate18f::Generators::CircleciGenerator, type: :generator
 
     it "installs supporting files for owasp scanning" do
       expect(file("bin/ci-server-start")).to exist
-      expect(file("Dockerfile")).to exist
+      expect(file("Dockerfile.ci")).to exist
       expect(file("docker-compose.ci.yml")).to exist
     end
 

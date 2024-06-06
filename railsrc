@@ -3,6 +3,7 @@
 --skip-action-cable
 --skip-action-mailbox
 --skip-hotwire
+--skip-docker
 --skip-test
 --javascript=webpack
 --css=postcss

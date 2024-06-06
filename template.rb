@@ -15,7 +15,7 @@ def skip_active_job?
 end
 
 def webpack?
-  adjusted_javascript_option == "webpack"
+  options[:javascript] == "webpack"
 end
 
 def hotwire?
@@ -39,12 +39,14 @@ def print_announcements
   end
 end
 
-unless Gem::Dependency.new("rails", "~> 7.0.0").match?("rails", Rails.gem_version)
-  warn "This template requires Rails 7.0.x"
+unless Gem::Dependency.new("rails", "~> 7.1.0").match?("rails", Rails.gem_version)
+  warn "This template requires Rails 7.1.x"
   if Gem::Dependency.new("rails", "~> 6.1.0").match?("rails", Rails.gem_version)
-    warn "See the rails-6 branch https://github.com/18f/rails-template/tree/rails-6"
-  elsif Gem::Dependency.new("rails", "~> 7.1.0").match?("rails", Rails.gem_version)
-    warn "Rails 7.1 is out! Please file an issue so we can get the template updated"
+    warn "See the rails-6 branch https://github.com/gsa-tts/rails-template/tree/rails-6"
+  elsif Gem::Dependency.new("rails", "~> 7.0.0").match?("rails", Rails.gem_version)
+    warn "See the rails-7.0 branch https://github.com/gsa-tts/rails-template/tree/rails-7.0"
+  elsif Gem::Dependency.new("rails", "~> 7.2.0").match?("rails", Rails.gem_version)
+    warn "We haven't updated the template for Rails 7.2 yet! Please file an issue so we can get the template updated"
   else
     warn "We didn't recognize the version of Rails you are using: #{Rails.version}"
   end
@@ -200,11 +202,11 @@ uncomment_lines csp_initializer, "content_security_policy_nonce"
 
 # install development & testing gems
 gem_group :development, :test do
-  gem "rspec-rails", "~> 5.1"
-  gem "dotenv-rails", "~> 2.7"
-  gem "brakeman", "~> 5.2"
+  gem "rspec-rails", "~> 6.1"
+  gem "dotenv-rails", "~> 3.1"
+  gem "brakeman", "~> 6.1"
   gem "bundler-audit", "~> 0.9"
-  gem "standard", "~> 1.7"
+  gem "standard", "~> 1.36"
 end
 if ENV["RT_DEV"] == "true"
   gem "rails_template_18f", group: :development, path: ENV["PWD"]
@@ -481,8 +483,7 @@ EOM
 # ensure this is the very last step
 after_bundle do
   if run_db_setup
-    rails_command "db:create"
-    rails_command "db:migrate"
+    rails_command "db:setup"
   end
 
   # x86_64-linux is required to install gems on any linux system such as cloud.gov or CI pipelines
@@ -490,7 +491,6 @@ after_bundle do
 
   # bring generated code into compliance with standard ruby: https://github.com/testdouble/standard
   gsub_file "config/environments/production.rb", "(STDOUT)", "($stdout)"
-  gsub_file "config/puma.rb", /\) { (\S+) }/, ', \1)'
   run "bundle exec standardrb --fix"
 
   unless skip_git?
