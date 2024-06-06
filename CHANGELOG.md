@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [0.8.2] - 2024-06-06
+
 - Replace deprecated github action for cloud.gov deploys with cg-supported one
 - Update terraform modules use for the actual module api - and specify the module version in use
 
