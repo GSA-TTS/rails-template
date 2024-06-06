@@ -1,5 +1,16 @@
 #!/usr/bin/env bash
 
+if ! command -v jq &> /dev/null
+then
+  echo "jq must be installed. Run 'brew bundle' to install everything in the Brewfile"
+  exit 1
+fi
+if ! command -v terraform &> /dev/null
+then
+  echo "terraform must be installed before running this script"
+  exit 1
+fi
+
 dig_output () {
   dig_result=`cat terraform.tfstate | jq -r ".outputs.bucket_credentials.value.$1"`
 }
