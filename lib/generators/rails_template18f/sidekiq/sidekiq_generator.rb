@@ -24,7 +24,7 @@ module RailsTemplate18f
           # queue for sidekiq jobs
           brew "redis"
         EOB
-        insert_into_file "README.md", indent("* [redis]()\n"), after: /\* Install homebrew dependencies: `brew bundle`\n/
+        insert_into_file "README.md", indent("* [redis](https://redis.io/)\n"), after: /\* Install homebrew dependencies: `brew bundle`\n/
       end
 
       def configure_server_runner

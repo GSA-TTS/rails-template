@@ -5,7 +5,6 @@ The 18F Rails template starts or upgrades Rails projects so that they're more se
 This template will create a new Rails 7.1.x project.
 
 [See the `rails-7.0` branch for Rails 7.0.x](https://github.com/gsa-tts/rails-template/tree/rails-7.0)
-[See the `rails-6` branch for Rails 6.1.x](https://github.com/gsa-tts/rails-template/tree/rails-6)
 
 ## Installation
 

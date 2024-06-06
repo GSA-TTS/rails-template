@@ -43,10 +43,10 @@ unless Gem::Dependency.new("rails", "~> 7.1.0").match?("rails", Rails.gem_versio
   warn "This template requires Rails 7.1.x"
   if Gem::Dependency.new("rails", "~> 6.1.0").match?("rails", Rails.gem_version)
     warn "See the rails-6 branch https://github.com/gsa-tts/rails-template/tree/rails-6"
-  elsif Gem::Dependency.new("rails", "~> 7.1.0").match?("rails", Rails.gem_version)
+  elsif Gem::Dependency.new("rails", "~> 7.0.0").match?("rails", Rails.gem_version)
     warn "See the rails-7.0 branch https://github.com/gsa-tts/rails-template/tree/rails-7.0"
   elsif Gem::Dependency.new("rails", "~> 7.2.0").match?("rails", Rails.gem_version)
-    warn "Rails 7.2 is out! Please file an issue so we can get the template updated"
+    warn "We haven't updated the template for Rails 7.2 yet! Please file an issue so we can get the template updated"
   else
     warn "We didn't recognize the version of Rails you are using: #{Rails.version}"
   end
@@ -483,8 +483,7 @@ EOM
 # ensure this is the very last step
 after_bundle do
   if run_db_setup
-    rails_command "db:create"
-    rails_command "db:migrate"
+    rails_command "db:setup"
   end
 
   # x86_64-linux is required to install gems on any linux system such as cloud.gov or CI pipelines
@@ -492,7 +491,6 @@ after_bundle do
 
   # bring generated code into compliance with standard ruby: https://github.com/testdouble/standard
   gsub_file "config/environments/production.rb", "(STDOUT)", "($stdout)"
-  gsub_file "config/puma.rb", /\) { (\S+) }/, ', \1)'
   run "bundle exec standardrb --fix"
 
   unless skip_git?
