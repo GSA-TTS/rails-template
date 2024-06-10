@@ -1,0 +1,310 @@
+{
+  "component-definition": {
+    "uuid": "b804945e-c0cb-4254-bebf-2c599f61c7a4",
+    "metadata": {
+      "title": "GitHub Actions Component Definition.",
+      "last-modified": "2024-06-10T21:22:51.617878+00:00",
+      "version": "0.0.1",
+      "oscal-version": "1.1.2"
+    },
+    "components": [
+      {
+        "uuid": "d86c09e8-8003-4223-8070-a87b83e8b118",
+        "type": "service",
+        "title": "GitHub Actions",
+        "description": "GitHub Actions CI/CD Pipeline",
+        "props": [
+          {
+            "name": "Rule_Id",
+            "value": "properly-configured",
+            "remarks": "rule-config"
+          },
+          {
+            "name": "Rule_Description",
+            "value": "System Owner has configured the system to properly utilize CI/CD for all tests, scans, and deployments",
+            "remarks": "rule-config"
+          },
+          {
+            "name": "Rule_Id",
+            "value": "branch-protections",
+            "remarks": "rule-branch"
+          },
+          {
+            "name": "Rule_Description",
+            "value": "System Owner has configured GitHub branch protections as described in control",
+            "remarks": "rule-branch"
+          }
+        ],
+        "control-implementations": [
+          {
+            "uuid": "aa42c844-500d-4072-b92e-53e063a635bd",
+            "source": "trestle://profiles/lato/profile.json",
+            "description": "",
+            "implemented-requirements": [
+              {
+                "uuid": "e0fa131a-1139-4a17-ab7f-8cf52a345288",
+                "control-id": "ca-7",
+                "description": "",
+                "statements": [
+                  {
+                    "statement-id": "ca-7_smt.a",
+                    "uuid": "6d113e20-3fc5-4937-8ff3-61c1bb1af2d0",
+                    "description": "* <%= app_name %> DevOps staff review OWASP and Dependency scans every build, or at least weekly.\n* <%= app_name %> DevOps staff and the GSA ISSO review Web Application vulnerability scans on a weekly basis.\n* <%= app_name %> Administrators and DevOps staff review changes for potential security impact and engage the <%= app_name %> ISSO and ISSM who will review or engage assessment staff as needed.",
+                    "props": [
+                      {
+                        "name": "Rule_Id",
+                        "value": "properly-configured"
+                      },
+                      {
+                        "name": "implementation-status",
+                        "value": "partial"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "uuid": "624e1e20-4c20-4a5c-a3c0-2ef603090498",
+                "control-id": "cm-2.2",
+                "description": "The <%= app_name %> team develops, documents, and maintains a current baseline for the <%= app_name %> application\ncomponents under configuration control, managed via git and github.com, and orchestrated using GitHub Actions\nand the cloud.gov Cloud Foundry CLI.\n\nNote: All cloud.gov brokered services (including databases) are fully managed by the cloud.gov platform.\nDue to this, the configuration and security of these services are not included in the <%= app_name %> configuration baseline.",
+                "props": [
+                  {
+                    "name": "Rule_Id",
+                    "value": "properly-configured"
+                  },
+                  {
+                    "name": "implementation-status",
+                    "value": "implemented"
+                  }
+                ]
+              },
+              {
+                "uuid": "8906821c-bf90-4cc9-afda-db61d2e8a212",
+                "control-id": "cm-3.1",
+                "description": "",
+                "statements": [
+                  {
+                    "statement-id": "cm-3.1_smt.f",
+                    "uuid": "4b5c5828-16b9-4cf1-a329-f447726bbcef",
+                    "description": "GitHub Actions is used to execute proposed changes to the information system.\nAdministrators and Developers for <%= app_name %> are automatically notified of\nthe success or failure of the change execution via the GitHub notification system.",
+                    "props": [
+                      {
+                        "name": "Rule_Id",
+                        "value": "properly-configured"
+                      },
+                      {
+                        "name": "implementation-status",
+                        "value": "implemented"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "uuid": "db085642-8b08-476f-9d08-fe4c71cb2e40",
+                "control-id": "ra-5",
+                "description": "",
+                "statements": [
+                  {
+                    "statement-id": "ra-5_smt.a",
+                    "uuid": "30d6c6fc-0e55-484e-8832-35d9c4c511f9",
+                    "description": "Any vulnerabilities in <%= app_name %> would have to be introduced at time of deployment because <%= app_name %>\nis a set of cloud.gov managed applications with SSH disabled in Production. <%= app_name %> monitors for\nvulnerabilities by ensuring that scans for vulnerabilities in the information system and hosted applications occur\ndaily and when new code is deployed.\n\nOWASP ZAP scans are built into the GitHub Actions CI/CD pipeline and runs a series of web vulnerability scans before\na successful deploy can be made to cloud.gov. Any issues or alerts caused by the scan are documented by <%= app_name %>\nOperations and cause the deployment to fail. Issues are tracked in GitHub. The issue posted will provide information\non which endpoints are vulnerable and the level of vulnerability, ranging from **False Positive** to **High**.\nThe issue also provides a detailed report formatted in html, json, and markdown.\n\nSystem Administrators are responsible for reporting any new vulnerabilities reported by the OWASP ZAP scan to the <%= app_name %> ISSO.",
+                    "props": [
+                      {
+                        "name": "Rule_Id",
+                        "value": "properly-configured"
+                      },
+                      {
+                        "name": "implementation-status",
+                        "value": "implemented"
+                      }
+                    ]
+                  },
+                  {
+                    "statement-id": "ra-5_smt.b",
+                    "uuid": "71880ff9-0d82-440c-ab8d-29f0abab0045",
+                    "description": "1. Alerts from each ZAP vulnerability scan are automatically reported in GitHub as an issue on the <%= app_name %> repository. This issue will enumerate each finding and detail the type and severity of the vulnerability. <%= app_name %> Developers and <%= app_name %> Administrators receive automated alerts via GitHub of the issues to remediate. Scan results are sent to the <%= app_name %> System Owner by <%= app_name %> Administrators. The vulnerabilities are analyzed and prioritized within GitHub based on input from the System Owner and ISSO.\n1. The ZAP report contains vulnerabilities grouped by type and by risk level. The report also provides a detailed report formatted in html, json, and markdown. The reported issues also include the CVE item associated with the vulnerability.\n1. Vulnerabilities are classified by ZAP under a level range from **False Positive** to **High**. The impact level is used to drive the priority of the effort to remediate.",
+                    "props": [
+                      {
+                        "name": "Rule_Id",
+                        "value": "properly-configured"
+                      },
+                      {
+                        "name": "implementation-status",
+                        "value": "implemented"
+                      }
+                    ]
+                  },
+                  {
+                    "statement-id": "ra-5_smt.c",
+                    "uuid": "6ab6f84e-5a5d-4cf5-94fa-569be0f1fa61",
+                    "description": "The ZAP vulnerability report contains information about how the attack was made and suggested solutions for each vulnerability found. Any static code analysis findings identified during automation as part of the GitHub pull request process must be reviewed, analyzed, and resolved by the <%= app_name %> Developer before the team can merge the pull request.",
+                    "props": [
+                      {
+                        "name": "Rule_Id",
+                        "value": "properly-configured"
+                      },
+                      {
+                        "name": "Rule_Id",
+                        "value": "branch-protections"
+                      },
+                      {
+                        "name": "implementation-status",
+                        "value": "planned"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "uuid": "75fba3a0-30f6-4fb0-9929-99627252560a",
+                "control-id": "sa-11.1",
+                "description": "The CI/CD pipeline utilizes multiple tools to perform static code analysis for security and privacy:\n\n* **Brakeman** is a static code scanner designed to find security issues in Ruby on Rails code. It can flag potential SQL injection,\nCommand Injection, open redirects, and other common vulnerabilities.\n* **bundle-audit** checks Ruby dependencies against a database of known CVE numbers.\n* **yarn audit** checks Javascript dependencies against a database of known CVE numbers.\n* **OWASP ZAP** is a dynamic security scanner that can simulate actual attacks on a running server.\n\nAn additional RAILS_ENV has been created called ci. It inherits from production to ensure that the system being tested is as close as possible to production while allowing for overrides such as bypassing authentication in a secure way.",
+                "props": [
+                  {
+                    "name": "Rule_Id",
+                    "value": "properly-configured"
+                  },
+                  {
+                    "name": "implementation-status",
+                    "value": "implemented"
+                  }
+                ]
+              },
+              {
+                "uuid": "674c916f-ffef-4751-8073-2533e37d046f",
+                "control-id": "sa-22",
+                "description": "",
+                "statements": [
+                  {
+                    "statement-id": "sa-22_smt.a",
+                    "uuid": "14ab85ab-1746-47d1-9ccb-21a736013899",
+                    "description": "The <%= app_name %> application is built and supported by the <%= app_name %> DevOps staff.\n\nThe application utilizes public open source Ruby and NodeJS components.\n\nThe application utilizes dependency scanning tools Bundle Audit and Yarn Audit to find vulnerable or insecure dependencies.\n\nIf a vulnerable or insecure dependency is found it will be upgraded or replaced. Additionally the <%= app_name %> team code review processes include a review of the health (up to date, supported, many individuals involved) of direct open source dependencies.",
+                    "props": [
+                      {
+                        "name": "Rule_Id",
+                        "value": "properly-configured"
+                      },
+                      {
+                        "name": "implementation-status",
+                        "value": "implemented"
+                      }
+                    ]
+                  },
+                  {
+                    "statement-id": "sa-22_smt.b",
+                    "uuid": "44646913-4919-4725-bd26-7647213a6469",
+                    "description": "There are currently no unsupported system components within <%= app_name %>. In case an unsupported system component is required to maintain <%= app_name %>, the <%= app_name %> System Owner will be consulted to make a determination in coordination with the <%= app_name %> ISSO and ISSM.",
+                    "props": [
+                      {
+                        "name": "Rule_Id",
+                        "value": "properly-configured"
+                      },
+                      {
+                        "name": "implementation-status",
+                        "value": "implemented"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "uuid": "001779d3-01b4-4f5b-a9ee-5b78a32d9b9f",
+                "control-id": "sc-28.1",
+                "description": "As an additional layer of protection, all PII data is encrypted using [Active Record Encryption — Ruby on Rails Guides](https://guides.rubyonrails.org/active_record_encryption.html).\nThis encryption is implemented in a using non-deterministic AES-256-GCM through Ruby's openssl library with a 256-bit key and a random initialization vector {rails crypto module}.\n\nThe Data Encryption Key is stored in the credentials.yml file in an encrypted format by Ruby's openssl library using the AES-128-GCM cipher,\nand is built into the application package.\n\nThe credentials.yml decryption key is stored in GitHub Actions and injected into the running application as an environmental variable. The application then uses this key\nto decrypt the credentials.yml file and obtain the Data Encryption Key.\n\nA backup of the key is stored by the Lead Developer and System Owner within a keepass database stored in Google Drive.",
+                "props": [
+                  {
+                    "name": "Rule_Id",
+                    "value": "properly-configured"
+                  },
+                  {
+                    "name": "implementation-status",
+                    "value": "partial"
+                  }
+                ]
+              },
+              {
+                "uuid": "0feeb621-8ce2-49f9-96a9-366e7e2ebee4",
+                "control-id": "si-2",
+                "description": "",
+                "statements": [
+                  {
+                    "statement-id": "si-2_smt.a",
+                    "uuid": "9545b50e-f930-4875-afef-f5e5c566be74",
+                    "description": "Flaw and vulnerability checks are built into the <%= app_name %> CI/CD pipeline and automated to ensure compliance. Dynamic vulnerability scans are performed against <%= app_name %> before a successful deployment and reports issues after every scan.\n\nCompliance is documented in sections SA-11 and RA-5. The <%= app_name %> DevOps team uses GitHub as the Product Backlog to track and prioritize issues related to system flaws.\n\nThe responsibility of remediating flaws and vulnerabilities (once a remediation is available) falls on the <%= app_name %> Developer, who updates the <%= app_name %> code and deploys fixes as part of the normal development and CI/CD process.",
+                    "props": [
+                      {
+                        "name": "Rule_Id",
+                        "value": "properly-configured"
+                      },
+                      {
+                        "name": "Rule_Id",
+                        "value": "branch-protections"
+                      },
+                      {
+                        "name": "implementation-status",
+                        "value": "implemented"
+                      }
+                    ]
+                  },
+                  {
+                    "statement-id": "si-2_smt.b",
+                    "uuid": "f2713c7a-6ae5-41d6-98a8-f39519e68ec1",
+                    "description": "Any flaws or vulnerabilities resolved in <%= app_name %> result in a GitHub issue for triage via the <%= app_name %> CM Configuration Control process described in CM-2(2). After resolving a vulnerability or flaw in <%= app_name %>, unit tests and integration tests are updated to prevent further inclusion of similar flaws.\n\n* All GitHub tickets have accompanying Acceptance Criteria that are used to create unit tests.\n* Unit tests are run on the Development environment when new code is pushed.\n* Integration tests are run on the Test environment when the remediation is deployed via the CI/CD process to ensure that the production environment does not suffer from any side effects of the vulnerability remediation.\n* Integration tests are run on the Prod environment when the remediation is deployed via the CI/CD process to validate the remediation and application functionality.\n* All findings that are not remediated immediately are tracked in the #{app_name} Plan of Action and Milestones (POAM) by <%= app_name %> Operations and the <%= app_name %> ISSO.",
+                    "props": [
+                      {
+                        "name": "Rule_Id",
+                        "value": "properly-configured"
+                      },
+                      {
+                        "name": "implementation-status",
+                        "value": "implemented"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "uuid": "d9305c54-588b-4e58-8bb6-2dcfa9d50c9f",
+                "control-id": "si-10",
+                "description": "All inputs from the end user are parameterized prior to use to avoid potential sql injection.\n\nBrakeman scanner is impelmented within GitHub Actions which further identifies coding practices\nthat may lead to application vulnerabilities that are a result of improper input validation.",
+                "props": [
+                  {
+                    "name": "Rule_Id",
+                    "value": "properly-configured"
+                  },
+                  {
+                    "name": "implementation-status",
+                    "value": "partial"
+                  }
+                ]
+              },
+              {
+                "uuid": "68820fd8-8a19-4074-aedb-9dbb9e175339",
+                "control-id": "sr-3",
+                "description": "",
+                "statements": [
+                  {
+                    "statement-id": "sr-3_smt.b",
+                    "uuid": "e265c455-ccec-4c34-afda-952498c79118",
+                    "description": "A complete Software Bill of Materials (SBOM) for all Ruby dependencies is automatically\ngenerated by GitHub Actions on each push to GitHub as well as on a nightly basis. These can be downloaded\nfrom the applicable artifact section for each CI job.",
+                    "props": [
+                      {
+                        "name": "Rule_Id",
+                        "value": "properly-configured"
+                      },
+                      {
+                        "name": "implementation-status",
+                        "value": "partial"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

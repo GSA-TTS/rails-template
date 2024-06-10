@@ -18,7 +18,6 @@ module RailsTemplate18f
 
       included do
         self.source_path = RailsTemplate18f::Generators.const_source_location(name).first
-        class_option :oscal_profile, desc: "Name of the OSCAL profile to populate. Only needed if multiple folders are present in doc/compliance/oscal/dist/system-security-plans"
       end
 
       private
@@ -60,33 +59,19 @@ module RailsTemplate18f
         Dir.exist? file_path("doc/compliance/oscal")
       end
 
-      def insert_into_oscal(filename, content, after: "## What is the solution and how is it implemented?\n")
-        content = <<~EOS
-
-          ### #{app_name}
-
-          #{content}
-        EOS
-        begin
-          insert_into_file File.join(oscal_path, filename), content, after: after
-        rescue Thor::Error => ex
-          warn ex.message
+      def copy_oscal_component(component_name)
+        template "oscal/component-definitions/#{component_name}/component-definition.json",
+          File.join(oscal_component_path, component_name, "component-definition.json")
+        if oscal_dir_exists?
+          insert_into_file "doc/compliance/oscal/trestle-config.yaml", "  - #{component_name}\n"
         end
       end
 
-      def oscal_path
-        @oscal_path ||= if options[:oscal_profile].present?
-          file_path(File.join("doc/compliance/oscal/dist/system-security-plans", options[:oscal_profile]))
+      def oscal_component_path
+        if oscal_dir_exists?
+          file_path("doc/compliance/oscal/component-definitions")
         else
-          ssp_dir = file_path("doc/compliance/oscal/dist/system-security-plans")
-          profiles = Dir.children(ssp_dir).select { |f| File.directory?(File.join(ssp_dir, f)) }
-          if profiles.empty?
-            fail "No OSCAL profiles found. Please run `make generate` from the `doc/compliance/oscal` folder"
-          elsif profiles.count > 1
-            fail "Multiple OSCAL profiles found. Please specify which one to update by passing the `--oscal-profile` option"
-          else
-            File.join(ssp_dir, profiles.first)
-          end
+          file_path("doc/compliance/oscal-component-definitions")
         end
       end
 

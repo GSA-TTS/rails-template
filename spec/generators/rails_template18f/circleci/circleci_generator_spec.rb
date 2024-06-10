@@ -38,14 +38,8 @@ RSpec.describe RailsTemplate18f::Generators::CircleciGenerator, type: :generator
       expect(file(boundary_file)).to contain("Rel(circleci, cg_api, \"Deploy App\"")
     end
 
-    it "updates the CA-7 control implementation" do
-      expect(file("doc/compliance/oscal/dist/system-security-plans/lato/ca-7.md")).to contain(<<~EOS)
-        ### tmp
-
-        * tmp DevOps staff review OWASP and Dependency scans every build, or at least weekly.
-        * tmp DevOps staff and the GSA ISSO review Web Application vulnerability scans on a weekly basis.
-        * tmp Administrators and DevOps staff review changes for potential security impact and engage the tmp ISSO and ISSM who will review or engage assessment staff as needed.
-      EOS
+    it "copies the component definition" do
+      expect(file("doc/compliance/oscal-component-definitions/circleci/component-definition.json")).to exist
     end
   end
 

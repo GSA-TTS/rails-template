@@ -32,8 +32,8 @@ RSpec.describe RailsTemplate18f::Generators::OscalGenerator, type: :generator do
       expect(file("bin/trestle")).to exist
     end
 
-    it "creates a yaml file to keep track of which component definitions should be used" do
-      expect(file("doc/compliance/oscal/components.yaml")).to contain("components:")
+    it "creates a yaml file to configure docker-trestle" do
+      expect(file("doc/compliance/oscal/trestle-config.yaml")).to contain("components:")
     end
   end
 end

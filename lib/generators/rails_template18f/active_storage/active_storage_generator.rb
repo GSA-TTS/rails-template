@@ -94,15 +94,8 @@ module RailsTemplate18f
         end
       end
 
-      def update_oscal_doc
-        if oscal_dir_exists?
-          insert_into_oscal "si-3.md", <<~EOS, after: "## Implementation a.\n"
-            #{app_name} employs ClamAV to detect and quarantine malicious code in user-uploaded files.
-          EOS
-          insert_into_oscal "si-3.md", <<~EOS, after: "## Implementation b.\n"
-            ClamAV is configured to automatically update malicious code detection signatures on a daily basis.
-          EOS
-        end
+      def update_oscal
+        copy_oscal_component "active_storage"
       end
     end
   end

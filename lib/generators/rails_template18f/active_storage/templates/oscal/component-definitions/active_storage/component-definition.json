@@ -1,0 +1,69 @@
+{
+  "component-definition": {
+    "uuid": "6c8efe45-ab46-4d02-846e-5d58b4797a3e",
+    "metadata": {
+      "title": "ActiveStorage Component Definition.",
+      "last-modified": "2024-06-10T17:31:06.312964+00:00",
+      "version": "0.0.1",
+      "oscal-version": "1.1.2"
+    },
+    "components": [
+      {
+        "uuid": "a206dda7-d1f6-451c-8a0f-b6f4e8bf22d0",
+        "type": "software",
+        "title": "ClamAV",
+        "description": "ClamAV malware scanner",
+        "props": [
+          {
+            "name": "Rule_Id",
+            "value": "properly-configured",
+            "remarks": "rule_config"
+          },
+          {
+            "name": "Rule_Description",
+            "value": "System owner has configured the system to properly run the ClamAV scanner and send files to it on upload",
+            "remarks": "rule_config"
+          }
+        ],
+        "control-implementations": [
+          {
+            "uuid": "e1a02625-cb99-48e6-8240-90f2fdcc8481",
+            "source": "trestle://profiles/gsa-moderate/profile.json",
+            "description": "Controls satisfied via use of the ClamAV malware scanning app",
+            "implemented-requirements": [
+              {
+                "uuid": "4c53c056-dbbd-4889-b268-e1d50bc1fd88",
+                "control-id": "si-3",
+                "description": "",
+                "statements": [
+                  {
+                    "statement-id": "si-3_smt.a",
+                    "uuid": "9621f3b7-878f-487a-bfa1-bbd9d2111e25",
+                    "description": "The system employs ClamAV to detect and quarantine malicious code in user-uploaded files.",
+                    "props": [
+                      {
+                        "name": "Rule_Id",
+                        "value": "properly-configured"
+                      }
+                    ]
+                  },
+                  {
+                    "statement-id": "si-3_smt.b",
+                    "uuid": "850c1163-5c94-4018-9593-0f8e908ace2f",
+                    "description": "ClamAV is configured to automatically update malicious code detection signatures on a daily basis.",
+                    "props": [
+                      {
+                        "name": "Rule_Id",
+                        "value": "properly-configured"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

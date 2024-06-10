@@ -1,0 +1,6 @@
+# docker-trestle configuration file
+# for ease of future rails_template18f generator use, keep the components list last in this file
+system-name: "<%= app_name %>"
+profile: lato
+components:
+  - cloud_gov

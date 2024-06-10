@@ -66,7 +66,7 @@ EOB
       end
 
       def update_oscal_docs
-        update_cicd_oscal_docs("CircleCI")
+        copy_oscal_component "circleci"
       end
 
       no_tasks do

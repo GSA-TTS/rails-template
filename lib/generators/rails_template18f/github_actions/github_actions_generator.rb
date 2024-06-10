@@ -60,7 +60,7 @@ EOB
       end
 
       def update_oscal_docs
-        update_cicd_oscal_docs("GitHub Actions")
+        copy_oscal_component "github_actions"
       end
 
       no_tasks do

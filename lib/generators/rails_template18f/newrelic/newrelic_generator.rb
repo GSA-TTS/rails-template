@@ -58,42 +58,7 @@ EOB
       end
 
       def update_oscal_doc
-        if oscal_dir_exists?
-          insert_into_oscal "si-4.md", <<~EOS, after: "## Implementation a.\n"
-            New Relic is used for the purposes of monitoring and analyzing #{app_name} application data. New Relic monitors each application within #{app_name} for
-            basic container utilization (CPU, memory, disk) as a baseline of provided metrics. New Relic dashboards are used by #{app_name} operations to obtain
-            near real-time views into the metrics obtained from each application. New Relic provides application metrics that give insight into request/response rates,
-            failure rates, etc. New Relic uses this data to detect anomalies (such as potential unauthorized activity) and alerts the #{app_name} team via <<INSERT NOTIFICATION CHANNEL>>
-            in the GSA Slack. Example: a spike in failed requests may indicate an unauthorized user has entered the system and is attempting to phish for PII.
-
-            1. A subset of relevant specific metrics #{app_name} is constantly monitoring include:
-              * Abnormal cpu, memory, and disk utilization (defined in New Relic alerting rules)
-              * Number of incoming requests
-              * Request response time
-              * Application crashes (for any reason)
-              * Response status codes (high numbers of failing requests would be abnormal)
-              * Applications (by name)
-              * Abnormally high request rates
-            1. Metrics that can be audited within #{app_name} include:
-              * SSH Sessions (disabled in production under normal circumstances)
-            1. A subset of relevant incidents #{app_name} will use these metrics to protect against include:
-              * Unauthorized Access / Intrusion to #{app_name} as an Administrator
-              * Denial of Service (DoS)
-              * Improper Usage
-              * Malicious Code
-              * System Uptime
-              * High Resource Usage
-
-            When suspicious activity is encountered #{app_name} Operations audit the event through the cloud.gov logs provided at logs.fr.cloud.gov
-            (a Kibana instance allowing users to access, filter, and search their cloud.gov logs. These logs are retained automatically by cloud.gov for 180 days after creation.
-          EOS
-          insert_into_oscal "si-4.md", "The #{app_name} application logs events to stdout and stderr which are ingested by cloud.gov and New Relic.", after: "## Implementation c.\n"
-          insert_into_oscal "si-4.md", "#{app_name} Operations are responsible for monitoring the New Relic dashboards that report on specific application events and performing follow-up investigations where necessary.", after: "## Implementation d.\n"
-          insert_into_oscal "si-4.2.md", <<~EOS
-            #{app_name} is monitored using New Relic Application Performance Monitoring (APM),
-            Synthetics and Logs, which detects and alerts on abnormal responses from #{app_name} applications.
-          EOS
-        end
+        copy_oscal_component "newrelic"
       end
 
       no_tasks do

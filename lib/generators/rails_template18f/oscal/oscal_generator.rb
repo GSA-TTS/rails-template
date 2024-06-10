@@ -38,7 +38,7 @@ module RailsTemplate18f
       def copy_templates
         template "bin/trestle"
         chmod "bin/trestle", 0o755
-        copy_file "doc/compliance/oscal/components.yaml"
+        template "doc/compliance/oscal/trestle-config.yaml"
       end
 
       def update_readme
@@ -58,6 +58,17 @@ module RailsTemplate18f
         end
       end
 
+      def configure_gitignore
+        unless skip_git? || use_submodule?
+          append_to_file ".gitignore", <<~EOM
+
+            # Trestle working files
+            doc/compliance/oscal/.trestle/_trash
+            doc/compliance/oscal/.trestle/cache
+          EOM
+        end
+      end
+
       no_tasks do
         def branch_name
           options[:branch].present? ? options[:branch] : "main"
@@ -73,6 +84,22 @@ module RailsTemplate18f
             ### Compliance Documentation
 
             Security Controls should be documented within doc/compliance/oscal.
+
+            Run `bin/trestle` to start the trestle CLI.
+
+            #### Initial trestle setup.
+
+            These steps must happen once per project.
+
+            1. Docker desktop must be running
+            1. Start the trestle cli with `bin/trestle`
+            1. Copy the `cloud_gov` component to the local workspace with `copy-component -n cloud_gov`
+            1. Generate the initial markdown with `generate-ssp-markdown`
+
+            #### Ongoing use
+
+            See the [docker-trestle README](https://github.com/gsa-tts/docker-trestle) for help with the workflow
+            for using those scripts for editing the SSP.
           README
           return content unless use_submodule?
           <<~README
