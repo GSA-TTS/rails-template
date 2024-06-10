@@ -1,0 +1,4 @@
+#! /usr/bin/env bash
+
+oscal_location="$(dirname $(realpath $0))/../doc/compliance/oscal"
+docker run -it --rm -v $oscal_location:/app/docs ghcr.io/gsa-tts/trestle:<%= docker_trestle_tag %> bash

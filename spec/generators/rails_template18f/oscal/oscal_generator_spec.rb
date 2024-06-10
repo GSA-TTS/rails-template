@@ -13,7 +13,7 @@ RSpec.describe RailsTemplate18f::Generators::OscalGenerator, type: :generator do
     end
 
     it "switches to a new branch" do
-      expect(subject).to match("git switch -c oscal")
+      expect(subject).to match("git switch -c main")
     end
 
     it "adds instructions to README" do
@@ -21,15 +21,19 @@ RSpec.describe RailsTemplate18f::Generators::OscalGenerator, type: :generator do
     end
   end
 
-  context "detached" do
-    subject { run_generator ["--oscal_repo=#{ct_repo}", "--detach", "-p"] }
+  context "in-repo" do
+    subject! { run_generator }
 
-    it "clones the repo" do
-      expect(subject).to match("git clone #{ct_repo} doc/compliance/oscal")
+    it "creates the oscal folder" do
+      expect(file("doc/compliance/oscal/.keep")).to exist
     end
 
-    it "removes the .git folder" do
-      expect(subject).to match(/remove\s+doc\/compliance\/oscal\/\.git/)
+    it "creates a helper script for running docker-trestle" do
+      expect(file("bin/trestle")).to exist
+    end
+
+    it "creates a yaml file to keep track of which component definitions should be used" do
+      expect(file("doc/compliance/oscal/components.yaml")).to contain("components:")
     end
   end
 end
