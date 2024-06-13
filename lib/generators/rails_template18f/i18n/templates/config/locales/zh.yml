@@ -13,4 +13,6 @@ zh:
       us_flag: 美国国旗
     header:
       primary: 主导航
+    languages:
+      selector: 语言
     skip_link: 跳转到主要内容

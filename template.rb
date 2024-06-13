@@ -291,8 +291,10 @@ after_bundle do
   end
   directory "app/assets"
   append_to_file "app/assets/stylesheets/application.postcss.css", <<~EOCSS
-    @forward "uswds-settings.scss";
-    @forward "uswds-components.scss";
+    @forward "uswds-settings";
+    @forward "uswds-components";
+
+    @forward "uswds-overrides";
   EOCSS
   inside "app/assets/stylesheets" do
     File.rename("application.postcss.css", "application.postcss.scss")

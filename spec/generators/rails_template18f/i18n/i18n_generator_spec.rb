@@ -22,7 +22,8 @@ RSpec.describe RailsTemplate18f::Generators::I18nGenerator, type: :generator do
 
     it "adds routing code, helper, and around_action" do
       expect(file("config/routes.rb")).to contain("scope \"(:locale)\"")
-      expect(file("app/helpers/application_helper.rb")).to contain("def format_active_locale(locale_string)")
+      expect(file("app/helpers/application_helper.rb")).to contain("def language_span(locale_string)")
+      expect(file("app/helpers/application_helper.rb")).to contain("def active_locale?(locale_string)")
       expect(file("app/controllers/application_controller.rb")).to contain("around_action :switch_locale")
     end
   end

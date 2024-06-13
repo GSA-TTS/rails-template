@@ -16,4 +16,6 @@ fr:
       demo_banner: SITE DE TEST - N’utilisez pas de véritables données personnelles (il s’agit d’une démonstration seulement) - SITE DE TEST
       menu: Menu
       primary: Navigation primaire
+    languages:
+      selector: Langages
     skip_link: Passer au contenu principal
