@@ -20,6 +20,10 @@ RSpec.describe RailsTemplate18f::Generators::I18nGenerator, type: :generator do
       expect(file("config/locales/zh.yml")).to exist
     end
 
+    it "sets the correct header title" do
+      expect(file("config/locales/en.yml")).to contain "title: Tmp"
+    end
+
     it "adds routing code, helper, and around_action" do
       expect(file("config/routes.rb")).to contain("scope \"(:locale)\"")
       expect(file("app/helpers/application_helper.rb")).to contain("def language_span(locale_string)")

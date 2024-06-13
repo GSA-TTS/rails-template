@@ -36,6 +36,7 @@ module RailsTemplate18f
       end
 
       def install_translations
+        app_name # reference app_name here so the instance var is set before entering the "inside" block
         inside "config/locales" do
           template "en.yml"
           languages.each do |lang|
