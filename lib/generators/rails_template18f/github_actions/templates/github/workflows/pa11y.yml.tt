@@ -2,6 +2,10 @@ name: pa11y tests
 
 on: [pull_request]
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   pa11y_scan:
     name: Pa11y Scan
@@ -21,7 +25,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - id: setup
         uses: ./.github/actions/setup-project

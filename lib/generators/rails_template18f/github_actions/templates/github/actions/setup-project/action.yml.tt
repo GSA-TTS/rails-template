@@ -28,6 +28,7 @@ runs:
     - name: Set up database
       env:
         RAILS_ENV: ${{ inputs.rails_env }}
+        SECRET_KEY_BASE: not-actually-secret
         DATABASE_URL: ${{ inputs.database_url }}
       shell: bash
       run: bundle exec rake db:schema:load
