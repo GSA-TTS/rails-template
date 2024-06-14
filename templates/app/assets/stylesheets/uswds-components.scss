@@ -1,7 +1,13 @@
 @forward "uswds-global";
 @forward "uswds-utilities";
 @forward "uswds-typography";
+@forward "usa-layout-grid";
 @forward "usa-header";
 @forward "usa-banner";
 @forward "usa-section";
+@forward "usa-language-selector";
 // add additional packages here as you use them
+
+// or replace these all with
+// @forward "uswds";
+// to import the entirety of uswds

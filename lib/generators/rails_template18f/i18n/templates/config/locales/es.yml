@@ -16,4 +16,6 @@ es:
       demo_banner: SITIO DE PRUEBA - No utilice información personal real (sólo para propósitos de demostración) - SITIO DE PRUEBA
       menu: Menú
       primary: Navegacion primaria
+    languages:
+      selector: Idiomas
     skip_link: Salte al contenido principal

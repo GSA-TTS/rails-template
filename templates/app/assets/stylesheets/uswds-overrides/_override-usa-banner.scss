@@ -1,0 +1,13 @@
+
+.banner__text-container {
+  flex: 1;
+}
+
+.usa-banner__button {
+  margin-right: 0.5rem;
+}
+
+[dir="rtl"] .usa-banner__header-flag {
+  margin-left: 0.5rem;
+  margin-right: 0;
+}

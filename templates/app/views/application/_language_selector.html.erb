@@ -1,0 +1,35 @@
+
+<% if I18n.available_locales.count == 2 %>
+  <% I18n.available_locales.each do |l| %>
+    <% unless active_locale?(l) %>
+      <div class="usa-language-container usa-language--small">
+        <%= link_to language_span(l), root_path(locale: l), class: "usa-button" %>
+      </div>
+    <% end %>
+  <% end %>
+<% elsif I18n.available_locales.count > 2 %>
+  <div class="usa-language-container">
+    <ul class="usa-language__primary usa-accordion">
+      <li class="usa-language__primary-item">
+        <button
+          type="button"
+          class="usa-button usa-language__link"
+          role="button"
+          aria-expanded="false"
+          aria-controls="language-options-<%= mode %>"
+        >
+          <%= t "shared.languages.selector" %>
+        </button>
+        <ul id="language-options-<%= mode %>" class="usa-language__submenu" hidden="true">
+          <% I18n.available_locales.each do |l| %>
+            <% unless active_locale?(l) %>
+              <li class="usa-language__submenu-item">
+                <%= link_to content_tag(:strong, language_span(l)), root_path(locale: l) %>
+              </li>
+            <% end %>
+          <% end %>
+        </ul>
+      </li>
+    </ul>
+  </div>
+<% end %>

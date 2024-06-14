@@ -36,6 +36,7 @@ module RailsTemplate18f
       end
 
       def install_translations
+        app_name # reference app_name here so the instance var is set before entering the "inside" block
         inside "config/locales" do
           template "en.yml"
           languages.each do |lang|
@@ -56,12 +57,12 @@ module RailsTemplate18f
 
       def install_nav_helper
         inject_into_module "app/helpers/application_helper.rb", "ApplicationHelper", indent(<<~'EOH')
-          def format_active_locale(locale_string)
-            link_classes = "usa-nav__link"
-            if locale_string.to_sym == I18n.locale
-              link_classes = "#{link_classes} usa-current"
-            end
-            link_to t("shared.languages.#{locale_string}"), root_path(locale: locale_string), class: link_classes
+          def active_locale?(locale_string)
+            locale_string.to_sym == I18n.locale
+          end
+
+          def language_span(locale_string)
+            content_tag :span, t("shared.languages.#{locale_string}"), lang: locale_string, "xml:lang": locale_string
           end
         EOH
       end

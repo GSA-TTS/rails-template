@@ -4,24 +4,29 @@
   <div class="usa-accordion">
     <header class="usa-banner__header">
       <div class="usa-banner__inner">
-        <div class="grid-col-auto">
-          <%= image_tag "@uswds/uswds/dist/img/us_flag_small.png", alt: t('shared.banner.us_flag'), class: "usa-banner__header-flag" %>
+        <div class="banner__text-container grid-row">
+          <div class="grid-col-auto">
+            <%= image_tag "@uswds/uswds/dist/img/us_flag_small.png", alt: t('shared.banner.us_flag'), class: "usa-banner__header-flag" %>
+          </div>
+          <div class="grid-col-fill tablet:grid-col-auto">
+            <p class="usa-banner__header-text">
+              <%= t('shared.banner.official_site') %>
+            </p>
+            <p class="usa-banner__header-action" aria-hidden="true">
+              <%= t('shared.banner.how') %>
+            </p>
+          </div>
+          <button
+            class="usa-accordion__button usa-banner__button"
+            aria-expanded="false"
+            aria-controls="gov-banner"
+          >
+            <span class="usa-banner__button-text"><%= t('shared.banner.how') %></span>
+          </button>
         </div>
-        <div class="grid-col-fill tablet:grid-col-auto">
-          <p class="usa-banner__header-text">
-            <%= t('shared.banner.official_site') %>
-          </p>
-          <p class="usa-banner__header-action" aria-hidden="true">
-            <%= t('shared.banner.how') %>
-          </p>
+        <div class="switcher-desktop">
+          <%= render partial: "application/language_selector", locals: {mode: "desktop"} %>
         </div>
-        <button
-          class="usa-accordion__button usa-banner__button"
-          aria-expanded="false"
-          aria-controls="gov-banner"
-        >
-          <span class="usa-banner__button-text"><%= t('shared.banner.how') %></span>
-        </button>
       </div>
     </header>
     <div class="usa-banner__content usa-accordion__content" id="gov-banner">

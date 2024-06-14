@@ -1,5 +1,8 @@
 <div class="usa-overlay"></div>
 <header class="usa-header usa-header--basic">
+  <div class="switcher-mobile">
+    <%= render partial: "application/language_selector", locals: {mode: "mobile"} %>
+  </div>
   <div class="usa-nav-container">
     <div class="usa-navbar">
       <div class="usa-logo">
@@ -14,11 +17,9 @@
         <%= image_tag "@uswds/uswds/dist/img/usa-icons/close.svg", role: "img", alt: t('shared.header.close') %>
       </button>
       <ul class="usa-nav__primary usa-accordion">
-        <% I18n.available_locales.each do |l| %>
-          <li class="usa-nav__primary-item">
-            <%= format_active_locale(l) %>
-          </li>
-        <% end %>
+        <li class="usa-nav__primary-item">
+          <%= link_to "Example Nav Item", root_path %>
+        </li>
       </ul>
     </nav>
   </div>
