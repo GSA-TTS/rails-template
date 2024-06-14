@@ -59,15 +59,6 @@ EOB
         EOB
       end
 
-      def update_terraform_readme
-        return unless terraform?
-        readme_filename = "terraform/README.md"
-        insert_into_file readme_filename, "  |- .force-action-apply\n", after: "- <env>/\n"
-        insert_into_file readme_filename, <<~EOM, after: /.*environment-specific modules:$/
-          \n- `.force-action-apply` is a file that can be updated to force GitHub Actions to run `terraform apply` during the deploy phase
-        EOM
-      end
-
       def update_oscal_docs
         update_cicd_oscal_docs("GitHub Actions")
       end
@@ -122,8 +113,7 @@ EOB
           <<~EOM
 
             1. Store variables that must be secret using [GitHub Environment Secrets](https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-an-environment)
-            1. Add the secret to the `env:` block of the deploy action [as in this example](https://github.com/OHS-Hosting-Infrastructure/complaint-tracker/blob/a9e8d22aae2023a0afb631a6182251c04f597f7e/.github/workflows/deploy-stage.yml#L20)
-            1. Add the appropriate `--var` addition to the `push_arguments` line on the deploy action [as in this example](https://github.com/OHS-Hosting-Infrastructure/complaint-tracker/blob/a9e8d22aae2023a0afb631a6182251c04f597f7e/.github/workflows/deploy-stage.yml#L27)
+            1. Add the appropriate `--var` addition to the `cf_command` line on the deploy action like the existing `rails_master_key`
           EOM
         end
       end

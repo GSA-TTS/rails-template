@@ -1,8 +1,8 @@
 locals {
-  cf_org_name      = "<%= cloud_gov_organization %>"
-  cf_space_name    = "<%= cloud_gov_staging_space %>"
-  env              = "staging"
-  app_name         = "<%= app_name %>"
+  cf_org_name   = "<%= cloud_gov_organization %>"
+  cf_space_name = "<%= cloud_gov_staging_space %>"
+  env           = "staging"
+  app_name      = "<%= app_name %>"
 }
 
 module "database" {

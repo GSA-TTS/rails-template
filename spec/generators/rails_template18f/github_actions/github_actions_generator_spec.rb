@@ -49,9 +49,5 @@ RSpec.describe RailsTemplate18f::Generators::GithubActionsGenerator, type: :gene
       expect(file(".github/workflows/terraform-staging.yml")).to exist
       expect(file(".github/workflows/terraform-production.yml")).to exist
     end
-
-    it "documents use of .force-action-apply in terraform/README" do
-      expect(file("terraform/README.md")).to contain(".force-action-apply")
-    end
   end
 end
