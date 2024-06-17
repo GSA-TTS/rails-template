@@ -97,7 +97,7 @@ Run everything: `bundle exec rake`
 
 #### Pa11y Scan
 
-When new pages are added to the application, ensure they are added to `./.pa11yci` so that they can be scanned.
+When new pages are added to the application, ensure they are added to `./pa11y.js` so that they can be scanned.
 
 ### Automatic linting
 

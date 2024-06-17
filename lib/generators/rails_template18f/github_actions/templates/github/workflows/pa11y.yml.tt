@@ -38,7 +38,7 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          yarn run pa11y-ci 2>&1 | tee pa11y_output.txt
+          yarn run pa11y-ci -c pa11yci.js 2>&1 | tee pa11y_output.txt
 
       - name: Read pa11y_output file.
         if: failure()

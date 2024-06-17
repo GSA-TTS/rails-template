@@ -155,7 +155,8 @@ directory "bin", mode: :preserve
 chmod "bin/ops/create_service_account.sh", 0o755
 chmod "bin/ops/destroy_service_account.sh", 0o755
 chmod "bin/ops/set_space_egress.sh", 0o755
-copy_file "pa11yci", ".pa11yci"
+copy_file "pa11y.js"
+copy_file "pa11yci.js"
 copy_file "editorconfig", ".editorconfig"
 copy_file "zap.conf"
 after_bundle do
