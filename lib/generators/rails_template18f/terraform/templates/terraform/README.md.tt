@@ -89,7 +89,7 @@ The below steps rely on you first configuring access to the Terraform state in s
 
 1. Run terraform from your new environment directory with
     ```bash
-    terraform init
+    terraform init -backend-config="profile=<%= app_name %>-terraform-backend"
     terraform plan
     ```
 
