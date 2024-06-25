@@ -85,7 +85,8 @@ module RailsTemplate18f
 
             Security Controls should be documented within doc/compliance/oscal.
 
-            Run `bin/trestle` to start the trestle CLI.
+            * Run `bin/trestle` to start the trestle CLI.
+            * Run `bin/trestle SCRIPT_NAME` to run a single trestle script
 
             #### Initial trestle setup.
 

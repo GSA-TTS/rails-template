@@ -21,6 +21,11 @@ module RailsTemplate18f
           remove_file ".github/workflows/terraform-staging.yml"
           remove_file ".github/workflows/terraform-production.yml"
         end
+        if !oscal_dir_exists?
+          remove_file ".github/workflows/validate-ssp.yml"
+          remove_file ".github/workflows/assemble-ssp.yml"
+          remove_dir ".github/actions/trestle-cmd"
+        end
       end
 
       def update_readme

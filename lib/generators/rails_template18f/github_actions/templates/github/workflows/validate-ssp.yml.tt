@@ -1,0 +1,46 @@
+name: Validate OSCAL Assembly
+
+on: [pull_request]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate_ssp:
+    name: Validate SSP format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate SSP
+        uses: ./.github/actions/trestle-cmd
+        with:
+          cmd: trestle validate -f system-security-plans/<%= app_name %>/system-security-plan.json
+
+  check_ssp:
+    name: Check assembly is current
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check assembly
+        uses: ./.github/actions/trestle-cmd
+        with:
+          cmd: assemble-ssp-json 2> /dev/null | grep "^No changes to assembled ssp"
+
+      - name: Comment on pull request
+        if: failure()
+        uses: actions/github-script@v4
+        with:
+          script: |
+            const output = `SSP assembly detected changes that aren't checked in.
+
+            Run \`bin/trestle assemble-ssp-json\` to ensure markdown changes are reflected in your SSP`;
+
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            });
