@@ -15,7 +15,24 @@ commands:
           install-yarn: true
       - node/install-packages:
           cache-only-lockfile: false
-          pkg-manager: yarn
+          pkg-manager: yarn<% if oscal_dir_exists? %>
+  trestle-cmd:
+    description: Set up environment for running docker-trestle commands
+    parameters:
+      tag:
+        description: docker-trestle tag to use. Defaults to latest
+        type: string
+        default: latest
+      cmd:
+        description: Command to run within docker-trestle
+        type: string
+    steps:
+      - run:
+          name: Fix directory permissions
+          command: chmod -R a+w doc/compliance/oscal || true
+      - run:
+          name: Run trestle command
+          command: docker run -v $(pwd)/doc/compliance/oscal:/app/docs:rw ghcr.io/gsa-tts/trestle:<< parameters.tag >> << parameters.cmd >><% end %>
   cg-deploy:
     description: "Login to cloud foundry space with service account credentials
       and push application using deployment configuration file."
@@ -117,7 +134,26 @@ jobs:
             - tmp/cache/assets/sprockets
 
       - ruby/rspec-test
-
+<% if oscal_dir_exists? %>
+  validate_ssp:
+    machine:
+      image: ubuntu-2204:current
+    steps:
+      - checkout
+      - trestle-cmd:
+          cmd: trestle validate -f system-security-plans/<%= app_name %>/system-security-plan.json
+      - trestle-cmd:
+          cmd: assemble-ssp-json 2> /dev/null | grep "^No changes to assembled ssp"
+  assemble_ssp:
+    machine:
+      image: ubuntu-2204:current
+    steps:
+      - checkout
+      - trestle-cmd:
+          cmd: trestle assemble -n <%= app_name %> system-security-plan
+      - store_artifacts:
+          path: doc/compliance/oscal/dist/system-security-plans/<%= app_name %>.json
+<% end %>
   static_security_scans:
     docker:
       - image: cimg/ruby:<%= ruby_version %>
@@ -353,7 +389,14 @@ workflows:
       - build
       - test:
           requires:
-            - build
+            - build<% if oscal_dir_exists? %>
+      - validate_ssp
+      - assemble_ssp:
+          filters:
+            branches:
+              only: main
+          requires:
+            - validate_ssp<% end %>
       - static_security_scans:
           requires:
             - build
