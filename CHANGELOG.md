@@ -1,6 +1,9 @@
 ## [Unreleased]
 
 - new applications are now on Rails 7.1.x
+- implement USWDS language selector component when translation files are included
+- cleans up github actions and circleci generators to address bitrot
+- utilize docker-trestle project for OSCAL integration / compliance as code
 
 ## [0.8.2] - 2024-06-06
 
