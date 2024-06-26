@@ -13,14 +13,15 @@ module RailsTemplate18f
 
       desc <<~DESC
         Description:
-          Add a fork of https://github.com/GSA-TTS/compliance-template.git as a
-          submodule for documenting security controls.
+          Set up doc/compliance/oscal as a working directory for use with https://github.com/GSA-TTS/docker-trestle.
 
           This generator is still experimental.
 
-          Prerequisite:
+          Optional Prerequisite:
 
-          Fork the compliance-template repo for your own use. Updates to the documentation
+          Set up a separate private repository to store the compliance documentation in if access control needs to be
+          tighter than for the code. This generator will set up the directory as a submodule so developers with access
+          can easily update documentation alongside code. Updates to the documentation
           will be pushed to this fork, not the rails app repository.
       DESC
 
