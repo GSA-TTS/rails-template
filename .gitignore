@@ -6,6 +6,7 @@
 /pkg/
 /spec/reports/
 /tmp/
+**/.trestle
 
 # rspec failure tracking
 .rspec_status

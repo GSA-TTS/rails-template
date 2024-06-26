@@ -1,0 +1,26 @@
+name: Assemble SSPP updates
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - "doc/compliance/oscal/**"
+
+jobs:
+  assemble_ssp:
+    name: Assemble SSPP updates and save artifact
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assemble final SSPP
+        uses: ./.github/actions/trestle-cmd
+        with:
+          cmd: trestle assemble -n <%= app_name %> system-security-plan
+
+      - name: Save artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: <%= app_name %>_SSPP
+          path: doc/compliance/oscal/dist/system-security-plans/<%= app_name %>.json

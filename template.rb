@@ -54,20 +54,20 @@ unless Gem::Dependency.new("rails", "~> 7.1.0").match?("rails", Rails.gem_versio
 end
 
 # ask setup questions
-compliance_template = yes?("Include OSCAL files from compliance-template? (y/n)")
-compliance_template_repo = "git@github.com:GSA-TTS/compliance-template.git"
-compliance_template_submodule = compliance_template && yes?("Clone #{compliance_template_repo} as a git submodule? (y/n)")
-if compliance_template_submodule
-  compliance_template_repo = ask("What is the git clone address of your compliance-template fork?")
+compliance_trestle = yes?("Set up docker-trestle integration for Compliance-as-Code? (y/n)")
+compliance_trestle_repo = nil
+compliance_trestle_submodule = compliance_trestle && yes?("Set up compliance documents as a git submodule? (y/n)")
+if compliance_trestle_submodule
+  compliance_trestle_repo = ask("What is the git clone address of your compliance document repo?")
 end
-if compliance_template_repo.blank?
+if compliance_trestle_submodule && compliance_trestle_repo.blank?
   register_announcement("OSCAL Documentation", <<~EOM)
-    Skipping OSCAL files as the compliance-template fork was left blank.
+    Skipping docker-trestle integration as the compliance document repository was left blank.
 
-    Re-run the oscal generator after creating your template fork to get started with OSCAL.
+    Re-run the oscal generator after creating your repo to get started with OSCAL.
   EOM
-  compliance_template = false
-  compliance_template_submodule = false
+  compliance_trestle = false
+  compliance_trestle_submodule = false
 end
 
 terraform = yes?("Create terraform files for cloud.gov services? (y/n)")
@@ -104,6 +104,23 @@ register_announcement("Documentation", <<~EOM)
   * Complete the project README by adding a quick summary of the project in the top section.
   * Review any TBD sections of the README and update where appropriate.
 EOM
+
+# do early so later generators register files in the correct location
+if compliance_trestle
+  after_bundle do
+    generator_arguments = []
+    if compliance_trestle_submodule
+      generator_arguments << "--oscal_repo=#{compliance_trestle_repo}"
+    end
+    generate "rails_template18f:oscal", *generator_arguments
+  end
+  register_announcement("OSCAL Documentation", <<~EOM)
+    OSCAL files have been generated with some default implementation statements in `doc/compliance/oscal`
+
+    All generated statements must be reviewed for accuracy with your system's implementation before being
+    submitted for authorization.
+  EOM
+end
 
 # ensure dependencies are installed
 copy_file "Brewfile"
@@ -341,22 +358,6 @@ after_bundle do
   generate "rails_template18f:rails_erd"
 end
 
-if compliance_template
-  after_bundle do
-    generator_arguments = [
-      "--oscal_repo=#{compliance_template_repo}",
-      (compliance_template_submodule ? "--no-detach" : "--detach")
-    ]
-    generate "rails_template18f:oscal", *generator_arguments
-  end
-  register_announcement("OSCAL Documentation", <<~EOM)
-    OSCAL files have been generated with some default implementation statements in `doc/compliance/oscal`
-
-    All generated statements must be reviewed for accuracy with your system's implementation before being
-    submitted for authorization.
-  EOM
-end
-
 after_bundle do
   # Setup translations
   generate "rails_template18f:i18n", "--languages=#{supported_languages.join(",")}", "--force"
@@ -503,10 +504,10 @@ after_bundle do
       # compliance documentation
       /doc/compliance/
     EOM
-    if compliance_template_submodule
+    if compliance_trestle_submodule
       inside "doc/compliance/oscal" do
         run "git add -A"
-        run "git diff-index --quiet HEAD || git commit -am 'rails-template generated control statements'"
+        run "git diff-index --quiet HEAD || git commit -am 'rails-template generated components'"
       end
     end
     git add: "."

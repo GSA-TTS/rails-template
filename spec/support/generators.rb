@@ -27,6 +27,8 @@ module RailsTemplate18f
           before {
             prepare_destination
             generate_storage_app
+            system "mkdir", "-p", File.join(self.class.destination_path, "doc/compliance/oscal")
+            system "touch", File.join(self.class.destination_path, "/doc/compliance/oscal/trestle-config.yaml")
           }
         end
       end

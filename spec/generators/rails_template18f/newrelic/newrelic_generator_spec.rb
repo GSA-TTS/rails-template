@@ -36,11 +36,7 @@ RSpec.describe RailsTemplate18f::Generators::NewrelicGenerator, type: :generator
     expect(file("manifest.yml")).to contain(/^    NEW_RELIC_LOG: stdout$/)
   end
 
-  it "updates the SI-4.2 control implementation" do
-    expect(file("doc/compliance/oscal/dist/system-security-plans/lato/si-4.2.md")).to contain(<<~EOS)
-      ### tmp
-
-      tmp is monitored using New Relic Application Performance Monitoring (APM),
-    EOS
+  it "copies the new relic component" do
+    expect(file("doc/compliance/oscal-component-definitions/newrelic/component-definition.json")).to exist
   end
 end

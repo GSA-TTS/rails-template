@@ -1,0 +1,113 @@
+{
+  "component-definition": {
+    "uuid": "7bbcdbff-c3d8-497f-a0fc-3ec96f4acc2d",
+    "metadata": {
+      "title": "New Relic System Monitoring Component Definition.",
+      "last-modified": "2024-06-11T12:51:11.662524+00:00",
+      "version": "0.0.1",
+      "oscal-version": "1.1.2"
+    },
+    "components": [
+      {
+        "uuid": "8eb58925-2761-4de3-86cb-72af189fe378",
+        "type": "service",
+        "title": "New Relic",
+        "description": "New Relic Application Performance Monitoring",
+        "props": [
+          {
+            "name": "Rule_Id",
+            "value": "properly-configured",
+            "remarks": "rule-config"
+          },
+          {
+            "name": "Rule_Description",
+            "value": "System Owner has configured the system to properly utilize New Relic",
+            "remarks": "rule-config"
+          }
+        ],
+        "control-implementations": [
+          {
+            "uuid": "7ba2642f-5cfa-431c-a030-afffc4e6a8d4",
+            "source": "trestle://profiles/lato/profile.json",
+            "description": "",
+            "implemented-requirements": [
+              {
+                "uuid": "fae8766e-7bf2-4d77-9c88-db5b2e9a8bfd",
+                "control-id": "si-4",
+                "description": "REPLACE_ME",
+                "props": [
+                  {
+                    "name": "implementation-status",
+                    "value": "planned"
+                  }
+                ],
+                "statements": [
+                  {
+                    "statement-id": "si-4_smt.a",
+                    "uuid": "850fcb05-724a-46a3-9faf-2574624ef1ee",
+                    "description": "New Relic is used for the purposes of monitoring and analyzing <%= app_name %> application data. New Relic monitors each application within <%= app_name %> for basic container utilization (CPU, memory, disk) as a baseline of provided metrics. New Relic dashboards are used by <%= app_name %> operations to obtain near real-time views into the metrics obtained from each application. New Relic provides application metrics that give insight into request/response rates, failure rates, etc. New Relic uses this data to detect anomalies (such as potential unauthorized activity) and alerts the <%= app_name %> team via <<INSERT NOTIFICATION CHANNEL>> in the GSA Slack. Example: a spike in failed requests may indicate an unauthorized user has entered the system and is attempting to phish for PII.\n\n1. A subset of relevant specific metrics <%= app_name %> is constantly monitoring include:\n* Abnormal cpu, memory, and disk utilization (defined in New Relic alerting rules)\n* Number of incoming requests\n* Request response time\n* Application crashes (for any reason)\n* Response status codes (high numbers of failing requests would be abnormal)\n* Applications (by name)\n* Abnormally high request rates\n1. Metrics that can be audited within <%= app_name %> include:\n* SSH Sessions (disabled in production under normal circumstances)\n1. A subset of relevant incidents <%= app_name %> will use these metrics to protect against include:\n* Unauthorized Access / Intrusion to <%= app_name %> as an Administrator\n* Denial of Service (DoS)\n* Improper Usage\n* Malicious Code\n* System Uptime\n* High Resource Usage\n\nWhen suspicious activity is encountered <%= app_name %> Operations audit the event through the cloud.gov logs provided at logs.fr.cloud.gov\n(a Kibana instance allowing users to access, filter, and search their cloud.gov logs. These logs are retained automatically by cloud.gov for 180 days after creation.",
+                    "props": [
+                      {
+                        "name": "Rule_Id",
+                        "value": "properly-configured"
+                      },
+                      {
+                        "name": "implementation-status",
+                        "value": "implemented"
+                      }
+                    ]
+                  },
+                  {
+                    "statement-id": "si-4_smt.c",
+                    "uuid": "dddcc80f-f715-4ee8-acf0-e4d9df3576c5",
+                    "description": "The <%= app_name %> application logs events to stdout and stderr which are ingested by cloud.gov and New Relic.",
+                    "props": [
+                      {
+                        "name": "Rule_Id",
+                        "value": "properly-configured"
+                      },
+                      {
+                        "name": "implementation-status",
+                        "value": "implemented"
+                      }
+                    ]
+                  },
+                  {
+                    "statement-id": "si-4_smt.d",
+                    "uuid": "017e8dab-cbd3-4054-9185-cf24d6dcd6b9",
+                    "description": "\\<%= app_name %> Operations are responsible for monitoring the New Relic dashboards that report on specific application events and performing follow-up investigations where necessary.",
+                    "props": [
+                      {
+                        "name": "Rule_Id",
+                        "value": "properly-configured"
+                      },
+                      {
+                        "name": "implementation-status",
+                        "value": "implemented"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "uuid": "fc6a4cb3-5160-4792-a835-bfdf92d97a33",
+                "control-id": "si-4.2",
+                "description": "\\<%= app_name %> is monitored using New Relic Application Performance Monitoring (APM), Synthetics and Logs, which detects and alerts on abnormal responses from <%= app_name %> applications in real time.",
+                "props": [
+                  {
+                    "name": "Rule_Id",
+                    "value": "properly-configured"
+                  },
+                  {
+                    "name": "implementation-status",
+                    "value": "implemented"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

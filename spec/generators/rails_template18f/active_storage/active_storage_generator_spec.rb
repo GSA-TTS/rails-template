@@ -63,4 +63,14 @@ RSpec.describe RailsTemplate18f::Generators::ActiveStorageGenerator, type: :gene
     run_generator
     expect(file("doc/adr/0005-clamav-file-scanning.md")).to contain("# 5. ClamAV File Scanning")
   end
+
+  it "adds the component to the component list" do
+    run_generator
+    expect(file("doc/compliance/oscal/trestle-config.yaml")).to contain("  - active_storage")
+  end
+
+  it "copies the component definition" do
+    run_generator
+    expect(file("doc/compliance/oscal/component-definitions/active_storage/component-definition.json")).to exist
+  end
 end
