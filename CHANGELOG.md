@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [1.0.0] - 2024-06-27
+
 - new applications are now on Rails 7.1.x
 - implement USWDS language selector component when translation files are included
 - cleans up github actions and circleci generators to address bitrot
