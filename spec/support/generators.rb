@@ -22,6 +22,16 @@ module RailsTemplate18f
           }
         end
 
+        def setup_github_actions_destination
+          destination destination_path
+          before {
+            prepare_destination
+            generate_base_app
+            system "mkdir", "-p", File.join(self.class.destination_path, ".github/workflows")
+            system "touch", File.join(self.class.destination_path, ".github/workflows/deploy.yml")
+          }
+        end
+
         def setup_active_storage_destination
           destination destination_path
           before {
@@ -43,6 +53,10 @@ module RailsTemplate18f
 
       def generate_terraform_app
         `rails new tmp --template=spec/support/terraform_app_template.rb #{common_arguments}`
+      end
+
+      def generate_github_actions_app
+        `rails new tmp --template=spec/support/github_actions_app_template.rb #{common_arguments}`
       end
 
       def generate_storage_app

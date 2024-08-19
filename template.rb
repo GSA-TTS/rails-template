@@ -69,6 +69,8 @@ if compliance_trestle_submodule && compliance_trestle_repo.blank?
   compliance_trestle = false
   compliance_trestle_submodule = false
 end
+# only ask about auditree if we're also using docker-trestle
+auditree = compliance_trestle ? yes?("Run compliance checks with auditree? (y/n)") : false
 
 terraform = yes?("Create terraform files for cloud.gov services? (y/n)")
 @cloud_gov_organization = ask("What is your cloud.gov organization name? (Leave blank to fill in later)")
@@ -456,6 +458,12 @@ if @circleci_pipeline
   register_announcement("CircleCI", <<~EOM)
     * Create project environment variables for deploy users as defined in the Deployment section of the README
   EOM
+end
+
+if auditree
+  after_bundle do
+    generate "rails_template18f:auditree"
+  end
 end
 
 # setup production credentials file
