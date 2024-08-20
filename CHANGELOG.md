@@ -1,5 +1,6 @@
 ## [Unreleased]
 
+- new applications are now on Rails 7.2.x
 
 ## [1.1.0] - 2024-08-20
 
