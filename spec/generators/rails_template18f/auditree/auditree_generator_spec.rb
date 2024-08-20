@@ -14,4 +14,8 @@ RSpec.describe RailsTemplate18f::Generators::AuditreeGenerator, type: :generator
     expect(file(".github/actions/auditree-cmd/action.yml")).to exist
     expect(file(".github/workflows/deploy.yml")).to exist
   end
+
+  it "update the trestle-config yaml file to include devtools_cloud_gov" do
+    expect(file("doc/compliance/oscal/trestle-config.yaml")).to contain("  - devtools_cloud_gov")
+  end
 end

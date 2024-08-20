@@ -38,7 +38,7 @@ module RailsTemplate18f
 
       def update_component_list
         if oscal_dir_exists?
-          insert_into_file "doc/compliance/oscal/trestle-config.yaml", "  - #{devtools_cloud_gov}\n"
+          insert_into_file "doc/compliance/oscal/trestle-config.yaml", "  - devtools_cloud_gov\n"
         end
       end
 

@@ -29,6 +29,8 @@ module RailsTemplate18f
             generate_base_app
             system "mkdir", "-p", File.join(self.class.destination_path, ".github/workflows")
             system "touch", File.join(self.class.destination_path, ".github/workflows/deploy.yml")
+            system "mkdir", "-p", File.join(self.class.destination_path, "doc/compliance/oscal")
+            system "touch", File.join(self.class.destination_path, "/doc/compliance/oscal/trestle-config.yaml")
           }
         end
 
