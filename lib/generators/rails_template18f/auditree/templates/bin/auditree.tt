@@ -1,0 +1,29 @@
+#! /usr/bin/env bash
+usage="
+$0: Run auditree docker image.
+
+Usage:
+  $0 -h
+  $0
+  $0 init > path/to/auditree.template.json
+  $0 fetch
+  $0 check > path/to/assessment-results/auditree/assessment-results.json
+
+Notes:
+The following environment variables will be passed through to the docker image:
+* GITHUB_TOKEN - a token that has permissions to read and write to the evidence locker and code repository. Required for all but 'init'
+* CF_USERNAME - the cloud.gov username to fetch evidence from cloud.gov, only needed when running fetch script
+* CF_PASSWORD - the cloud.gov password to fetch evidence from cloud.gov, only needed when running fetch script
+"
+
+if [ "$1" = "-h" ]; then
+    echo "$usage"
+    exit 0
+fi
+
+command="bash"
+if [ "$1" != "" ]; then
+    command=$1
+fi
+
+docker run -e GITHUB_TOKEN -e CF_USERNAME -e CF_PASSWORD -e GIT_EMAIL="<%= git_email %>" -it --rm ghcr.io/gsa-tts/auditree:<%= docker_auditree_tag %> $command

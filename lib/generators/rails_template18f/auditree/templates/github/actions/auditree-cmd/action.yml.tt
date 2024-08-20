@@ -1,0 +1,31 @@
+name: "Run an auditree-devtools command"
+description: "Sets up workspace for running a single command in auditree-devtools"
+inputs:
+  tag:
+    description: auditree-devtools tag to use. Defaults to <%= docker_auditree_tag %>
+    required: false
+    default: <%= docker_auditree_tag %>
+  cmd:
+    description: Command to run within auditree-devtools
+    required: true
+  email:
+    description: Git user email to attribute to evidence updates
+    required: true
+  config_template:
+    description: Auditree config file template
+    required: false
+    default: config/auditree.template.json
+  cdef:
+    description: OSCAL Component Definition being used as baseline for assessment results
+    required: false
+    default: doc/compliance/oscal/component-definitions/devtools_cloud_gov/component-definition.json
+runs:
+  using: "composite"
+  steps:
+    - name: Run cmd
+      shell: bash
+      run:
+        docker run -v $GITHUB_WORKSPACE/${{inputs.config_template}}:/app/auditree.template.json:ro
+          -v $GITHUB_WORKSPACE/${{inputs.cdef}}:/app/cdef.json:ro
+          -e GITHUB_TOKEN -e CF_USERNAME -e CF_PASSWORD -e GIT_EMAIL="${{inputs.email}}"
+          ghcr.io/gsa-tts/auditree:${{ inputs.tag }} ${{ inputs.cmd }}

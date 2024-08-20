@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+- add an auditree generator for integration with auditree-devtools and github actions to run it
+- remove the obsolete entry to include nodejs_buildpack in cloud.gov manifest.yml
+
 ## [1.0.0] - 2024-06-27
 
 - new applications are now on Rails 7.1.x
