@@ -5,4 +5,4 @@ if [ "$1" != "" ]; then
     command=$1
 fi
 
-docker run -it --rm ghcr.io/gsa-tts/trestle:<%= docker_auditree_tag %> $command
+docker run -it --rm ghcr.io/gsa-tts/auditree:<%= docker_auditree_tag %> $command
