@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+
+## [1.1.0] - 2024-08-20
+
 - add an auditree generator for integration with auditree-devtools and github actions to run it
 - remove the obsolete entry to include nodejs_buildpack in cloud.gov manifest.yml
 
