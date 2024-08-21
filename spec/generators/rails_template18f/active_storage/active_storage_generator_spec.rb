@@ -31,9 +31,9 @@ RSpec.describe RailsTemplate18f::Generators::ActiveStorageGenerator, type: :gene
 
   it "installs gems" do
     run_generator
-    expect(file("Gemfile")).to contain('gem "faraday", "~> 2.2"')
+    expect(file("Gemfile")).to contain('gem "faraday", "~> 2.10"')
     expect(file("Gemfile")).to contain('gem "faraday-multipart", "~> 1.0"')
-    expect(file("Gemfile")).to contain('gem "aws-sdk-s3", "~> 1.112"')
+    expect(file("Gemfile")).to contain('gem "aws-sdk-s3", "~> 1.159"')
   end
 
   it "copies the file upload job and model" do

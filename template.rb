@@ -185,7 +185,7 @@ after_bundle do
 end
 
 # updates for OWASP scan to pass
-gem "secure_headers", "~> 6.3"
+gem "secure_headers", "~> 6.7"
 initializer "secure_headers.rb", <<~EOM
   SecureHeaders::Configuration.default do |config|
     # CSP settings are handled by Rails
@@ -227,7 +227,7 @@ gem_group :development, :test do
   gem "rspec-rails", "~> 6.1"
   gem "dotenv-rails", "~> 3.1"
   gem "bundler-audit", "~> 0.9"
-  gem "standard", "~> 1.36"
+  gem "standard", "~> 1.40"
 end
 if ENV["RT_DEV"] == "true"
   gem "rails_template_18f", group: :development, path: ENV["PWD"]
