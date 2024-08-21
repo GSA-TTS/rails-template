@@ -39,14 +39,16 @@ def print_announcements
   end
 end
 
-unless Gem::Dependency.new("rails", "~> 7.1.0").match?("rails", Rails.gem_version)
-  warn "This template requires Rails 7.1.x"
+unless Gem::Dependency.new("rails", "~> 7.2.0").match?("rails", Rails.gem_version)
+  warn "This template requires Rails 7.2.x"
   if Gem::Dependency.new("rails", "~> 6.1.0").match?("rails", Rails.gem_version)
     warn "See the rails-6 branch https://github.com/gsa-tts/rails-template/tree/rails-6"
   elsif Gem::Dependency.new("rails", "~> 7.0.0").match?("rails", Rails.gem_version)
     warn "See the rails-7.0 branch https://github.com/gsa-tts/rails-template/tree/rails-7.0"
-  elsif Gem::Dependency.new("rails", "~> 7.2.0").match?("rails", Rails.gem_version)
-    warn "We haven't updated the template for Rails 7.2 yet! Please file an issue so we can get the template updated"
+  elsif Gem::Dependency.new("rails", "~> 7.1.0").match?("rails", Rails.gem_version)
+    warn "See the rails-7.1 branch https://github.com/gsa-tts/rails-template/tree/rails-7.1"
+  elsif Gem::Dependency.new("rails", ">= 7.3.0").match?("rails", Rails.gem_version)
+    warn "We haven't updated the template for Rails >= 7.3 yet! Please file an issue so we can get the template updated"
   else
     warn "We didn't recognize the version of Rails you are using: #{Rails.version}"
   end
@@ -224,7 +226,6 @@ uncomment_lines csp_initializer, "content_security_policy_nonce"
 gem_group :development, :test do
   gem "rspec-rails", "~> 6.1"
   gem "dotenv-rails", "~> 3.1"
-  gem "brakeman", "~> 6.1"
   gem "bundler-audit", "~> 0.9"
   gem "standard", "~> 1.36"
 end

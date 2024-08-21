@@ -2,9 +2,9 @@
 ============================
 The 18F Rails template starts or upgrades Rails projects so that they're more secure, follow compliance rules, and are nearly ready to deploy onto cloud.gov. This gem sets up security checks and compliance diagrams, adds the U.S. Web Design System (USWDS), and much much more — [see the full list of features](#features).
 
-This template will create a new Rails 7.1.x project.
+This template will create a new Rails 7.2.x project.
 
-[See the `rails-7.0` branch for Rails 7.0.x](https://github.com/gsa-tts/rails-template/tree/rails-7.0)
+[See the `rails-7.1` branch for Rails 7.1.x](https://github.com/gsa-tts/rails-template/tree/rails-7.1)
 
 ## Installation
 
@@ -49,6 +49,8 @@ There are a variety of options that customize your Rails application.
 --css=postcss           # Use the PostCSS framework for bundling CSS
 --template=template.rb  # Add additional configuration from template.rb
 --database=postgresql   # Use a PostgreSQL database
+--skip-rubocop          # Skip rubocop integration in favor of Standard Ruby
+--skip-ci               # Skip github actions in favor of our CI generators
 ```
 
 #### Customizing the installation
@@ -110,7 +112,8 @@ This template does a lot! The template completes the following to-do list to mak
 1. Create boundary and logical data model compliance diagrams
 1. Create `manifest.yml` and variable files for cloud.gov deployment
 1. Optionally run the `rake db:create` and `rake db:migrate` setup steps
-1. Optionally integrate with https://github.com/GSA-TTS/compliance-template
+1. Optionally integrate with https://github.com/GSA-TTS/docker-trestle
+1. Optionally integrate with https://github.com/GSA-TTS/auditree-devtools
 1. Optionally create GitHub Actions workflows for testing and cloud.gov deploy
 1. Optionally create terraform modules supporting staging & production cloud.gov spaces
 1. Optionally create CircleCI workflows for testing and cloud.gov deploy

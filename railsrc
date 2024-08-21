@@ -9,3 +9,5 @@
 --css=postcss
 --template=template.rb
 --database=postgresql
+--skip-rubocop
+--skip-ci
