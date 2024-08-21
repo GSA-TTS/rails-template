@@ -1,6 +1,7 @@
 ## [Unreleased]
 
 - new applications are now on Rails 7.2.x
+- configure dependabot in Github Actions generator
 
 ## [1.1.0] - 2024-08-20
 
