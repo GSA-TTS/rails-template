@@ -24,6 +24,7 @@ fi
 command="bash"
 if [ "$1" != "" ]; then
     command=$1
+    shift
 fi
 
-docker run -e GITHUB_TOKEN -e CF_USERNAME -e CF_PASSWORD -e GIT_EMAIL="<%= git_email %>" -it --rm ghcr.io/gsa-tts/auditree:<%= docker_auditree_tag %> $command
+docker run -e GITHUB_TOKEN -e CF_USERNAME -e CF_PASSWORD -e GIT_EMAIL="<%= git_email %>" -it --rm ghcr.io/gsa-tts/auditree:<%= docker_auditree_tag %> $command $@
