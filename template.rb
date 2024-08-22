@@ -496,7 +496,8 @@ EOM
 # ensure this is the very last step
 after_bundle do
   if run_db_setup
-    rails_command "db:setup"
+    rails_command "db:create"
+    rails_command "db:migrate"
   end
 
   # x86_64-linux is required to install gems on any linux system such as cloud.gov or CI pipelines
