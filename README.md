@@ -78,20 +78,53 @@ The template asks questions to ensure your new application is set up for your us
 
 <details><summary>Set up docker-trestle integration for Compliance-as-Code?</summary>
 
-TKTK Information about docker-trestle integration
+Answer `y` to integrate with [docker-trestle](https://github.com/gsa-tts/docker-trestle) for creating compliance documents in markdown and [OSCAL](https://pages.nist.gov/OSCAL/).
+
+Follow up questions if you answer `y`:
+* "Set up compliance documents as a git submodule?" Answer `y` if you want compliance documents to be stored in a separate git repository and linked to your app as a submodule. Answer `n` to have documents checked directly into your code repo.
+  * If you answer `y`, you'll need to provide the address of the compliance repository.
+* "Run compliance checks with auditree?" Answer `y` if you want to integrate with [auditree](https://github.com/gsa-tts/auditree-devtools) for automated compliance checks.
 </details>
 
 <details><summary>Create terraform files for cloud.gov services?</summary>
 
-TKTK information about terraform
+Answer `y` to run the `terraform` generator. This includes a `/terraform` folder defining services and infrastructure within cloud.gov as well as support for deploying that infrastructure in your chosen CI/CD pipeline.
 </details>
 
-<details><summary>Cloud.gov organization and spac name</summary>
+<details><summary>Cloud.gov organization and space names</summary>
 
-TKTK info about why we ask for this
+Provide your cloud.gov organization and space names for use in terraform and deploy scripts.
 </details>
 
-TKTK finish adding sections for each question
+<details><summary>Create GitHub Actions?</summary>
+
+Answer `y` to create Github Actions workflows for running tests, scans, and deploys. Also configures Dependabot.
+</details>
+
+<details><summary>Create CircleCI config?</summary>
+
+Answer `y` to create a CircleCI workflow for running tests, scans, and deploys.
+</details>
+
+<details><summary>Create FEDRAMP New Relic config files?</summary>
+
+Answer `y` to create a default New Relic config that can speak to the Government-flavored New Relic instance, including updating Content Security Policy headers so that browser metrics can be collected.
+</details>
+
+<details><summary>If this will be a public site, should we include Digital Analytics Program code?</summary>
+
+Answer `y` to set up an integration with DAP.
+</details>
+
+<details><summary>Supported locales</summary>
+
+Answer `y` for any languages that should be supported out of the box. Translations are supplied for the usa-banner. You will still be responsible for translating any application content.
+</details>
+
+<details><summary>Run db setup steps?</summary>
+
+Answer `y` to run `rake db:create && rake db:migrate` as part of the app setup. PostgreSQL must be running or this will fail.
+</details>
 
 ### For an existing Rails project
 
