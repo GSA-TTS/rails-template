@@ -6,36 +6,24 @@ This template will create a new Rails 7.2.x project.
 
 [See the `rails-7.1` branch for Rails 7.1.x](https://github.com/gsa-tts/rails-template/tree/rails-7.1)
 
-## Installation
+## Usage
 
 ### For a new Rails project
 
-1. Install the gem:
+#### Install the gem:
 ```
 $ gem install rails_template_18f
 ```
 
-2. Decide whether to install Rails with Hotwire, a framework for client-side interactivity using JavaScript
-  - **For entirely server-side rendered applications**, without any Javascript:
-    - Use the default configuration (`rails_template_18f new <project name> --no-hotwire`)
-  - **For applications that need [a bit of client-side interactivity][aBitOfJS]**, but not a full single page application like React or Vue:
-    - Use Hotwire (`rails_template_18f new <project name> --hotwire`)
-  - **For single-page applications** where most of the interaction will take place via JavaScript, and which will use a framework like React or Vue:
-    - Use the default configuration (`rails_template_18f new <project name> --no-hotwire`)
+#### Decide whether to install Rails with Hotwire
 
-The `--hotwire` flag means that [Hotwire](https://hotwired.dev/) and [ActionCable](https://guides.rubyonrails.org/action_cable_overview.html) are installed. ActionCable is included to enable the [Turbo Streams](https://turbo.hotwired.dev/handbook/streams) functionality of Hotwire.
+[Hotwire](hotwire) is a framework for client-side interactivity using JavaScript that stops short of a full Single Page Application (SPA) framework like React or Vue.
 
-Before installing, you may want to consider the other application configuration options in the next section.
+It is a good choice if you need [a bit of client-side interactivity][aBitOfJS]. Do not use Hotwire if you either will have almost no Javascript at all, or if you are going to use a full SPA.
 
-[aBitOfJS]: https://engineering.18f.gov/web-architecture/#:~:text=are%20more%20complex-,If%20your%20use%20case%20requires%20a%20bit%20of%20client%2Dside%20interactivity%2C%20use%20the%20above%20options%20with%20a%20bit%20of%20JavaScript.,-You%20might%20use
+#### Review the defaults and decide if you want to override any of them
 
-#### Advanced configuration
-
-There are a variety of options that customize your Rails application.
-
-**Important:** Do not use flags `--skip-bundle` or `--skip-javascript`, or various parts of this template will break.
-
-#### Default configuration
+<details><summary>Default configuration</summary>
 
 ```sh
 --skip-active-storage   # Don't include ActiveStorage for document upload
@@ -53,16 +41,57 @@ There are a variety of options that customize your Rails application.
 --skip-ci               # Skip github actions in favor of our CI generators
 ```
 
-#### Customizing the installation
+If you are using Hotwire, then `--skip-hotwire` and `--skip-action-cable` are automatically removed from this list, as they are required for the Hotwire functionality.
+</details>
+<br />
+
+Add the following options at the end of your `rails_template_18f new` command to overwrite any of those defaults.
 
 | Option | Description |
 |--------|-------------|
 | `--no-skip-<framework>` | Each of the skipped frameworks listed above (also in `railsrc`) can be overridden on the command line. For example: `--no-skip-active-storage` will include support for `ActiveStorage` document uploads |
 | `--javascript=esbuild` | Use [esbuild](https://esbuild.github.io/) instead of [webpack](https://webpack.js.org/) for JavaScript bundling. Note that maintaining IE11 support with esbuild may be tricky. |
 
-You probably won't want to customize the template — that defeats the purpose of using this gem!
-
 _TODO: Documentation on whether you can override the `css` and `database` options._
+
+**Important:** Do not use flags `--skip-bundle` or `--skip-javascript`, or various parts of this template will break.
+
+#### Create your application
+
+<details><summary>If you are using Hotwire, run:</summary>
+
+```
+$ rails_template_18f new <project name> --hotwire ADDITIONAL_CONFIG_OPTIONS
+```
+</details>
+
+<details><summary>If you are not using Hotwire, run:</summary>
+
+```
+$ rails_template_18f new <project name> ADDITIONAL_CONFIG_OPTIONS
+```
+</details>
+
+#### Answer the setup questions that the template asks
+
+The template asks questions to ensure your new application is set up for your use case.
+
+<details><summary>Set up docker-trestle integration for Compliance-as-Code?</summary>
+
+TKTK Information about docker-trestle integration
+</details>
+
+<details><summary>Create terraform files for cloud.gov services?</summary>
+
+TKTK information about terraform
+</details>
+
+<details><summary>Cloud.gov organization and spac name</summary>
+
+TKTK info about why we ask for this
+</details>
+
+TKTK finish adding sections for each question
 
 ### For an existing Rails project
 
@@ -76,17 +105,21 @@ gem "rails_template_18f", group: :development
 
 And then run:
 
-    $ bundle install
+```sh
+$ bundle install
+```
 
 For a list of commands this gem can perform, run:
 
-    $ rails generate | grep 18f
+```sh
+$ bin/rails generate | grep 18f
+```
 
-_TODO: Add documentation on each option._
+Run `bin/rails generate rails_template_18f:GENERATOR --help` for information on each generator.
 
 ### Features
 
-This template does a lot! The template completes the following to-do list to make your application more secure, closer to standards-compliant, and nearly production-ready.
+<details><summary>This template does a lot! The template completes the following to-do list to make your application more secure, closer to standards-compliant, and nearly production-ready.</summary>
 
 1. Create a better default `README`
 1. Copy `CONTRIBUTING.md` and `LICENSE.md` from the [18F Open Source Policy repo](https://github.com/18F/open-source-policy/)
@@ -122,6 +155,7 @@ This template does a lot! The template completes the following to-do list to mak
 1. Optionally add base translation files and routes for Spanish, French, and Simplified Chinese (es.yml, fr.yml, and zh.yml)
 1. Create [Architecture Decision Records](https://adr.github.io/) for above setup
 1. Commit the resulting project with git (unless `--skip-git` is passed)
+</details>
 
 ## Developing this gem
 
@@ -136,3 +170,6 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/gsa-tt
 ## Code of conduct
 
 Everyone interacting in the 18F Rails Template project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/gsa-tts/rails-template/blob/main/CODE_OF_CONDUCT.md).
+
+[hotwire]: https://hotwired.dev/
+[aBitOfJS]: https://guides.18f.gov/engineering/tools/web-architecture/#if-your-use-case-requires-a-bit-of-client-side-interactivity-use-the-above-options-with-a-bit-of-javascript
