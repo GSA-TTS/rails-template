@@ -15,7 +15,7 @@ module RailsTemplate18f
       def install_climate_control
         return if gem_installed?("climate_control")
         gem_group :test do
-          gem "climate_control", "~> 1.0"
+          gem "climate_control", "~> 1.2"
         end
         bundle_install
       end

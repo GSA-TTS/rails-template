@@ -66,7 +66,7 @@ module RailsTemplate18f
       end
 
       def common_arguments
-        "--minimal --skip-active-record --skip-test --skip-git --skip-bundle"
+        "--minimal --skip-active-record --skip-test --skip-git --skip-bundle --skip-rubocop --skip-ci"
       end
     end
   end

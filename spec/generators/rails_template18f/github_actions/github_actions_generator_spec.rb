@@ -33,6 +33,10 @@ RSpec.describe RailsTemplate18f::Generators::GithubActionsGenerator, type: :gene
     it "copies the component definition" do
       expect(file("doc/compliance/oscal-component-definitions/github_actions/component-definition.json")).to exist
     end
+
+    it "creates a dependabot file" do
+      expect(file(".github/dependabot.yml")).to exist
+    end
   end
 
   context "with terraform" do
@@ -42,6 +46,10 @@ RSpec.describe RailsTemplate18f::Generators::GithubActionsGenerator, type: :gene
     it "includes terraform-related actions" do
       expect(file(".github/workflows/terraform-staging.yml")).to exist
       expect(file(".github/workflows/terraform-production.yml")).to exist
+    end
+
+    it "includes terraform in the dependabot config" do
+      expect(file(".github/dependabot.yml")).to contain("- package-ecosystem: terraform")
     end
   end
 end

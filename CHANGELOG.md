@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+- new applications are now on Rails 7.2.x
+- configure dependabot in Github Actions generator
+- fix bin/trestle and bin/auditree so that command line flags are properly passed into the docker containers
 
 ## [1.1.0] - 2024-08-20
 

@@ -39,14 +39,16 @@ def print_announcements
   end
 end
 
-unless Gem::Dependency.new("rails", "~> 7.1.0").match?("rails", Rails.gem_version)
-  warn "This template requires Rails 7.1.x"
+unless Gem::Dependency.new("rails", "~> 7.2.0").match?("rails", Rails.gem_version)
+  warn "This template requires Rails 7.2.x"
   if Gem::Dependency.new("rails", "~> 6.1.0").match?("rails", Rails.gem_version)
     warn "See the rails-6 branch https://github.com/gsa-tts/rails-template/tree/rails-6"
   elsif Gem::Dependency.new("rails", "~> 7.0.0").match?("rails", Rails.gem_version)
     warn "See the rails-7.0 branch https://github.com/gsa-tts/rails-template/tree/rails-7.0"
-  elsif Gem::Dependency.new("rails", "~> 7.2.0").match?("rails", Rails.gem_version)
-    warn "We haven't updated the template for Rails 7.2 yet! Please file an issue so we can get the template updated"
+  elsif Gem::Dependency.new("rails", "~> 7.1.0").match?("rails", Rails.gem_version)
+    warn "See the rails-7.1 branch https://github.com/gsa-tts/rails-template/tree/rails-7.1"
+  elsif Gem::Dependency.new("rails", ">= 7.3.0").match?("rails", Rails.gem_version)
+    warn "We haven't updated the template for Rails >= 7.3 yet! Please file an issue so we can get the template updated"
   else
     warn "We didn't recognize the version of Rails you are using: #{Rails.version}"
   end
@@ -183,7 +185,7 @@ after_bundle do
 end
 
 # updates for OWASP scan to pass
-gem "secure_headers", "~> 6.3"
+gem "secure_headers", "~> 6.7"
 initializer "secure_headers.rb", <<~EOM
   SecureHeaders::Configuration.default do |config|
     # CSP settings are handled by Rails
@@ -224,9 +226,8 @@ uncomment_lines csp_initializer, "content_security_policy_nonce"
 gem_group :development, :test do
   gem "rspec-rails", "~> 6.1"
   gem "dotenv-rails", "~> 3.1"
-  gem "brakeman", "~> 6.1"
   gem "bundler-audit", "~> 0.9"
-  gem "standard", "~> 1.36"
+  gem "standard", "~> 1.40"
 end
 if ENV["RT_DEV"] == "true"
   gem "rails_template_18f", group: :development, path: ENV["PWD"]
@@ -495,7 +496,8 @@ EOM
 # ensure this is the very last step
 after_bundle do
   if run_db_setup
-    rails_command "db:setup"
+    rails_command "db:create"
+    rails_command "db:migrate"
   end
 
   # x86_64-linux is required to install gems on any linux system such as cloud.gov or CI pipelines
