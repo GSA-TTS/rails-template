@@ -23,20 +23,16 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.AUDITREE_GITHUB_TOKEN }}
         with:
           cmd: fetch
-          email: "<%= git_email %>"
 
       - name: Check evidence
         uses: ./.github/actions/auditree-cmd
         env:
-          CF_USERNAME: ${{ secrets.CF_USERNAME }}
-          CF_PASSWORD: ${{ secrets.CF_PASSWORD }}
           GITHUB_TOKEN: ${{ secrets.AUDITREE_GITHUB_TOKEN }}
         with:
-          cmd: check > doc/compliance/oscal/assessment-results/auditree/assessment-results.json
-          email: "<%= git_email %>"
+          cmd: -o check
 
       - name: Save results
         uses: actions/upload-artifact@v4
         with:
           name: auditree_assessment_results
-          path: doc/compliance/oscal/assessment-results/auditree
+          path: tmp/auditree/auditree.json

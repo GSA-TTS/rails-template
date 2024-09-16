@@ -73,6 +73,9 @@ if compliance_trestle_submodule && compliance_trestle_repo.blank?
 end
 # only ask about auditree if we're also using docker-trestle
 auditree = compliance_trestle ? yes?("Run compliance checks with auditree? (y/n)") : false
+if auditree
+  auditree_evidence_repo = ask("What is the https address of your auditree evidence repo? (Leave blank to fill in later)")
+end
 
 terraform = yes?("Create terraform files for cloud.gov services? (y/n)")
 @cloud_gov_organization = ask("What is your cloud.gov organization name? (Leave blank to fill in later)")
@@ -462,8 +465,11 @@ end
 
 if auditree
   after_bundle do
-    generate "rails_template18f:auditree"
+    generate "rails_template18f:auditree", "--evidence_locker=#{auditree_evidence_repo}"
   end
+  register_announcement "Auditree", <<~EOM
+    * Don't forget to follow the initial setup instructions for Auditree in the main README
+  EOM
 end
 
 # setup production credentials file
