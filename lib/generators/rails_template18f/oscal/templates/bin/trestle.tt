@@ -1,11 +1,13 @@
 #! /usr/bin/env bash
 
+trestle_tag="<%= docker_trestle_tag %>"
+
 command="bash"
 if [ "$1" != "" ]; then
     command=$1
-    shift
+    shift 1
 fi
 
 oscal_location="$(dirname "$(realpath "$0")")/../doc/compliance/oscal"
 
-docker run -it --rm -v $oscal_location:/app/docs:rw ghcr.io/gsa-tts/trestle:<%= docker_trestle_tag %> $command $@
+docker run -it --rm -v $oscal_location:/app/docs:rw ghcr.io/gsa-tts/trestle:$trestle_tag $command "$@"

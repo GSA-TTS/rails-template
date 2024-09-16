@@ -30,5 +30,13 @@ jobs:
 
       - name: Run rspec
         env:
-          DATABASE_URL: ${{ steps.setup.outputs.database_url }}
+          DATABASE_URL: ${{ steps.setup.outputs.database_url }}<% if oscal_dir_exists? %>
+          rspec_oscal_output: tmp<% end %>
         run: bundle exec rspec
+<% if oscal_dir_exists? %>
+      - name: Save assessment results
+        uses: actions/upload-artifact@v4
+        with:
+          name: <%= app_name %>_assessment
+          path: tmp/oscal
+<% end %>

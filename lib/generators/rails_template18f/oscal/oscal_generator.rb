@@ -10,6 +10,7 @@ module RailsTemplate18f
       class_option :oscal_repo, desc: "GitHub Repo to store compliance documents within. Leave blank to check docs into the app repo"
       class_option :tag, desc: "Which docker-trestle tag to use. Defaults to `latest`"
       class_option :branch, desc: "Name of the branch to switch to when using a submodule. Defaults to `main`"
+      class_option :ci, desc: "Name of CI to generate files for. Defaults to system already in use"
 
       desc <<~DESC
         Description:
@@ -42,6 +43,12 @@ module RailsTemplate18f
         template "doc/compliance/oscal/trestle-config.yaml"
       end
 
+      def copy_github_actions
+        if use_github_actions?
+          directory "github", ".github"
+        end
+      end
+
       def update_readme
         if file_content("README.md").match?("## Documentation")
           insert_into_file "README.md", readme_contents, after: "## Documentation\n"
@@ -66,6 +73,8 @@ module RailsTemplate18f
             # Trestle working files
             doc/compliance/oscal/.trestle/_trash
             doc/compliance/oscal/.trestle/cache
+            # Trestle renders
+            doc/compliance/oscal/ssp-render/#{app_name}_ssp.*
           EOM
         end
       end
@@ -76,7 +85,11 @@ module RailsTemplate18f
         end
 
         def docker_trestle_tag
-          options[:tag].present? ? options[:tag] : "latest"
+          options[:tag].present? ? options[:tag] : "20240912"
+        end
+
+        def use_github_actions?
+          options[:ci] == "github" || file_exists?(".github/workflows")
         end
 
         def readme_contents

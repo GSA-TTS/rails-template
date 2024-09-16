@@ -16,7 +16,7 @@ jobs:
       - name: Validate SSP
         uses: ./.github/actions/trestle-cmd
         with:
-          cmd: trestle validate -f system-security-plans/<%= app_name %>/system-security-plan.json
+          cmd: validate-ssp-json
 
   check_ssp:
     name: Check assembly is current

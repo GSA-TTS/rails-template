@@ -4,8 +4,6 @@ on:
   workflow_dispatch:
   push:
     branches: [ main ]
-    paths:
-      - "doc/compliance/oscal/**"
 
 jobs:
   assemble_ssp:
@@ -19,8 +17,19 @@ jobs:
         with:
           cmd: trestle assemble -n <%= app_name %> system-security-plan
 
+      - name: Render final SSPP
+        uses: ./.github/actions/trestle-cmd
+        with:
+          cmd: render-ssp
+
+      - name: Transform SSPP to PDF
+        run: docker run --rm -u "$(id -u):$(id -g)" -v "$GITHUB_WORKSPACE/doc/compliance/oscal/ssp-render:/data" pandoc/latex <%= app_name %>_ssp.md -o <%= app_name %>_ssp.pdf
+
       - name: Save artifact
         uses: actions/upload-artifact@v4
         with:
           name: <%= app_name %>_SSPP
-          path: doc/compliance/oscal/dist/system-security-plans/<%= app_name %>.json
+          path: |
+            doc/compliance/oscal/dist/system-security-plans/<%= app_name %>.json
+            doc/compliance/oscal/ssp-render/<%= app_name %>_ssp.md
+            doc/compliance/oscal/ssp-render/<%= app_name %>_ssp.pdf

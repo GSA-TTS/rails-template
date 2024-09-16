@@ -1,0 +1,16 @@
+name: "Run a docker-trestle command"
+description: "Sets up workspace for running a single command in docker-trestle"
+inputs:
+  tag:
+    description: docker-trestle tag to use.
+    required: false
+    default: <%= docker_trestle_tag %>
+  cmd:
+    description: Command to run within docker-trestle
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Run cmd
+      shell: bash
+      run: docker run -u "$(id -u):$(id -g)" -v $GITHUB_WORKSPACE/doc/compliance/oscal:/app/docs:rw ghcr.io/gsa-tts/trestle:${{ inputs.tag }} ${{ inputs.cmd }}

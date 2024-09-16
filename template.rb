@@ -113,9 +113,8 @@ EOM
 if compliance_trestle
   after_bundle do
     generator_arguments = []
-    if compliance_trestle_submodule
-      generator_arguments << "--oscal_repo=#{compliance_trestle_repo}"
-    end
+    generator_arguments << "--oscal_repo=#{compliance_trestle_repo}" if compliance_trestle_submodule
+    generator_arguments << "--ci=github" if @github_actions
     generate "rails_template18f:oscal", *generator_arguments
   end
   register_announcement("OSCAL Documentation", <<~EOM)

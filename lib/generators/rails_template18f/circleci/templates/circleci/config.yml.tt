@@ -20,7 +20,7 @@ commands:
     description: Set up environment for running docker-trestle commands
     parameters:
       tag:
-        description: docker-trestle tag to use. Defaults to latest
+        description: docker-trestle tag to use.
         type: string
         default: latest
       cmd:
@@ -28,11 +28,8 @@ commands:
         type: string
     steps:
       - run:
-          name: Fix directory permissions
-          command: chmod -R a+w doc/compliance/oscal || true
-      - run:
           name: Run trestle command
-          command: docker run -v $(pwd)/doc/compliance/oscal:/app/docs:rw ghcr.io/gsa-tts/trestle:<< parameters.tag >> << parameters.cmd >><% end %>
+          command: docker run -u "$(id -u):$(id -g)" -v $(pwd)/doc/compliance/oscal:/app/docs:rw ghcr.io/gsa-tts/trestle:<< parameters.tag >> << parameters.cmd >><% end %>
   cg-deploy:
     description: "Login to cloud foundry space with service account credentials
       and push application using deployment configuration file."
@@ -141,7 +138,7 @@ jobs:
     steps:
       - checkout
       - trestle-cmd:
-          cmd: trestle validate -f system-security-plans/<%= app_name %>/system-security-plan.json
+          cmd: validate-ssp-json
       - trestle-cmd:
           cmd: assemble-ssp-json 2> /dev/null | grep "^No changes to assembled ssp"
   assemble_ssp:
@@ -151,8 +148,12 @@ jobs:
       - checkout
       - trestle-cmd:
           cmd: trestle assemble -n <%= app_name %> system-security-plan
+      - trestle-cmd:
+          cmd: render-ssp
       - store_artifacts:
           path: doc/compliance/oscal/dist/system-security-plans/<%= app_name %>.json
+      - store_artifacts:
+          path: doc/compliance/oscal/ssp-render/<%= app_name %>_ssp.md
 <% end %>
   static_security_scans:
     docker:
