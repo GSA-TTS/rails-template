@@ -24,7 +24,6 @@ module RailsTemplate18f
         if !oscal_dir_exists?
           remove_file ".github/workflows/validate-ssp.yml"
           remove_file ".github/workflows/assemble-ssp.yml"
-          remove_dir ".github/actions/trestle-cmd"
         end
       end
 

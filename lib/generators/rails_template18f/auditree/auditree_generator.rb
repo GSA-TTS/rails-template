@@ -9,6 +9,7 @@ module RailsTemplate18f
 
       class_option :tag, desc: "Which auditree docker tag to use. Defaults to `latest`"
       class_option :git_email, desc: "Email address to associate with commits to the evidence locker"
+      class_option :evidence_locker, desc: "Git repository address to store evidence in. Defaults to a TKTK address."
 
       desc <<~DESC
         Description:
@@ -25,6 +26,31 @@ module RailsTemplate18f
       def copy_github_actions
         if file_exists? ".github/workflows"
           directory "github", ".github"
+
+          # insert plant-helper calls in rspec
+          insert_into_file ".github/workflows/rspec.yml", <<PLANT_HELPER_STEPS, after: /^\s*run: bundle exec rspec$/
+
+
+      - name: Plant assessment plan in evidence locker
+        uses: ./.github/actions/auditree-cmd
+        env:
+          GITHUB_TOKEN: ${{ secrets.AUDITREE_GITHUB_TOKEN }}
+        with:
+          volume: "tmp/oscal/assessment-plans/rspec/assessment-plan.json:/tmp/rspec.json:ro"
+          cmd:
+            plant-helper -f /tmp/rspec.json -c assessment-plans -d "RSpec run assessment plan"
+              -t 31536000 -l #{auditree_evidence_locker}
+
+      - name: Plan assessment results in evidence locker
+        uses: ./.github/actions/auditree-cmd
+        env:
+          GITHUB_TOKEN: ${{ secrets.AUDITREE_GITHUB_TOKEN }}
+        with:
+          volume: "tmp/oscal/assessment-results/rspec/assessment-results.json:/tmp/rspec.json:ro"
+          cmd:
+            plant-helper -f /tmp/rspec.json -c assessment-results -d "RSpec run assessment results"
+              -t 31536000 -l #{auditree_evidence_locker}
+PLANT_HELPER_STEPS
         end
       end
 
@@ -47,8 +73,12 @@ module RailsTemplate18f
           options[:tag].present? ? options[:tag] : "latest"
         end
 
+        def auditree_evidence_locker
+          options[:evidence_locker].present? ? options[:evidence_locker] : "https://github.com/GSA-TTS/TKTK_#{app_name}_evidence"
+        end
+
         def git_email
-          options[:git_email].present? ? options[:git_email] : "TKTK-email@gsa.gov"
+          options[:git_email].present? ? options[:git_email] : "auditree@gsa.gov"
         end
 
         def readme_contents
@@ -66,10 +96,11 @@ module RailsTemplate18f
             These steps must happen once per project.
 
             1. Docker desktop must be running
-            1. Initialize the config file with `bin/auditree init > config/auditree.template.json`
+            1. Initialize the config file with `bin/auditree init`
             1. Create an evidence locker repository with a default or blank README
-            1. Create a github personal access token to interact with the code repo and evidence locker and set as `AUDITREE_GITHUB_TOKEN` secret within your production Github environment secrets.
+            1. Create a github personal access token to interact with the code repo and evidence locker and set as `AUDITREE_GITHUB_TOKEN` secret within your Github Actions secrets.
             1. Update `config/auditree.template.json` with the repo addresses for your locker and code repos
+            #{(options[:evidence_locker].blank? && file_exists?(".github/workflows/rspec.yml")) ? "1. Update `.github/workflows/rspec.yml` with the locker repository URL" : ""}
             1. Copy the `devtools_cloud_gov` component definition into the project with the latest docker-trestle
 
             #### Ongoing use

@@ -2,7 +2,7 @@ name: "Run an auditree-devtools command"
 description: "Sets up workspace for running a single command in auditree-devtools"
 inputs:
   tag:
-    description: auditree-devtools tag to use. Defaults to <%= docker_auditree_tag %>
+    description: auditree-devtools tag to use.
     required: false
     default: <%= docker_auditree_tag %>
   cmd:
@@ -10,7 +10,8 @@ inputs:
     required: true
   email:
     description: Git user email to attribute to evidence updates
-    required: true
+    required: false
+    default: "<%= git_email %>"
   config_template:
     description: Auditree config file template
     required: false
@@ -19,13 +20,23 @@ inputs:
     description: OSCAL Component Definition being used as baseline for assessment results
     required: false
     default: doc/compliance/oscal/component-definitions/devtools_cloud_gov/component-definition.json
+  volume:
+    description: Freeform volume string to mount another file in the auditree image
+    required: false
+    default: ""
 runs:
   using: "composite"
   steps:
     - name: Run cmd
       shell: bash
+      if: ${{ inputs.volume == '' }}
       run:
-        docker run -v $GITHUB_WORKSPACE/${{inputs.config_template}}:/app/auditree.template.json:ro
-          -v $GITHUB_WORKSPACE/${{inputs.cdef}}:/app/cdef.json:ro
-          -e GITHUB_TOKEN -e CF_USERNAME -e CF_PASSWORD -e GIT_EMAIL="${{inputs.email}}"
-          ghcr.io/gsa-tts/auditree:${{ inputs.tag }} ${{ inputs.cmd }}
+        bin/auditree -t ${{ inputs.tag }} -a ${{ inputs.config_template }} -c ${{ inputs.cdef }}
+          -e "${{ inputs.email }}" ${{ inputs.cmd }}
+
+    - name: Run cmd with volume
+      shell: bash
+      if: ${{ inputs.volume != '' }}
+      run:
+        bin/auditree -t ${{ inputs.tag }} -a ${{ inputs.config_template }} -c ${{ inputs.cdef }}
+          -e "${{ inputs.email }}" -v ${{ inputs.volume }} ${{ inputs.cmd }}
