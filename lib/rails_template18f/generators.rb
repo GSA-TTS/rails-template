@@ -6,6 +6,7 @@ module RailsTemplate18f
 
     autoload :Base
     autoload :CloudGovOptions
+    autoload :CloudGovParsing
     autoload :PipelineOptions
   end
 end
