@@ -46,16 +46,33 @@ module RailsTemplate18f
       end
 
       def add_to_deploy_steps
+        if Dir.exist?(file_path(".github/workflows"))
+          directory "github", ".github"
+        end
         if file_exists?(".github/workflows/deploy-staging.yml")
           append_to_file ".github/workflows/deploy-staging.yml", <<EOD
+
       - name: Deploy egress proxy
-        run: ./bin/ops/deploy_egress_proxy.rb -s #{cloud_gov_staging_space} -a #{app_name}-staging
+        uses: ./.github/actions/deploy-proxy
+        env:
+          CF_USERNAME: ${{ secrets.CF_USERNAME }}
+          CF_PASSWORD: ${{ secrets.CF_PASSWORD }}
+        with:
+          cf_space: #{cloud_gov_staging_space}
+          app: #{app_name}-staging
 EOD
         end
         if file_exists?(".github/workflows/deploy-production.yml")
           append_to_file ".github/workflows/deploy-production.yml", <<EOD
+
       - name: Deploy egress proxy
-        run: ./bin/ops/deploy_egress_proxy.rb -s #{cloud_gov_production_space} -a #{app_name}-production
+        uses: ./.github/actions/deploy-proxy
+        env:
+          CF_USERNAME: ${{ secrets.CF_USERNAME }}
+          CF_PASSWORD: ${{ secrets.CF_PASSWORD }}
+        with:
+          cf_space: #{cloud_gov_production_space}
+          app: #{app_name}-production
 EOD
         end
         if file_exists?(".circleci/config.yml")
@@ -96,46 +113,44 @@ EOB
         puts "2. Connect outbound connections through the egress proxy"
       end
 
-      def update_oscal_docs
-        if oscal_dir_exists?
-          insert_into_oscal "sc-7.md", <<~EOS, after: "## Implementation c.\n"
-            #{app_name} is deployed to a restricted-egress cloud.gov space as described in [cloud.gov - controlling egress traffic](https://cloud.gov/docs/management/space-egress/).
-            The restricted-egress space allows only communication to cloud.gov managed services including RDS.
+      # def update_oscal_docs
+      #   if oscal_dir_exists?
+      #     insert_into_oscal "sc-7.md", <<~EOS, after: "## Implementation c.\n"
+      #       #{app_name} is deployed to a restricted-egress cloud.gov space as described in [cloud.gov - controlling egress traffic](https://cloud.gov/docs/management/space-egress/).
+      #       The restricted-egress space allows only communication to cloud.gov managed services including RDS.
 
-            #{app_name} includes an egress proxy in a public-egress cloud.gov space. This proxy includes an allow-list of allowed external connections. All other
-            connections are blocked.
-          EOS
-        end
-      end
+      #       #{app_name} includes an egress proxy in a public-egress cloud.gov space. This proxy includes an allow-list of allowed external connections. All other
+      #       connections are blocked.
+      #     EOS
+      #   end
+      # end
 
       no_tasks do
         def readme_content
           <<~README
             ### Public Egress Proxy
 
-            Traffic to be delivered to the public internet or s3 must be proxied through the [cg-egress-proxy](https://github.com/GSA/cg-egress-proxy) app.
+            Traffic to be delivered to the public internet or s3 must be proxied through the [cg-egress-proxy](https://github.com/GSA-TTS/cg-egress-proxy) app.
 
-            To deploy the proxy:
+            To deploy the proxy manually:
 
             1. Ensure terraform state is up to date.
             1. Update the acl files in `config/deployment/egress_proxy`
-            1. Ensure Docker Desktop is running
             1. Deploy the proxy to staging: `bin/ops/deploy_egress_proxy.rb -s #{cloud_gov_staging_space} -a #{app_name}-staging`
             1. Deploy the proxy to production: `bin/ops/deploy_egress_proxy.rb -s #{cloud_gov_production_space} -a #{app_name}-production`
 
+            See the [ruby troubleshooting doc](https://github.com/GSA-TTS/cg-egress-proxy/blob/main/docs/ruby.md) first if you have any problems making outbound connections through the proxy.
           README
         end
 
         def terraform_module
           <<~EOT
 
-            module "egress-space" {
-              source = "../shared/egress_space"
+            module "egress_space" {
+              source = "github.com/gsa-tts/terraform-cloudgov//cg_space?ref=v1.0.0"
 
-              cf_user       = var.cf_user
-              cf_password   = var.cf_password
               cf_org_name   = local.cf_org_name
-              cf_space_name = local.cf_space_name
+              cf_space_name = "${local.cf_space_name}-egress"
               # deployers should include any user or service account ID that will deploy the egress proxy
               deployers = [
                 var.cf_user

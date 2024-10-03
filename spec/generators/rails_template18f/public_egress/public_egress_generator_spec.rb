@@ -16,8 +16,8 @@ RSpec.describe RailsTemplate18f::Generators::PublicEgressGenerator, type: :gener
     before { run_generator }
 
     it "adds the public-egress module" do
-      expect(file("terraform/staging/main.tf")).to contain("module \"egress-space\" {")
-      expect(file("terraform/production/main.tf")).to contain("module \"egress-space\" {")
+      expect(file("terraform/staging/main.tf")).to contain("module \"egress_space\" {")
+      expect(file("terraform/production/main.tf")).to contain("module \"egress_space\" {")
     end
 
     it "adds instructions to the README" do
