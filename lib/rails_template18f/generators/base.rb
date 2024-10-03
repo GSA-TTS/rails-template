@@ -59,6 +59,13 @@ module RailsTemplate18f
         Dir.exist? file_path("doc/compliance/oscal")
       end
 
+      def copy_remote_oscal_component(component_name, cd_url)
+        get cd_url, File.join(oscal_component_path, component_name, "component-definition.json")
+        if oscal_dir_exists?
+          insert_into_file "doc/compliance/oscal/trestle-config.yaml", "  - #{component_name}\n"
+        end
+      end
+
       def copy_oscal_component(component_name)
         template "oscal/component-definitions/#{component_name}/component-definition.json",
           File.join(oscal_component_path, component_name, "component-definition.json")

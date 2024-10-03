@@ -28,5 +28,9 @@ RSpec.describe RailsTemplate18f::Generators::PublicEgressGenerator, type: :gener
       boundary_file = "doc/compliance/apps/application.boundary.md"
       expect(file(boundary_file)).to contain("Container(proxy, \"<&layers> Egress Proxy\"")
     end
+
+    it "copies the oscal component-definition" do
+      expect(file("doc/compliance/oscal-component-definitions/cg-egress-proxy/component-definition.json")).to exist
+    end
   end
 end
