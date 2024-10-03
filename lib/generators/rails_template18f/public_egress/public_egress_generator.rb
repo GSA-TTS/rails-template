@@ -113,17 +113,9 @@ EOB
         puts "2. Connect outbound connections through the egress proxy"
       end
 
-      # def update_oscal_docs
-      #   if oscal_dir_exists?
-      #     insert_into_oscal "sc-7.md", <<~EOS, after: "## Implementation c.\n"
-      #       #{app_name} is deployed to a restricted-egress cloud.gov space as described in [cloud.gov - controlling egress traffic](https://cloud.gov/docs/management/space-egress/).
-      #       The restricted-egress space allows only communication to cloud.gov managed services including RDS.
-
-      #       #{app_name} includes an egress proxy in a public-egress cloud.gov space. This proxy includes an allow-list of allowed external connections. All other
-      #       connections are blocked.
-      #     EOS
-      #   end
-      # end
+      def update_oscal_doc
+        copy_remote_oscal_component "cg-egress-proxy", "https://raw.githubusercontent.com/GSA-TTS/cg-egress-proxy/refs/heads/main/docs/compliance/component-definitions/cg-egress-proxy/component-definition.json"
+      end
 
       no_tasks do
         def readme_content
