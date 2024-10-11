@@ -6,7 +6,7 @@ module "s3" {
   source = "github.com/gsa-tts/terraform-cloudgov//s3?ref=v1.0.0"
 
   cf_org_name   = "<%= cloud_gov_organization %>"
-  cf_space_name = "<%= cloud_gov_production_space %>"
+  cf_space_name = "<%= cloud_gov_production_space %>-mgmt"
   name          = local.s3_service_name<% if cloud_gov_organization == "sandbox-gsa" %>
   s3_plan_name  = "basic-sandbox"<% end %>
 }

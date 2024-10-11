@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-../../bin/ops/destroy_service_account.sh -s <%= cloud_gov_production_space %> -u config-bootstrap-deployer
+../../bin/ops/destroy_service_account.sh -s <%= cloud_gov_production_space %>-mgmt -u config-bootstrap-deployer
 
 rm secrets.auto.tfvars
