@@ -34,8 +34,8 @@ module RailsTemplate18f
         with:
           cf_username: ${{ secrets.CF_USERNAME }}
           cf_password: ${{ secrets.CF_PASSWORD }}
-          cf_org: <%= cloud_gov_organization %>
-          cf_space: <%= cloud_gov_staging_space %>-egress
+          cf_org: #{cloud_gov_organization}
+          cf_space: #{cloud_gov_staging_space}-egress
           cf_command: bind-security-group public_networks_egress $INPUT_CF_ORG --space $INPUT_CF_SPACE
 EOD
         end
@@ -46,8 +46,8 @@ EOD
         with:
           cf_username: ${{ secrets.CF_USERNAME }}
           cf_password: ${{ secrets.CF_PASSWORD }}
-          cf_org: <%= cloud_gov_organization %>
-          cf_space: <%= cloud_gov_production_space %>-egress
+          cf_org: #{cloud_gov_organization}
+          cf_space: #{cloud_gov_production_space}-egress
           cf_command: bind-security-group public_networks_egress $INPUT_CF_ORG --space $INPUT_CF_SPACE
 EOD
         end
