@@ -16,7 +16,8 @@ dig_output () {
 }
 
 if [[ ! -f "secrets.auto.tfvars" ]]; then
-  ../../bin/ops/create_service_account.sh -s <%= cloud_gov_production_space %> -u config-bootstrap-deployer > secrets.auto.tfvars
+  cf target -s <%= cloud_gov_production_space %>-mgmt || cf create-space <%= cloud_gov_production_space %>-mgmt && cf disallow-space-ssh <%= cloud_gov_production_space %>-mgmt
+  ../../bin/ops/create_service_account.sh -s <%= cloud_gov_production_space %>-mgmt -u config-bootstrap-deployer > secrets.auto.tfvars
 fi
 
 if [[ $# -gt 0 ]]; then

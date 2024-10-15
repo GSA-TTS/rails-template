@@ -72,6 +72,11 @@ commands:
               -o << parameters.cloudgov_org >> \
               -s << parameters.cloudgov_space >>
       - run:
+          name: Set restricted egress
+          command: |
+            cf bind-security-group trusted_local_networks_egress << parameters.cloudgov_org >> \
+              --space << parameters.cloudgov_space >>
+      - run:
           name: Push application with deployment vars
           command: |
             cf push --strategy rolling \

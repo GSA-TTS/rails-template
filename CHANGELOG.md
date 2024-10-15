@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+- Set up app space via terraform, with proper restricted egress security group
+
 ## [1.2.0] - 2024-09-20
 
 - new applications are now on Rails 7.2.x
