@@ -5,32 +5,48 @@ locals {
   app_name      = "<%= app_name %>"
 }
 
+module "app_space" {
+  source = "github.com/gsa-tts/terraform-cloudgov//cg_space?ref=v1.1.0"
+
+  cf_org_name   = local.cf_org_name
+  cf_space_name = local.cf_space_name
+  deployers     = [var.cf_user]
+  # developers should include any users that will potentially need to run `cf ssh` on the app
+  developers = []
+}
+
 module "database" {
-  source = "github.com/gsa-tts/terraform-cloudgov//database?ref=v1.0.0"
+  source = "github.com/gsa-tts/terraform-cloudgov//database?ref=v1.1.0"
 
   cf_org_name   = local.cf_org_name
   cf_space_name = local.cf_space_name
   name          = "${local.app_name}-rds-${local.env}"
   rds_plan_name = "TKTK-production-rds-plan"
+  # depends_on line is needed only for initial creation and destruction. It should be commented out for updates to prevent unwanted cascading effects
+  depends_on = [module.app_space]
 }
 <% if has_active_job? %>
 module "redis" {
-  source = "github.com/gsa-tts/terraform-cloudgov//redis?ref=v1.0.0"
+  source = "github.com/gsa-tts/terraform-cloudgov//redis?ref=v1.1.0"
 
   cf_org_name     = local.cf_org_name
   cf_space_name   = local.cf_space_name
   name            = "${local.app_name}-redis-${local.env}"
   redis_plan_name = "TKTK-production-redis-plan"
+  # depends_on line is needed only for initial creation and destruction. It should be commented out for updates to prevent unwanted cascading effects
+  depends_on = [module.app_space]
 }
 <% end %>
 <% if has_active_storage? %>
 module "s3" {
-  source = "github.com/gsa-tts/terraform-cloudgov//s3?ref=v1.0.0"
+  source = "github.com/gsa-tts/terraform-cloudgov//s3?ref=v1.1.0"
 
   cf_org_name   = local.cf_org_name
   cf_space_name = local.cf_space_name
   name          = "${local.app_name}-s3-${local.env}"<% if cloud_gov_organization == "sandbox-gsa" %>
   s3_plan_name  = "basic-sandbox"<% end %>
+  # depends_on line is needed only for initial creation and destruction. It should be commented out for updates to prevent unwanted cascading effects
+  depends_on = [module.app_space]
 }
 
 ###########################################################################
@@ -40,7 +56,7 @@ module "s3" {
 # 2) Your organization has sufficient memory. Each clamav app requires 3GB
 ###########################################################################
 # module "clamav" {
-#   source = "github.com/gsa-tts/terraform-cloudgov//clamav?ref=v1.0.0"
+#   source = "github.com/gsa-tts/terraform-cloudgov//clamav?ref=v1.1.0"
 #
 #   cf_org_name    = local.cf_org_name
 #   cf_space_name  = local.cf_space_name
@@ -48,6 +64,8 @@ module "s3" {
 #   name           = "${local.app_name}-clamapi-${local.env}"
 #   clamav_image   = "ghcr.io/gsa-tts/clamav-rest/clamav:20240602"
 #   max_file_size  = "30M"
+#   # depends_on line is needed only for initial creation and destruction. It should be commented out for updates to prevent unwanted cascading effects
+#   depends_on = [module.app_space]
 # }
 <% end %>
 
@@ -59,7 +77,7 @@ module "s3" {
 #     `cf create-domain <%= cloud_gov_organization %> TKTK-production-domain-name`
 ###########################################################################
 # module "domain" {
-#   source = "github.com/gsa-tts/terraform-cloudgov//domain?ref=v1.0.0"
+#   source = "github.com/gsa-tts/terraform-cloudgov//domain?ref=v1.1.0"
 #
 #   cf_org_name    = local.cf_org_name
 #   cf_space_name  = local.cf_space_name
@@ -67,4 +85,6 @@ module "s3" {
 #   cdn_plan_name  = "domain"
 #   domain_name    = "TKTK-production-domain-name"
 #   host_name      = "TKTK-production-hostname (optional)"
+#   # depends_on line is needed only for initial creation and destruction. It should be commented out for updates to prevent unwanted cascading effects
+#   depends_on = [module.app_space]
 # }
