@@ -21,72 +21,43 @@ module RailsTemplate18f
         end
       end
 
-      def update_terraform_readme
-        insert_into_file "terraform/README.md", <<~EOR, before: "\n## Set up a new environment manually"
-
-          Passing the `-m` flag to `create_service_account.sh` is required for the account that will run terraform.
-        EOR
-        gsub_file "terraform/README.md", /(create_service_account.sh -s <SPACE_NAME> -u <ACCOUNT_NAME>)/, '\1 -m'
-      end
-
-      def use_space_module
+      def use_terraform_module
         append_to_file file_path("terraform/staging/main.tf"), terraform_module
         append_to_file file_path("terraform/production/main.tf"), terraform_module
       end
 
-      def create_default_acls
-        %w[staging production].each do |env|
-          create_file "config/deployment/egress_proxy/#{app_name}-#{env}.allow.acl", ""
-          create_file "config/deployment/egress_proxy/#{app_name}-#{env}.deny.acl", ""
-        end
-      end
-
-      def copy_deploy_script
-        copy_file "deploy_egress_proxy.rb", "bin/ops/deploy_egress_proxy.rb", mode: :preserve
-      end
-
       def add_to_deploy_steps
-        if Dir.exist?(file_path(".github/workflows"))
-          directory "github", ".github"
-        end
         if file_exists?(".github/workflows/deploy-staging.yml")
-          append_to_file ".github/workflows/deploy-staging.yml", <<EOD
-
-      - name: Deploy egress proxy
-        uses: ./.github/actions/deploy-proxy
-        env:
-          CF_USERNAME: ${{ secrets.CF_USERNAME }}
-          CF_PASSWORD: ${{ secrets.CF_PASSWORD }}
+          insert_into_file ".github/workflows/deploy-staging.yml", <<EOD, before: "      - name: Deploy app"
+      - name: Set public egress
+        uses: cloud-gov/cg-cli-tools@main
         with:
-          cf_space: #{cloud_gov_staging_space}
-          app: #{app_name}-staging
+          cf_username: ${{ secrets.CF_USERNAME }}
+          cf_password: ${{ secrets.CF_PASSWORD }}
+          cf_org: <%= cloud_gov_organization %>
+          cf_space: <%= cloud_gov_staging_space %>-egress
+          cf_command: bind-security-group public_networks_egress $INPUT_CF_ORG --space $INPUT_CF_SPACE
 EOD
         end
         if file_exists?(".github/workflows/deploy-production.yml")
-          append_to_file ".github/workflows/deploy-production.yml", <<EOD
-
-      - name: Deploy egress proxy
-        uses: ./.github/actions/deploy-proxy
-        env:
-          CF_USERNAME: ${{ secrets.CF_USERNAME }}
-          CF_PASSWORD: ${{ secrets.CF_PASSWORD }}
+          insert_into_file ".github/workflows/deploy-production.yml", <<EOD, before: "      - name: Deploy app"
+      - name: Set public egress
+        uses: cloud-gov/cg-cli-tools@main
         with:
-          cf_space: #{cloud_gov_production_space}
-          app: #{app_name}-production
+          cf_username: ${{ secrets.CF_USERNAME }}
+          cf_password: ${{ secrets.CF_PASSWORD }}
+          cf_org: <%= cloud_gov_organization %>
+          cf_space: <%= cloud_gov_production_space %>-egress
+          cf_command: bind-security-group public_networks_egress $INPUT_CF_ORG --space $INPUT_CF_SPACE
 EOD
         end
         if file_exists?(".circleci/config.yml")
-          insert_into_file ".circleci/config.yml", <<EOD, before: "  deploy_production:"
-      - run:
-          name: Deploy egress proxy
-          working_directory: bin/ops
-          command: ./deploy_egress_proxy.rb -s #{cloud_gov_staging_space} -a #{app_name}-staging
-EOD
-          insert_into_file ".circleci/config.yml", <<EOD, after: "rails_master_key: PRODUCTION_RAILS_MASTER_KEY\n"
-      - run:
-          name: Deploy egress proxy
-          working_directory: bin/ops
-          command: ./deploy_egress_proxy.rb -s #{cloud_gov_production_space} -a #{app_name}-production
+          insert_into_file ".circleci/config.yml", <<EOD, before: "          name: Push application with deployment vars"
+          name: Set public egress
+          command: |
+            cf bind-security-group public_networks_egress << parameters.cloudgov_org >> \
+              --space << parameters.cloudgov_space >>-egress
+        - run:
 EOD
         end
       end
@@ -122,14 +93,8 @@ EOB
           <<~README
             ### Public Egress Proxy
 
-            Traffic to be delivered to the public internet or s3 must be proxied through the [cg-egress-proxy](https://github.com/GSA-TTS/cg-egress-proxy) app.
-
-            To deploy the proxy manually:
-
-            1. Ensure terraform state is up to date.
-            1. Update the acl files in `config/deployment/egress_proxy`
-            1. Deploy the proxy to staging: `bin/ops/deploy_egress_proxy.rb -s #{cloud_gov_staging_space} -a #{app_name}-staging`
-            1. Deploy the proxy to production: `bin/ops/deploy_egress_proxy.rb -s #{cloud_gov_production_space} -a #{app_name}-production`
+            Traffic to be delivered to the public internet must be proxied through the [cg-egress-proxy](https://github.com/GSA-TTS/cg-egress-proxy) app. Hostnames that the app should be able to
+            reach should be added to the `allowlist` terraform configuration in `terraform/staging/main.tf` and `terraform/production/main.tf`
 
             See the [ruby troubleshooting doc](https://github.com/GSA-TTS/cg-egress-proxy/blob/main/docs/ruby.md) first if you have any problems making outbound connections through the proxy.
           README
@@ -139,7 +104,7 @@ EOB
           <<~EOT
 
             module "egress_space" {
-              source = "github.com/gsa-tts/terraform-cloudgov//cg_space?ref=v1.0.0"
+              source = "github.com/gsa-tts/terraform-cloudgov//cg_space?ref=v1.1.0"
 
               cf_org_name   = local.cf_org_name
               cf_space_name = "${local.cf_space_name}-egress"
@@ -147,6 +112,21 @@ EOB
               deployers = [
                 var.cf_user
               ]
+            }
+
+            module "egress_proxy" {
+              source = "github.com/gsa-tts/terraform-cloudgov//egress_proxy?ref=v1.1.0"
+
+              cf_org_name   = local.cf_org_name
+              cf_space_name = module.egress_space.space_name
+              client_space  = local.cf_space_name
+              name          = "egress-proxy-${local.env}"
+              # comment out allowlist if this module is being deployed before the app has ever been deployed
+              allowlist = {
+                "${local.app_name}-${local.env}" = []
+              }
+              # depends_on line is needed only for initial creation and destruction. It should be commented out for updates to prevent unwanted cascading effects
+              depends_on = [module.app_space, module.egress_space]
             }
           EOT
         end
