@@ -32,6 +32,14 @@ jobs:
             access_key=${{ secrets.TERRAFORM_STATE_ACCESS_KEY }}
             secret_key=${{ secrets.TERRAFORM_STATE_SECRET_ACCESS_KEY }}
       <% end %>
+      - name: Set restricted egress
+        uses: cloud-gov/cg-cli-tools@main
+        with:
+          cf_username: ${{ secrets.CF_USERNAME }}
+          cf_password: ${{ secrets.CF_PASSWORD }}
+          cf_org: <%= cloud_gov_organization %>
+          cf_space: <%= cloud_gov_staging_space %>
+          cf_command: bind-security-group trusted_local_networks_egress $INPUT_CF_ORG --space $INPUT_CF_SPACE
       - name: Deploy app
         uses: cloud-gov/cg-cli-tools@main
         with:
