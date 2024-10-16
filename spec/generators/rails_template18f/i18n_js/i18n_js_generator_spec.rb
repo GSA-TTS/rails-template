@@ -15,7 +15,7 @@ RSpec.describe RailsTemplate18f::Generators::I18nJsGenerator, type: :generator d
 
   it "configures asset pipeline" do
     expect(file("lib/tasks/i18n.rake")).to exist
-    expect(file("config/initializers/i18n.rb")).to exist
+    expect(file("config/initializers/i18n_js.rb")).to exist
     expect(file("app/javascript/i18n.js")).to exist
   end
 end

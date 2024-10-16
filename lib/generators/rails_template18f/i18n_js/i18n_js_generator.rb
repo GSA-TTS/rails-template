@@ -12,6 +12,11 @@ module RailsTemplate18f
           Install and configure i18n-js gem to provide translations to JS code.
 
           By default, will only export translations with keys that match `*.js.*`
+
+          To use, add the following to your js code:
+
+          1. `import { i18n } from './i18n';`
+          2. `i18n.t('path.to.translation.key')`
       DESC
 
       def install_gems
