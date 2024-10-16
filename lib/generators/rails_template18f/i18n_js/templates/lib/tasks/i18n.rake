@@ -1,9 +1,10 @@
 # export translations as part of asset precompile
-
-Rake::Task["assets:precompile"].enhance(["i18n:js:export"])
-
-if Rake::Task.task_defined?("test:prepare")
-  Rake::Task["test:prepare"].enhance(["i18n:js:export"])
-elsif Rake::Task.task_defined?("db:test:prepare")
-  Rake::Task["db:test:prepare"].enhance(["i18n:js:export"])
+namespace "i18n:js" do
+  desc "Call the i18n-js export method"
+  task :export do
+    require "i18n-js"
+    I18nJS.call(config_file: "config/i18n-js.yml")
+  end
 end
+
+Rake::Task["javascript:build"].enhance(["i18n:js:export"])
