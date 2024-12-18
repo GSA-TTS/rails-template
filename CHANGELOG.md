@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [1.3.0] - 2024-12-18
+
 - Set up app space via terraform, with proper restricted egress security group
 - Create rails_template18f:public_egress generator for integrating with cg-egress-proxy
 - [Use exec when starting rails server](https://docs.cloudfoundry.org/devguide/deploy-apps/manifest-attributes.html#start-commands:~:text=To%20resolve%20this,process.%20For%20example%3A)
