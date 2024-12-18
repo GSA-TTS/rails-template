@@ -24,7 +24,7 @@ module RailsTemplate18f
 
       def install_gem
         return if gem_installed?("newrelic_rpm")
-        gem "newrelic_rpm", "~> 9.12"
+        gem "newrelic_rpm", "~> 9.16"
         bundle_install
       end
 

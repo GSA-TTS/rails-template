@@ -13,7 +13,7 @@ RSpec.describe RailsTemplate18f::Generators::NewrelicGenerator, type: :generator
   end
 
   it "adds the newrelic gem" do
-    expect(file("Gemfile")).to contain('gem "newrelic_rpm", "~> 9.12"')
+    expect(file("Gemfile")).to contain('gem "newrelic_rpm", "~> 9.16"')
   end
 
   it "creates the config file" do
