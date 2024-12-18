@@ -1,7 +1,8 @@
 @use "uswds-core" with (
   // Point the asset pipline to the correct locations
-  $theme-font-path: "@uswds/uswds/dist/fonts",
-  $theme-image-path: "@uswds/uswds/dist/img",
+  // empty strings are on purpose to override the defaults
+  $theme-font-path: "",
+  $theme-image-path: "",
 
   $theme-show-notifications: false,
 

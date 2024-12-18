@@ -328,7 +328,13 @@ after_bundle do
       </div>
     </main>
   EOHTML
-  append_to_file "config/initializers/assets.rb", "Rails.application.config.assets.paths << Rails.root.join(\"node_modules\")"
+  append_to_file "config/initializers/assets.rb", <<~EOC
+    Rails.application.configure do
+      config.assets.paths << Rails.root.join("node_modules/@uswds/uswds/dist/img")
+      config.assets.paths << Rails.root.join("node_modules/@uswds/uswds/dist/fonts")
+      config.assets.excluded_paths << Rails.root.join("app/assets/stylesheets")
+    end
+  EOC
 end
 directory "app/views/application"
 
