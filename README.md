@@ -2,9 +2,9 @@
 ============================
 The 18F Rails template starts or upgrades Rails projects so that they're more secure, follow compliance rules, and are nearly ready to deploy onto cloud.gov. This gem sets up security checks and compliance diagrams, adds the U.S. Web Design System (USWDS), and much much more — [see the full list of features](#features).
 
-This template will create a new Rails 7.2.x project.
+This template will create a new Rails 8.0.x project.
 
-[See the `rails-7.1` branch for Rails 7.1.x](https://github.com/gsa-tts/rails-template/tree/rails-7.1)
+[See the `rails-7.2` branch for Rails 7.2.x](https://github.com/gsa-tts/rails-template/tree/rails-7.2)
 
 ## Usage
 
@@ -39,6 +39,9 @@ It is a good choice if you need [a bit of client-side interactivity][aBitOfJS]. 
 --database=postgresql   # Use a PostgreSQL database
 --skip-rubocop          # Skip rubocop integration in favor of Standard Ruby
 --skip-ci               # Skip github actions in favor of our CI generators
+--skip-kamal            # Skip kamal deployment system
+--skip-thruster         # Skip thruster reverse proxy
+--skip-solid            # Skip solid cache,queue,websocket additions
 ```
 
 If you are using Hotwire, then `--skip-hotwire` and `--skip-action-cable` are automatically removed from this list, as they are required for the Hotwire functionality.
