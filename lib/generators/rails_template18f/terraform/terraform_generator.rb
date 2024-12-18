@@ -16,7 +16,6 @@ module RailsTemplate18f
       def install
         directory "terraform", mode: :preserve
         chmod "terraform/bootstrap/run.sh", 0o755
-        chmod "terraform/bootstrap/teardown_creds.sh", 0o755
       end
 
       def ignore_files
@@ -26,7 +25,7 @@ module RailsTemplate18f
             # Terraform
             .terraform.lock.hcl
             **/.terraform/*
-            secrets.auto.tfvars
+            secrets.*.tfvars
             terraform.tfstate
             terraform.tfstate.backup
           EOM

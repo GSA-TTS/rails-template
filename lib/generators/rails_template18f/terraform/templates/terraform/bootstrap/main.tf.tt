@@ -1,22 +1,55 @@
-locals {
-  s3_service_name = "<%= app_name %>-terraform-state"
+terraform {
+  required_version = "~> 1.0"
+  required_providers {
+    cloudfoundry = {
+      source  = "cloudfoundry/cloudfoundry"
+      version = "1.1.0"
+    }
+  }
+}
+# empty config will let terraform borrow cf-cli's auth
+provider "cloudfoundry" {}
+
+variable "developer_emails" {
+  type        = set(string)
+  description = "The list of developer emails who should be granted access to retrieve state bucket credentials"
 }
 
-module "s3" {
-  source = "github.com/gsa-tts/terraform-cloudgov//s3?ref=v1.0.0"
+locals {
+  s3_service_name       = "<%= app_name %>-terraform-state"
+  bucket_creds_key_name = "backend-state-bucket-creds"
+}
+
+module "mgmt-space" {
+  source = "github.com/gsa-tts/terraform-cloudgov//cg_space?ref=v2.0.0"
 
   cf_org_name   = "<%= cloud_gov_organization %>"
   cf_space_name = "<%= cloud_gov_production_space %>-mgmt"
-  name          = local.s3_service_name<% if cloud_gov_organization == "sandbox-gsa" %>
-  s3_plan_name  = "basic-sandbox"<% end %>
+  developers    = var.developer_emails
 }
 
-resource "cloudfoundry_service_key" "bucket_creds" {
-  name             = "${local.s3_service_name}-access"
+module "s3" {
+  source = "github.com/gsa-tts/terraform-cloudgov//s3?ref=v2.0.0"
+
+  cf_space_id = module.mgmt-space.space_id
+  name        = local.s3_service_name<% if cloud_gov_organization == "sandbox-gsa" %>
+  s3_plan_name = "basic-sandbox"<% end %>
+  depends_on  = [module.mgmt-space]
+}
+
+resource "cloudfoundry_service_credential_binding" "bucket-creds" {
+  name             = local.bucket_creds_key_name
   service_instance = module.s3.bucket_id
+  type             = "key"
+}
+
+data "cloudfoundry_service_credential_binding" "bucket-creds" {
+  name             = local.bucket_creds_key_name
+  service_instance = module.s3.bucket_id
+  depends_on       = [cloudfoundry_service_credential_binding.bucket-creds]
 }
 
 output "bucket_credentials" {
-  value     = cloudfoundry_service_key.bucket_creds.credentials
+  value     = jsondecode(data.cloudfoundry_service_credential_binding.bucket-creds.credential_bindings.0.credential_binding).credentials
   sensitive = true
 }
