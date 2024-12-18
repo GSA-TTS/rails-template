@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
 
   spec.summary = "Generators for creating an 18F-flavored Rails app"
   spec.homepage = "https://github.com/18f/rails-template"
-  spec.required_ruby_version = ">= 2.7.5"
+  spec.required_ruby_version = ">= 3.2.0"
 
   spec.metadata["allowed_push_host"] = "https://rubygems.org/"
 
