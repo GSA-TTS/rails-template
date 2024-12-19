@@ -39,16 +39,18 @@ def print_announcements
   end
 end
 
-unless Gem::Dependency.new("rails", "~> 7.2.0").match?("rails", Rails.gem_version)
-  warn "This template requires Rails 7.2.x"
+unless Gem::Dependency.new("rails", "~> 8.0.1").match?("rails", Rails.gem_version)
+  warn "This template requires Rails 8.0.x"
   if Gem::Dependency.new("rails", "~> 6.1.0").match?("rails", Rails.gem_version)
     warn "See the rails-6 branch https://github.com/gsa-tts/rails-template/tree/rails-6"
   elsif Gem::Dependency.new("rails", "~> 7.0.0").match?("rails", Rails.gem_version)
     warn "See the rails-7.0 branch https://github.com/gsa-tts/rails-template/tree/rails-7.0"
   elsif Gem::Dependency.new("rails", "~> 7.1.0").match?("rails", Rails.gem_version)
     warn "See the rails-7.1 branch https://github.com/gsa-tts/rails-template/tree/rails-7.1"
-  elsif Gem::Dependency.new("rails", ">= 7.3.0").match?("rails", Rails.gem_version)
-    warn "We haven't updated the template for Rails >= 7.3 yet! Please file an issue so we can get the template updated"
+  elsif Gem::Dependency.new("rails", "~> 7.2.0").match?("rails", Rails.gem_version)
+    warn "See the rails-7.2 branch https://github.com/gsa-tts/rails-template/tree/rails-7.2"
+  elsif Gem::Dependency.new("rails", ">= 8.1.0").match?("rails", Rails.gem_version)
+    warn "We haven't updated the template for Rails >= 8.1 yet! Please file an issue so we can get the template updated"
   else
     warn "We didn't recognize the version of Rails you are using: #{Rails.version}"
   end
@@ -187,7 +189,7 @@ after_bundle do
 end
 
 # updates for OWASP scan to pass
-gem "secure_headers", "~> 6.7"
+gem "secure_headers", "~> 7.1"
 initializer "secure_headers.rb", <<~EOM
   SecureHeaders::Configuration.default do |config|
     # CSP settings are handled by Rails
@@ -226,21 +228,15 @@ uncomment_lines csp_initializer, "content_security_policy_nonce"
 
 # install development & testing gems
 gem_group :development, :test do
-  gem "rspec-rails", "~> 6.1"
+  gem "rspec-rails", "~> 7.1"
   gem "dotenv-rails", "~> 3.1"
   gem "bundler-audit", "~> 0.9"
-  gem "standard", "~> 1.40"
+  gem "standard", "~> 1.43"
 end
 if ENV["RT_DEV"] == "true"
   gem "rails_template_18f", group: :development, path: ENV["PWD"]
 else
   gem "rails_template_18f", group: :development
-end
-after_bundle do
-  gsub_file "bin/dev", /foreman start -f (.*)$/, <<~'EOM'
-    # pass /dev/null for the environment file to prevent weird interactions between foreman and dotenv
-    foreman start -e /dev/null -f \1
-  EOM
 end
 
 copy_file "lib/tasks/scanning.rake"
@@ -332,7 +328,13 @@ after_bundle do
       </div>
     </main>
   EOHTML
-  append_to_file "config/initializers/assets.rb", "Rails.application.config.assets.paths << Rails.root.join(\"node_modules\")"
+  append_to_file "config/initializers/assets.rb", <<~EOC
+    Rails.application.configure do
+      config.assets.paths << Rails.root.join("node_modules/@uswds/uswds/dist/img")
+      config.assets.paths << Rails.root.join("node_modules/@uswds/uswds/dist/fonts")
+      config.assets.excluded_paths << Rails.root.join("app/assets/stylesheets")
+    end
+  EOC
 end
 directory "app/views/application"
 

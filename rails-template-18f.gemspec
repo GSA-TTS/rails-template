@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
 
   spec.summary = "Generators for creating an 18F-flavored Rails app"
   spec.homepage = "https://github.com/18f/rails-template"
-  spec.required_ruby_version = ">= 2.7.5"
+  spec.required_ruby_version = ">= 3.2.0"
 
   spec.metadata["allowed_push_host"] = "https://rubygems.org/"
 
@@ -31,12 +31,12 @@ Gem::Specification.new do |spec|
 
   # For more information and examples about making a new gem, checkout our
   # guide at: https://bundler.io/guides/creating_gem.html
-  spec.add_dependency "railties", "~> 7.2.0"
-  spec.add_dependency "activesupport", "~> 7.2.0"
+  spec.add_dependency "railties", "~> 8.0.1"
+  spec.add_dependency "activesupport", "~> 8.0.1"
   spec.add_dependency "thor", "~> 1.3"
   spec.add_dependency "colorize", "~> 1.1"
 
   spec.add_development_dependency "rspec", "~> 3.13"
   spec.add_development_dependency "ammeter", "~> 1.1"
-  spec.add_development_dependency "standard", "~> 1.40"
+  spec.add_development_dependency "standard", "~> 1.43"
 end

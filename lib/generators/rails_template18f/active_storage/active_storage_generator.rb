@@ -34,11 +34,11 @@ module RailsTemplate18f
         middleware_installed = gem_installed?("faraday-multipart")
         sdk_installed = gem_installed?("aws-sdk-s3")
         return if faraday_installed && middleware_installed && sdk_installed
-        gem "faraday", "~> 2.10" unless faraday_installed
-        gem "faraday-multipart", "~> 1.0" unless middleware_installed
+        gem "faraday", "~> 2.12" unless faraday_installed
+        gem "faraday-multipart", "~> 1.1" unless middleware_installed
         unless sdk_installed
           gem_group :production do
-            gem "aws-sdk-s3", "~> 1.159"
+            gem "aws-sdk-s3", "~> 1.176"
           end
         end
         bundle_install
