@@ -1,0 +1,6 @@
+cf_space_name      = "<%= cloud_gov_production_space %>"
+env                = "production"
+rds_plan_name      = "TKTK-production-rds-plan"
+<% if has_active_job? %>redis_plan_name    = "TKTK-production-redis-plan"<% end %>
+custom_domain_name = null
+optional_host_name = null

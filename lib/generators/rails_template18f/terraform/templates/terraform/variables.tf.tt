@@ -1,0 +1,61 @@
+variable "cf_user" {
+  type        = string
+  description = "The service account running the terraform"
+}
+variable "cf_password" {
+  type        = string
+  sensitive   = true
+  description = "The service account password"
+}
+
+variable "cf_space_name" {
+  type        = string
+  description = "The space name to deploy the app into"
+}
+
+variable "space_deployers" {
+  type        = set(string)
+  default     = []
+  description = "A list of users to be granted SpaceDeveloper & SpaceManager on cf_space_name"
+}
+
+variable "space_developers" {
+  type        = set(string)
+  default     = []
+  description = "A list of users to be granted SpaceDeveloper on cf_space_name"
+}
+
+variable "allow_space_ssh" {
+  type        = bool
+  default     = false
+  description = "Whether to allow ssh to cf_space_name"
+}
+
+variable "env" {
+  type        = string
+  description = "The RAILS_ENV to set for the app (staging or production)"
+}
+
+variable "rds_plan_name" {
+  type        = string
+  default     = "micro-psql"
+  description = "The name of the rds plan to create"
+}
+<% if has_active_job? %>
+variable "redis_plan_name" {
+  type        = string
+  default     = "redis-dev"
+  description = "The name of the redis plan to create"
+}
+<% end %>
+variable "custom_domain_name" {
+  type        = string
+  default     = null
+  description = "The custom domain name to associate with the app. Leave as null to disable the domain service and use an *.app.cloud.gov route"
+}
+
+variable "optional_host_name" {
+  type        = string
+  default     = null
+  description = "An optional hostname to prepend to custom domain name"
+}
