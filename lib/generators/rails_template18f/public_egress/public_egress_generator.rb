@@ -22,44 +22,7 @@ module RailsTemplate18f
       end
 
       def use_terraform_module
-        append_to_file file_path("terraform/staging/main.tf"), terraform_module
-        append_to_file file_path("terraform/production/main.tf"), terraform_module
-      end
-
-      def add_to_deploy_steps
-        if file_exists?(".github/workflows/deploy-staging.yml")
-          insert_into_file ".github/workflows/deploy-staging.yml", <<EOD, before: "      - name: Deploy app"
-      - name: Set public egress
-        uses: cloud-gov/cg-cli-tools@main
-        with:
-          cf_username: ${{ secrets.CF_USERNAME }}
-          cf_password: ${{ secrets.CF_PASSWORD }}
-          cf_org: #{cloud_gov_organization}
-          cf_space: #{cloud_gov_staging_space}-egress
-          cf_command: bind-security-group public_networks_egress $INPUT_CF_ORG --space $INPUT_CF_SPACE
-EOD
-        end
-        if file_exists?(".github/workflows/deploy-production.yml")
-          insert_into_file ".github/workflows/deploy-production.yml", <<EOD, before: "      - name: Deploy app"
-      - name: Set public egress
-        uses: cloud-gov/cg-cli-tools@main
-        with:
-          cf_username: ${{ secrets.CF_USERNAME }}
-          cf_password: ${{ secrets.CF_PASSWORD }}
-          cf_org: #{cloud_gov_organization}
-          cf_space: #{cloud_gov_production_space}-egress
-          cf_command: bind-security-group public_networks_egress $INPUT_CF_ORG --space $INPUT_CF_SPACE
-EOD
-        end
-        if file_exists?(".circleci/config.yml")
-          insert_into_file ".circleci/config.yml", <<EOD, before: "          name: Push application with deployment vars"
-          name: Set public egress
-          command: |
-            cf bind-security-group public_networks_egress << parameters.cloudgov_org >> \
-              --space << parameters.cloudgov_space >>-egress
-        - run:
-EOD
-        end
+        append_to_file file_path("terraform/main.tf"), terraform_module
       end
 
       def update_readme
@@ -104,27 +67,30 @@ EOB
           <<~EOT
 
             module "egress_space" {
-              source = "github.com/gsa-tts/terraform-cloudgov//cg_space?ref=v1.1.0"
+              source = "github.com/gsa-tts/terraform-cloudgov//cg_space?ref=v2.0.0"
 
               cf_org_name   = local.cf_org_name
-              cf_space_name = "${local.cf_space_name}-egress"
-              # deployers should include any user or service account ID that will deploy the egress proxy
-              deployers = [
-                var.cf_user
-              ]
+              cf_space_name = "${var.cf_space_name}-egress"
+              allow_ssh     = var.allow_space_ssh
+              deployers     = local.space_deployers
+              developers    = var.space_developers
+            }
+            # temporary method for setting egress rules until terraform provider supports it and cg_space module is updated
+            data "external" "set-egress-space-egress" {
+              program     = ["/bin/sh", "set_space_egress.sh", "-p", "-s", module.egress_space.space_name, "-o", local.cf_org_name]
+              working_dir = path.module
+              depends_on  = [module.egress_space]
             }
 
             module "egress_proxy" {
-              source = "github.com/gsa-tts/terraform-cloudgov//egress_proxy?ref=v1.1.0"
+              source = "github.com/gsa-tts/terraform-cloudgov//egress_proxy?ref=v2.0.0"
 
-              cf_org_name   = local.cf_org_name
-              cf_space_name = module.egress_space.space_name
-              client_space  = local.cf_space_name
-              name          = "egress-proxy-${local.env}"
-              # comment out allowlist if this module is being deployed before the app has ever been deployed
-              allowlist = {
-                "${local.app_name}-${local.env}" = []
-              }
+              cf_org_name     = local.cf_org_name
+              cf_egress_space = module.egress_space.space
+              name            = "egress-proxy-${var.env}"
+              allowlist = [
+                # "host.to.allow"
+              ]
               # depends_on line is needed only for initial creation and destruction. It should be commented out for updates to prevent unwanted cascading effects
               depends_on = [module.app_space, module.egress_space]
             }

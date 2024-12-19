@@ -13,6 +13,12 @@ module "app_space" {
   deployers     = local.space_deployers
   developers    = var.space_developers
 }
+# temporary method for setting egress rules until terraform provider supports it and cg_space module is updated
+data "external" "set-app-space-egress" {
+  program     = ["/bin/sh", "set_space_egress.sh", "-t", "-s", module.app_space.space_name, "-o", local.cf_org_name]
+  working_dir = path.module
+  depends_on  = [module.app_space]
+}
 
 module "database" {
   source = "github.com/gsa-tts/terraform-cloudgov//database?ref=v2.0.0"
