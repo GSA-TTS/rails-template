@@ -31,7 +31,6 @@ RSpec.describe RailsTemplate18f::Generators::GithubActionsGenerator, type: :gene
   it "creates a dependabot file" do
     expect(file(".github/dependabot.yml")).to exist
   end
-    # setup_terraform_destination
 
   it "includes terraform-related actions" do
     expect(file(".github/workflows/terraform-staging.yml")).to exist

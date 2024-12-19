@@ -54,16 +54,23 @@ module "s3" {
 module "clamav" {
   source = "github.com/gsa-tts/terraform-cloudgov//clamav?ref=v2.0.0"
 
-  cf_org_name    = local.cf_org_name
-  cf_space_name  = module.app_space.space_name
-  name           = "${local.app_name}-clamapi-${var.env}"
-  clamav_image   = "ghcr.io/gsa-tts/clamav-rest/clamav:latest"
-  max_file_size  = "30M"
+  cf_org_name   = local.cf_org_name
+  cf_space_name = module.app_space.space_name
+  name          = "${local.app_name}-clamapi-${var.env}"
+  clamav_image  = "ghcr.io/gsa-tts/clamav-rest/clamav:latest"
+  max_file_size = "30M"
   # depends_on line is needed only for initial creation and destruction. It should be commented out for updates to prevent unwanted cascading effects
   depends_on = [module.app_space]
 }
 
-## TODO - add network policies
+resource "cloudfoundry_network_policy" "clamav_routing" {
+  provider = cloudfoundry-community
+  policy {
+    source_app      = cloudfoundry_app.app.id
+    destination_app = module.clamav.app_id
+    port            = "61443"
+  }
+}
 <% end %>
 
 ###########################################################################
@@ -74,14 +81,14 @@ module "clamav" {
 #     See https://cloud.gov/docs/services/external-domain-service/#how-to-create-an-instance-of-this-service
 ###########################################################################
 module "domain" {
-  count = (var.custom_domain_name == null ? 0 : 1)
+  count  = (var.custom_domain_name == null ? 0 : 1)
   source = "github.com/gsa-tts/terraform-cloudgov//domain?ref=v2.0.0"
 
   cf_org_name   = local.cf_org_name
   cf_space      = module.app_space.space
   cdn_plan_name = "domain"
   domain_name   = var.custom_domain_name
-  host_name     = var.optional_host_name
+  host_name     = var.host_name
   # depends_on line is needed only for initial creation and destruction. It should be commented out for updates to prevent unwanted cascading effects
   depends_on = [module.app_space]
 }

@@ -28,6 +28,7 @@ module RailsTemplate18f
             secrets.*.tfvars
             terraform.tfstate
             terraform.tfstate.backup
+            terraform/dist
           EOM
         end
       end

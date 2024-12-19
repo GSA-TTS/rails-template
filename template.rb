@@ -507,12 +507,6 @@ after_bundle do
   run "bundle exec standardrb --fix"
 
   unless skip_git?
-    run "cp .gitignore .cfignore"
-    append_to_file ".cfignore", <<~EOM
-
-      # compliance documentation
-      /doc/compliance/
-    EOM
     if compliance_trestle_submodule
       inside "doc/compliance/oscal" do
         run "git add -A"
