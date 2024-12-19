@@ -1,5 +1,5 @@
 terraform {
-  required_version = "~> 1.0"
+  required_version = "~> 1.7"
   required_providers {
     cloudfoundry = {
       source  = "cloudfoundry/cloudfoundry"
@@ -10,46 +10,79 @@ terraform {
 # empty config will let terraform borrow cf-cli's auth
 provider "cloudfoundry" {}
 
-variable "developer_emails" {
+variable "terraform_users" {
   type        = set(string)
-  description = "The list of developer emails who should be granted access to retrieve state bucket credentials"
-}
+  description = "The list of developer emails and service account usernames who should be granted access to retrieve state bucket credentials"
 
-locals {
-  s3_service_name       = "<%= app_name %>-terraform-state"
-  bucket_creds_key_name = "backend-state-bucket-creds"
+  validation {
+    condition     = length(var.terraform_users) > 0
+    error_message = "terraform_users must include at least the current user calling run.sh"
+  }
 }
 
 module "mgmt-space" {
-  source = "github.com/gsa-tts/terraform-cloudgov//cg_space?ref=v2.0.0"
+  source = "github.com/gsa-tts/terraform-cloudgov//cg_space?ref=v2.0.1"
 
   cf_org_name   = "<%= cloud_gov_organization %>"
   cf_space_name = "<%= cloud_gov_production_space %>-mgmt"
-  developers    = var.developer_emails
+  developers    = var.terraform_users
 }
 
 module "s3" {
   source = "github.com/gsa-tts/terraform-cloudgov//s3?ref=v2.0.0"
 
   cf_space_id = module.mgmt-space.space_id
-  name        = local.s3_service_name<% if cloud_gov_organization == "sandbox-gsa" %>
+  name        = "<%= app_name %>-terraform-state"<% if cloud_gov_organization == "sandbox-gsa" %>
   s3_plan_name = "basic-sandbox"<% end %>
   depends_on  = [module.mgmt-space]
 }
 
+locals {
+  bucket_creds_key_name = "backend-state-bucket-creds"
+}
 resource "cloudfoundry_service_credential_binding" "bucket-creds" {
   name             = local.bucket_creds_key_name
   service_instance = module.s3.bucket_id
   type             = "key"
 }
-
 data "cloudfoundry_service_credential_binding" "bucket-creds" {
   name             = local.bucket_creds_key_name
   service_instance = module.s3.bucket_id
   depends_on       = [cloudfoundry_service_credential_binding.bucket-creds]
 }
 
-output "bucket_credentials" {
-  value     = jsondecode(data.cloudfoundry_service_credential_binding.bucket-creds.credential_bindings.0.credential_binding).credentials
-  sensitive = true
+locals {
+  developer_map = { for username, id in module.mgmt-space.developer_role_ids : "module.mgmt-space.cloudfoundry_space_role.developers[\\\"${username}\\\"]" => id }
+  manager_map   = { for username, id in module.mgmt-space.manager_role_ids : "module.mgmt-space.cloudfoundry_space_role.managers[\\\"${username}\\\"]" => id }
+  import_map = merge(local.developer_map, local.manager_map, {
+    "module.mgmt-space.cloudfoundry_space.space"           = module.mgmt-space.space_id
+    "module.s3.cloudfoundry_service_instance.bucket"       = module.s3.bucket_id
+    "cloudfoundry_service_credential_binding.bucket-creds" = cloudfoundry_service_credential_binding.bucket-creds.id
+  })
+
+  recreate_state_template = templatefile("${path.module}/recreate_state.sh.tftpl", { import_map = local.import_map })
+}
+resource "terraform_data" "recreate-script" {
+  triggers_replace = [
+    local.recreate_state_template
+  ]
+
+  provisioner "local-exec" {
+    command = "echo \"${local.recreate_state_template}\" > recreate_state.sh && chmod +x recreate_state.sh"
+  }
+}
+
+locals {
+  bucket_creds   = jsondecode(data.cloudfoundry_service_credential_binding.bucket-creds.credential_bindings.0.credential_binding).credentials
+  backend_config = templatefile("${path.module}/backend_config.tftpl", { creds = local.bucket_creds })
+}
+resource "terraform_data" "bucket-creds" {
+  triggers_replace = [
+    local.backend_config
+  ]
+
+  provisioner "local-exec" {
+    working_dir = ".."
+    command     = "echo \"${local.backend_config}\" > secrets.backend.tfvars"
+  }
 }
