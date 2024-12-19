@@ -29,23 +29,13 @@ module RailsTemplate18f
 
       def configure_server_runner
         append_to_file "Procfile.dev", "worker: bundle exec sidekiq\n"
-        insert_into_file "manifest.yml", indent(<<~EOYAML), after: /processes:$\n/
-          - type: worker
-            instances: ((worker_instances))
-            memory: ((worker_memory))
-            command: bundle exec sidekiq
-        EOYAML
-        insert_into_file "manifest.yml", "\n  - #{app_name}-redis-((env))", after: "services:"
-        inside "config/deployment" do
-          append_to_file "staging.yml", <<~EOYAML
-            worker_instances: 1
-            worker_memory: 256M
-          EOYAML
-          append_to_file "production.yml", <<~EOYAML
-            worker_instances: 1
-            worker_memory: 512M
-          EOYAML
-        end
+        # insert_into_file "manifest.yml", indent(<<~EOYAML), after: /processes:$\n/
+        #   - type: worker
+        #     instances: ((worker_instances))
+        #     memory: ((worker_memory))
+        #     command: bundle exec sidekiq
+        # EOYAML
+        # insert_into_file "manifest.yml", "\n  - #{app_name}-redis-((env))", after: "services:"
       end
 
       def configure_active_job

@@ -4,7 +4,7 @@ require "generators/rails_template18f/terraform/terraform_generator"
 RSpec.describe RailsTemplate18f::Generators::TerraformGenerator, type: :generator do
   setup_default_destination
 
-  before { run_generator }
+  before { run_generator ["--force"] }
 
   it "creates the terraform directory" do
     expect(file("terraform/README.md")).to exist

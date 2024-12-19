@@ -33,7 +33,7 @@ module RailsTemplate18f
       end
 
       def update_cloud_gov_manifest
-        insert_into_file "manifest.yml", "    NEW_RELIC_LOG: stdout\n", before: /^\s+processes:/
+        # insert_into_file "manifest.yml", "    NEW_RELIC_LOG: stdout\n", before: /^\s+processes:/
       end
 
       def update_readme

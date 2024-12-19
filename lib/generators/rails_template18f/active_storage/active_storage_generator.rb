@@ -64,8 +64,8 @@ module RailsTemplate18f
           # CLAMAV_API_URL tells FileScanJob where to send files for virus scans
           CLAMAV_API_URL=https://localhost:9443
         EOM
-        insert_into_file "manifest.yml", "    CLAMAV_API_URL: \"https://#{app_name}-clamapi-((env)).apps.internal:9443\"\n", before: /^\s+processes:/
-        insert_into_file "manifest.yml", "\n  - #{app_name}-s3-((env))", after: "services:"
+        # insert_into_file "manifest.yml", "    CLAMAV_API_URL: \"https://#{app_name}-clamapi-((env)).apps.internal:9443\"\n", before: /^\s+processes:/
+        # insert_into_file "manifest.yml", "\n  - #{app_name}-s3-((env))", after: "services:"
       end
 
       def update_boundary_diagram

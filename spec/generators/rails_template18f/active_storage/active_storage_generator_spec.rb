@@ -48,8 +48,8 @@ RSpec.describe RailsTemplate18f::Generators::ActiveStorageGenerator, type: :gene
   it "configures the env var" do
     run_generator
     expect(file(".env")).to contain("CLAMAV_API_URL=https://localhost:9443")
-    expect(file("manifest.yml")).to contain("CLAMAV_API_URL: \"https://tmp-clamapi-((env)).apps.internal:9443")
-    expect(file("manifest.yml")).to contain("  - tmp-s3-((env))")
+    # expect(file("manifest.yml")).to contain("CLAMAV_API_URL: \"https://tmp-clamapi-((env)).apps.internal:9443")
+    # expect(file("manifest.yml")).to contain("  - tmp-s3-((env))")
   end
 
   it "updates the boundary diagram" do

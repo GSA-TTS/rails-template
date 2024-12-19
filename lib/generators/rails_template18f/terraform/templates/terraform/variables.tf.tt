@@ -59,3 +59,29 @@ variable "optional_host_name" {
   default     = null
   description = "An optional hostname to prepend to custom domain name"
 }
+
+# App environment settings
+variable "web_instances" {
+  type        = number
+  default     = 1
+  description = "The number of instances of the web process"
+}
+
+variable "web_memory" {
+  type        = string
+  default     = "256M"
+  description = "The amount of memory to assign to the web processes"
+}
+<% if has_active_job? %>
+variable "worker_instances" {
+  type = number
+  default = 1
+  description = "The number of instances of the worker process"
+}
+
+variable "worker_memory" {
+  type = string
+  default = "256M"
+  description = "The amount of memory to assign to the worker processes"
+}
+<% end %>

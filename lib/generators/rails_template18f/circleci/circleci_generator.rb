@@ -6,7 +6,7 @@ module RailsTemplate18f
   module Generators
     class CircleciGenerator < ::Rails::Generators::Base
       include Base
-      include PipelineOptions
+      include CloudGovOptions
 
       desc <<~DESC
         Description:
@@ -82,7 +82,7 @@ EOB
         def readme_staging_deploy
           <<~EOM
 
-            Deploys to staging#{terraform? ? ", including applying changes in terraform," : ""} happen
+            Deploys to staging, including applying changes in terraform, happen
             on every push to the `main` branch in GitHub.
 
             The following secrets must be set within [CircleCI Environment Variables](https://circleci.com/docs/2.0/env-vars/)
@@ -100,7 +100,7 @@ EOB
         def readme_prod_deploy
           <<~EOM
 
-            Deploys to production#{terraform? ? ", including applying changes in terraform," : ""} happen
+            Deploys to production, including applying changes in terraform, happen
             on every push to the `production` branch in GitHub.
 
             The following secrets must be set within [CircleCI Environment Variables](https://circleci.com/docs/2.0/env-vars/)
@@ -127,12 +127,11 @@ EOB
       private
 
       def terraform_secret_values
-        if terraform?
-          <<~EOM
-            | `AWS_ACCESS_KEY_ID` | Access key for terraform state bucket |
-            | `AWS_SECRET_ACCESS_KEY` | Secret key for terraform state bucket |
-          EOM
-        end
+        <<~EOM
+          | `AWS_ACCESS_KEY_ID` | Access key for terraform state bucket |
+          | `AWS_SECRET_ACCESS_KEY` | Secret key for terraform state bucket |
+          | TKTK | add bucket and check :point-up: things here |
+        EOM
       end
     end
   end

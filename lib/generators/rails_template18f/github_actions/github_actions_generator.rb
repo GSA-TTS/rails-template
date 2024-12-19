@@ -6,7 +6,7 @@ module RailsTemplate18f
   module Generators
     class GithubActionsGenerator < ::Rails::Generators::Base
       include Base
-      include PipelineOptions
+      include CloudGovOptions
 
       class_option :node_version, desc: "Node version to test against in actions"
 
@@ -17,10 +17,6 @@ module RailsTemplate18f
 
       def install_actions
         directory "github", ".github"
-        if !terraform?
-          remove_file ".github/workflows/terraform-staging.yml"
-          remove_file ".github/workflows/terraform-production.yml"
-        end
         if !oscal_dir_exists?
           remove_file ".github/workflows/validate-ssp.yml"
           remove_file ".github/workflows/assemble-ssp.yml"
@@ -80,7 +76,7 @@ EOB
         def readme_staging_deploy
           <<~EOM
 
-            Deploys to staging#{terraform? ? ", including applying changes in terraform," : ""} happen
+            Deploys to staging, including applying changes in terraform, happen
             on every push to the `main` branch in GitHub.
 
             The following secrets must be set within the `staging` [environment secrets](https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-an-environment)
@@ -98,7 +94,7 @@ EOB
         def readme_prod_deploy
           <<~EOM
 
-            Deploys to production#{terraform? ? ", including applying changes in terraform," : ""} happen
+            Deploys to production, including applying changes in terraform, happen
             on every push to the `production` branch in GitHub.
 
             The following secrets must be set within the `production` [environment secrets](https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-an-environment)
@@ -125,12 +121,11 @@ EOB
       private
 
       def terraform_secret_values
-        if terraform?
-          <<~EOM
-            | `TERRAFORM_STATE_ACCESS_KEY` | Access key for terraform state bucket |
-            | `TERRAFORM_STATE_SECRET_ACCESS_KEY` | Secret key for terraform state bucket |
-          EOM
-        end
+        <<~EOM
+          | `TERRAFORM_STATE_ACCESS_KEY` | Access key for terraform state bucket |
+          | `TERRAFORM_STATE_SECRET_ACCESS_KEY` | Secret key for terraform state bucket |
+          | TKTK | add bucket and check :point-up: things here |
+        EOM
       end
 
       def node_version

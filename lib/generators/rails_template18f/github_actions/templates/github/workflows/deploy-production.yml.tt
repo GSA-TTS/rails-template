@@ -20,23 +20,17 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
-      <% if terraform? %>
       - name: Terraform apply
         uses: dflook/terraform-apply@v1
         env:
           TF_VAR_cf_user: ${{ secrets.CF_USERNAME }}
           TF_VAR_cf_password: ${{ secrets.CF_PASSWORD }}
         with:
-          path: terraform/production
+          path: terraform
+          var_file: production.tfvars
           backend_config: >
             access_key=${{ secrets.TERRAFORM_STATE_ACCESS_KEY }}
             secret_key=${{ secrets.TERRAFORM_STATE_SECRET_ACCESS_KEY }}
-      <% end %>
-      - name: Deploy app
-        uses: cloud-gov/cg-cli-tools@main
-        with:
-          cf_username: ${{ secrets.CF_USERNAME }}
-          cf_password: ${{ secrets.CF_PASSWORD }}
-          cf_org: <%= cloud_gov_organization %>
-          cf_space: <%= cloud_gov_production_space %>
-          cf_command: push --vars-file config/deployment/production.yml --var rails_master_key="${{ secrets.RAILS_MASTER_KEY }}" --strategy rolling
+            region="us-gov-west-1"
+            key="terraform.tfstate.prod"
+            bucket=${{ secrets.TERRAFORM_STATE_BUCKET_NAME }}

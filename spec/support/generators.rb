@@ -14,14 +14,6 @@ module RailsTemplate18f
           }
         end
 
-        def setup_terraform_destination
-          destination destination_path
-          before {
-            prepare_destination
-            generate_terraform_app
-          }
-        end
-
         def setup_github_actions_destination
           destination destination_path
           before {
@@ -52,10 +44,6 @@ module RailsTemplate18f
 
       def generate_base_app
         `rails new tmp --template=spec/support/test_app_template.rb #{common_arguments}`
-      end
-
-      def generate_terraform_app
-        `rails new tmp --template=spec/support/terraform_app_template.rb #{common_arguments}`
       end
 
       def generate_github_actions_app

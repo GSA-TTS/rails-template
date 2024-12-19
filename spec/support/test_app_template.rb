@@ -9,21 +9,37 @@ def source_paths
   ]
 end
 
-def skip_active_job?
-  false
-end
-
 def skip_active_storage?
   true
 end
+
+def cloud_gov_organization
+  "sandbox-gsa"
+end
+
+def cloud_gov_staging_space
+  "staging"
+end
+
+def cloud_gov_production_space
+  "prod"
+end
+
+def has_active_job?
+  false
+end
+
+def has_active_storage?
+  false
+end
+
+directory "terraform"
 
 template "README.md", force: true
 copy_file "Brewfile"
 copy_file "env", ".env"
 copy_file "config/environments/ci.rb"
-template "manifest.yml"
 directory "doc"
 copy_file "githooks/pre-commit", ".githooks/pre-commit", mode: :preserve
 run "mkdir spec"
-directory "config/deployment"
 create_file "Procfile.dev", "web: rails server\n"

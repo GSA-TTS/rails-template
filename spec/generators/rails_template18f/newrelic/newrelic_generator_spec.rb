@@ -32,9 +32,9 @@ RSpec.describe RailsTemplate18f::Generators::NewrelicGenerator, type: :generator
     expect(file(boundary_file)).to contain("Rel(developer, newrelic, \"Manage performance\", \"https (443)\")")
   end
 
-  it "sets ENV var for deployed app" do
-    expect(file("manifest.yml")).to contain(/^    NEW_RELIC_LOG: stdout$/)
-  end
+  # it "sets ENV var for deployed app" do
+  #   expect(file("manifest.yml")).to contain(/^    NEW_RELIC_LOG: stdout$/)
+  # end
 
   it "copies the new relic component" do
     expect(file("doc/compliance/oscal-component-definitions/newrelic/component-definition.json")).to exist
