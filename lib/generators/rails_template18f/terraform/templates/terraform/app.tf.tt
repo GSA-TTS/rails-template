@@ -24,7 +24,7 @@ resource "cloudfoundry_app" "app" {
   path             = data.archive_file.src.output_path
   source_code_hash = data.archive_file.src.output_base64sha256
   buildpacks       = ["ruby_buildpack"]
-  strategy         = "rolling"
+  strategy         = "blue-green"
   routes           = [{ route = "${local.host_name}.${local.domain}" }]
 
   environment = {
