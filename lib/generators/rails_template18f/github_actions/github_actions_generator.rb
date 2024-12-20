@@ -76,8 +76,7 @@ EOB
         def readme_staging_deploy
           <<~EOM
 
-            Deploys to staging, including applying changes in terraform, happen
-            on every push to the `main` branch in GitHub.
+            Deploys to staging via terraform happen on every push to the `main` branch in GitHub.
 
             The following secrets must be set within the `staging` [environment secrets](https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-an-environment)
             to enable a deploy to work:
@@ -94,8 +93,7 @@ EOB
         def readme_prod_deploy
           <<~EOM
 
-            Deploys to production, including applying changes in terraform, happen
-            on every push to the `production` branch in GitHub.
+            Deploys to production via terraform happen on every push to the `production` branch in GitHub.
 
             The following secrets must be set within the `production` [environment secrets](https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-an-environment)
             to enable a deploy to work:
@@ -113,7 +111,7 @@ EOB
           <<~EOM
 
             1. Store variables that must be secret using [GitHub Environment Secrets](https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-an-environment)
-            1. Add the appropriate `--var` addition to the `cf_command` line on the deploy action like the existing `rails_master_key`
+            1. Add the appropriate `TF_VAR_<variable name>` addition to the `terraform-<env>.yml` and `deploy-<env>.yml` workflows like the existing `TF_VAR_rails_master_key`
           EOM
         end
       end
@@ -124,7 +122,7 @@ EOB
         <<~EOM
           | `TERRAFORM_STATE_ACCESS_KEY` | Access key for terraform state bucket |
           | `TERRAFORM_STATE_SECRET_ACCESS_KEY` | Secret key for terraform state bucket |
-          | TKTK | add bucket and check :point-up: things here |
+          | `TERRAFORM_STATE_BUCKET_NAME` | Bucket name for terraform state bucket |
         EOM
       end
 

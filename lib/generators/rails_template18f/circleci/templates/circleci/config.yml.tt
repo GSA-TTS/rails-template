@@ -258,21 +258,22 @@ jobs:
     steps:
       - checkout
       - terraform/init:
-          path: terraform/staging
+          path: terraform
+          backend_config: "key=terraform.tfstate.stage,bucket=$TERRAFORM_STATE_BUCKET_NAME"
       - terraform/validate:
-          path: terraform/staging
+          path: terraform
       - terraform/fmt:
-          path: terraform/staging
+          path: terraform
       - run:
           name: Set terraform variables
-          working_directory: terraform/staging
-          command: echo -e "cf_user = \"$CF_STAGING_USERNAME\"\ncf_password = \"$CF_STAGING_PASSWORD\"" > secrets.auto.tfvars
+          working_directory: terraform
+          command: echo -e "rails_master_key = \"$RAILS_MASTER_KEY\"\ncf_user = \"$CF_STAGING_USERNAME\"\ncf_password = \"$CF_STAGING_PASSWORD\"" > secrets.auto.tfvars
       - terraform/plan:
-          path: terraform/staging
+          path: terraform
       - persist_to_workspace:
           root: .
           paths:
-            - ./terraform/staging
+            - ./terraform
   terraform_apply_staging:
     executor: terraform/default
     steps:
@@ -280,27 +281,28 @@ jobs:
       - attach_workspace:
           at: .
       - terraform/apply:
-          path: terraform/staging
+          path: terraform
   terraform_plan_production:
     executor: terraform/default
     steps:
       - checkout
       - terraform/init:
-          path: terraform/production
+          path: terraform
+          backend_config: "key=terraform.tfstate.prod,bucket=$TERRAFORM_STATE_BUCKET_NAME"
       - terraform/validate:
-          path: terraform/production
+          path: terraform
       - terraform/fmt:
-          path: terraform/production
+          path: terraform
       - run:
           name: Set terraform variables
           working_directory: terraform/production
-          command: echo -e "cf_user = \"$CF_PRODUCTION_USERNAME\"\ncf_password = \"$CF_PRODUCTION_PASSWORD\"" > secrets.auto.tfvars
+          command: echo -e "rails_master_key = \"$PRODUCTION_RAILS_MASTER_KEY\"\ncf_user = \"$CF_PRODUCTION_USERNAME\"\ncf_password = \"$CF_PRODUCTION_PASSWORD\"" > secrets.auto.tfvars
       - terraform/plan:
-          path: terraform/production
+          path: terraform
       - persist_to_workspace:
           root: .
           paths:
-            - ./terraform/production
+            - ./terraform
   terraform_apply_production:
     executor: terraform/default
     steps:
@@ -308,7 +310,7 @@ jobs:
       - attach_workspace:
           at: .
       - terraform/apply:
-          path: terraform/production
+          path: terraform
 
 workflows:
   version: 2.1
