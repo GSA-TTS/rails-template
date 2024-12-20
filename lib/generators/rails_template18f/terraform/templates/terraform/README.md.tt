@@ -1,6 +1,6 @@
 # Terraform
 
-This directory holds the terraform modules for maintaining your complete persistent infrastructure.
+This directory holds the terraform module for maintaining the system infrastructure and deploying the application.
 
 Prerequisite: install the `jq` JSON processor: `brew bundle` or `brew install jq`
 
@@ -10,9 +10,8 @@ These steps only need to be run once per project.
 
 1. Manually [bootstrap the state storage bucket](#bootstrapping-the-state-storage-s3-buckets-for-the-first-time) within the `bootstrap` directory
 1. Setup CI/CD Pipeline to run Terraform
-    1. Copy bootstrap credentials to your CI/CD secrets using the instructions in the base README
-    1. Create a cloud.gov SpaceDeployer by following the instructions under `SpaceDeployers`
-    1. Copy SpaceDeployer credentials to your CI/CD secrets using the instructions in the base README
+    1. Copy backend credentials from `secrets.backend.tfvars` to your CI/CD secrets using the instructions in the base README
+    1. Copy the username and password credentials from `secrets.auto.tfvars` to your CI/CD secrets using the instructions in the base README
 1. Manually Running Terraform
     1. Follow instructions under `Set up a new environment` to create your infrastructure
 
@@ -22,8 +21,9 @@ These steps should be run for any developer that needs to start running terrafor
 
 They are not necessary for the developer who runs the [initial project setup](#initial-project-setup)
 
-1. Import the existing bootstrap resources to your local state with `./import.sh`
-1. Follow instructions under [Use bootstrap credentials](#use-bootstrap-credentials)
+1. Import the existing bootstrap resources to your local state with `./recreate_state.sh`
+1. Follow instructions under [Use backend credentials](#use-backend-credentials)
+1. Follow instructions under `Set up a new environment` to create your infrastructure
 
 
 ## Terraform State Credentials
@@ -34,30 +34,25 @@ The `bootstrap` module is used to create an s3 bucket for later terraform runs t
 
 These steps are run once per project.
 
-1. Run `./run.sh init`
-1. Run `./run.sh apply` to set up the bucket and retrieve credentials
-1. Follow instructions under [Use bootstrap credentials](#use-bootstrap-credentials)
-1. Ensure that `import.sh` includes a line and correct IDs for any resources created
-1. Run `./teardown_creds.sh` to remove the space deployer account used to create the s3 bucket
+1. Add any users who should have access to the terraform state bucket to `users.auto.tfvars`
+1. Run `cf login --sso` to log in to cloud.gov
+1. Run `./apply.sh -var create_bot_secrets_file=true`
+1. Add `recreate_state.sh` to git and commit the changes
+1. Follow instructions under [Use backend credentials](#use-backend-credentials)
 
 ### To make changes to the bootstrap module
 
-*This should not be necessary in most cases*
+*This should not be necessary in most cases, other than adding or removing users who should have access to the state bucket*
 
 1. Make your changes
-1. Run `./run.sh plan` to verify the changes are what you expect
-1. Continue from step 2 of the [boostrapping instructions](#bootstrapping-the-state-storage-s3-buckets-for-the-first-time)
+1. Run `./apply.sh` and verify the plan before entering `yes`
+1. Commit any changes to `recreate_state.sh`
 
-### Use bootstrap credentials
+### Use backend credentials
 
-1. Add the following to `~/.aws/credentials`
-    ```
-    [<%= app_name %>-terraform-backend]
-    aws_access_key_id = <AWS_ACCESS_KEY_ID from run.sh output>
-    aws_secret_access_key = <AWS_SECRET_ACCESS_KEY from run.sh output>
-    ```
-
-1. Copy `BUCKET` from `run.sh` output to the backend block of `staging/providers.tf` and `production/providers.tf`
+1. In the main `terraform` module, run: `terraform init -backend-config=secrets.backend.tfvars`
+1. When prompted for the key, enter a keyfile for your environment: for example `terraform.tfstate.my_name` for a per-developer sandbox
+1. Delete the `secrets.backend.tfvars` file.
 
 ## SpaceDeployers
 
@@ -70,12 +65,12 @@ deploy the application from the CI/CD pipeline. Create a new account by running:
 
 The below steps rely on you first configuring access to the Terraform state in s3 as described in [initial project setup](#initial-project-setup) or [initial developer setup](#initial-developer-setup).
 
-1. `cd` to the environment you are working in
+1. Initialize a new terraform state file: `terraform init -backend-config=secrets.backend.tfvars -backend-config="key=terraform.tfstate.sandbox-name" -reconfigure`
 
 1. Set up a SpaceDeployer and save the credentials in a file named `secrets.auto.tfvars`
     ```bash
     # create a space deployer service instance that can log in with just a username and password
-    # the value of < SPACE_NAME > should be `staging` or `prod` depending on where you are working
+    # the value for < SPACE_NAME > should be your management space, by default "<%= cloud_gov_production_space %>-mgmt"
     # the value for < ACCOUNT_NAME > can be anything, although we recommend
     # something that communicates the purpose of the deployer
     # for example: circleci-deployer for the credentials CircleCI uses to
@@ -87,47 +82,59 @@ The below steps rely on you first configuring access to the Terraform state in s
 
     The easiest way to use this script locally is to redirect the output directly to the `secrets.auto.tfvars` file it needs to be used in
 
+1. Create a new `sandbox-name.tfvars` file to hold variable values for your environment.
+
 1. Run terraform from your new environment directory with
     ```bash
-    terraform init -backend-config="profile=<%= app_name %>-terraform-backend"
-    terraform plan
+    terraform plan -var-file=sandbox-name.tfvars -var rails_master_key=$(cat ../config/master.key)
     ```
 
-1. Apply changes with `terraform apply`.
+1. Apply changes with
+    ```bash
+    terraform apply -var-file=sandbox-name.tfvars -var rails_master_key=$(cat ../config/master.key)`.
+    ```
 
 1. Remove the space deployer service instance if it doesn't need to be used again, such as when manually running terraform plan before letting CI/CD apply the changes.
     ```bash
     # <SPACE_NAME> and <ACCOUNT_NAME> have the same values as used above.
     ../../bin/ops/destroy_service_account.sh -s <SPACE_NAME> -u <ACCOUNT_NAME>
+    rm secrets.auto.tfvars
     ```
 
 ## Structure
 
-Each environment has its own module.
-
 ```
-- bootstrap/
-  |- main.tf
-  |- providers.tf
-  |- variables.tf
-  |- run.sh
-  |- teardown_creds.sh
-  |- import.sh
-- <env>/
-  |- main.tf
-  |- providers.tf
-  |- variables.tf
+|- bootstrap/
+|  |- main.tf
+|  |- apply.sh
+|  |- recreate_state.sh (automatically generated)
+|  |- users.auto.tfvars
+|  |- templates/
+|  |  |- backend_config.tftpl
+|  |  |- bot_secrets.tftpl
+|  |  |- recreate_state.sh.tftpl
+|  |- terraform.tfstate(.backup) (automatically generated)
+|- dist/
+|  |- src.zip (automatically generated)
+|- README.md
+|- app.tf
+|- main.tf
+|- providers.tf
+|- set_space_egress.sh
+|- variables.tf
+|- <env>.tfvars
 ```
 
-In the environment-specific modules:
-- `providers.tf` lists the required providers
-- `main.tf` calls the shared Terraform code, but this is also a place where you can add any other services, resources, etc, which you would like to set up for that environment
-- `variables.tf` lists the variables that will be needed, either to pass through to the child module or for use in this module
+In the root module:
+- `<env>.tfvars` is where to set variable values for the given environment name
+- `app.tf` defines the application resource and configuration
+- `main.tf` defines the persistent infrastructure
+- `providers.tf` lists the required providers and shell backend config
+- `set_space_egress.sh` is a helper script called by a terraform resource on apply
+- `variables.tf` lists the variables that will be needed
 
 In the bootstrap module:
-- `providers.tf` lists the required providers
-- `main.tf` sets up s3 bucket to be shared across all environments. It lives in `prod` to communicate that it should not be deleted
-- `variables.tf` lists the variables that will be needed. Most values are hard-coded in this module
-- `run.sh` Helper script to set up a space deployer and run terraform. The terraform action (`init`/`show`/`plan`/`apply`/`destroy`) is passed as an argument
-- `teardown_creds.sh` Helper script to remove the space deployer setup as part of `run.sh`
-- `import.sh` Helper script to create a new local state file when new developers need to access the state file
+- `main.tf` sets up a management space, an s3 bucket to store terraform state files, and an initial SpaceDeployer for the system
+- `apply.sh` Helper script to either recreate the state locally or call `terraform apply` Any arguments are passed through to the `apply` call
+- `recreate_state.sh` Helper script to create a new local state file when new developers need to access the state file. This script is automatically generated by calling `./apply.sh` and should be checked into git on any changes
+- `users.auto.tfvars` this file defines the list of cloud.gov accounts that should have access to the terraform state bucket

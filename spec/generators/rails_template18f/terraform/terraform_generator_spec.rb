@@ -16,7 +16,5 @@ RSpec.describe RailsTemplate18f::Generators::TerraformGenerator, type: :generato
 
   it "updates the README" do
     expect(file("README.md")).to contain("Automatic linting and terraform formatting")
-    expect(file("README.md")).to_not contain("Before the first deploy only")
-    expect(file("README.md")).to contain("Follow the instructions in `terraform/README.md` to create the supporting services.")
   end
 end
