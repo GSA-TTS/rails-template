@@ -52,8 +52,8 @@ data "cloudfoundry_service_credential_binding" "bucket-creds" {
 }
 
 locals {
-  developer_map = { for username, id in module.mgmt-space.developer_role_ids : "module.mgmt-space.cloudfoundry_space_role.developers[\\\"${username}\\\"]" => id }
-  manager_map   = { for username, id in module.mgmt-space.manager_role_ids : "module.mgmt-space.cloudfoundry_space_role.managers[\\\"${username}\\\"]" => id }
+  developer_map = { for username, id in module.mgmt-space.developer_role_ids : "module.mgmt-space.cloudfoundry_space_role.developers[\"${username}\"]" => id }
+  manager_map   = { for username, id in module.mgmt-space.manager_role_ids : "module.mgmt-space.cloudfoundry_space_role.managers[\"${username}\"]" => id }
   import_map = merge(local.developer_map, local.manager_map, {
     "module.mgmt-space.cloudfoundry_space.space"           = module.mgmt-space.space_id
     "module.s3.cloudfoundry_service_instance.bucket"       = module.s3.bucket_id
@@ -62,27 +62,18 @@ locals {
 
   recreate_state_template = templatefile("${path.module}/recreate_state.sh.tftpl", { import_map = local.import_map })
 }
-resource "terraform_data" "recreate-script" {
-  triggers_replace = [
-    local.recreate_state_template
-  ]
-
-  provisioner "local-exec" {
-    command = "echo \"${local.recreate_state_template}\" > recreate_state.sh && chmod +x recreate_state.sh"
-  }
+resource "local_file" "recreate-script" {
+  content         = local.recreate_state_template
+  filename        = "${path.module}/recreate_state.sh"
+  file_permission = "0700"
 }
 
 locals {
   bucket_creds   = jsondecode(data.cloudfoundry_service_credential_binding.bucket-creds.credential_bindings.0.credential_binding).credentials
   backend_config = templatefile("${path.module}/backend_config.tftpl", { creds = local.bucket_creds })
 }
-resource "terraform_data" "bucket-creds" {
-  triggers_replace = [
-    local.backend_config
-  ]
-
-  provisioner "local-exec" {
-    working_dir = ".."
-    command     = "echo \"${local.backend_config}\" > secrets.backend.tfvars"
-  }
+resource "local_sensitive_file" "bucket-creds" {
+  content         = local.backend_config
+  filename        = "${path.module}/../secrets.backend.tfvars"
+  file_permission = "0600"
 }
