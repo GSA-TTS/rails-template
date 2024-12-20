@@ -22,20 +22,27 @@ jobs:
       - name: terraform validate
         uses: dflook/terraform-validate@v1
         with:
-          path: terraform/staging
+          path: terraform
 
       - name: terraform fmt
         uses: dflook/terraform-fmt-check@v1
         with:
-          path: terraform/staging
+          path: terraform
 
       - name: terraform plan
         uses: dflook/terraform-plan@v1
         env:
           TF_VAR_cf_user: ${{ secrets.CF_USERNAME }}
           TF_VAR_cf_password: ${{ secrets.CF_PASSWORD }}
+          TF_VAR_rails_master_key: ${{ secrets.RAILS_MASTER_KEY }}
+          TERRAFORM_PRE_RUN: |
+            apt-get update
+            apt-get install -y zip
         with:
-          path: terraform/staging
+          path: terraform
+          var_file: terraform/staging.tfvars
           backend_config: >
             access_key=${{ secrets.TERRAFORM_STATE_ACCESS_KEY }}
             secret_key=${{ secrets.TERRAFORM_STATE_SECRET_ACCESS_KEY }}
+            bucket=${{ secrets.TERRAFORM_STATE_BUCKET_NAME }}
+            key=terraform.tfstate.stage

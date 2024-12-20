@@ -1,8 +1,8 @@
-name: Deploy Staging
+name: Deploy Production
 
 on:
   push:
-    branches: [ main ]
+    branches: [ production ]
     paths-ignore:
       - 'doc/**'
       - 'README.md'
@@ -13,9 +13,9 @@ permissions:
 
 jobs:
   deploy:
-    name: Deploy to staging
+    name: Deploy to production
     runs-on: ubuntu-latest
-    environment: staging
+    environment: production
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -25,12 +25,15 @@ jobs:
         env:
           TF_VAR_cf_user: ${{ secrets.CF_USERNAME }}
           TF_VAR_cf_password: ${{ secrets.CF_PASSWORD }}
+          TF_VAR_rails_master_key: ${{ secrets.RAILS_MASTER_KEY }}
+          TERRAFORM_PRE_RUN: |
+            apt-get update
+            apt-get install -y zip
         with:
           path: terraform
-          var_file: staging.tfvars
+          var_file: terraform/production.tfvars
           backend_config: >
             access_key=${{ secrets.TERRAFORM_STATE_ACCESS_KEY }}
             secret_key=${{ secrets.TERRAFORM_STATE_SECRET_ACCESS_KEY }}
-            region="us-gov-west-1"
-            key="terraform.tfstate.stage"
             bucket=${{ secrets.TERRAFORM_STATE_BUCKET_NAME }}
+            key=terraform.tfstate.prod
