@@ -112,32 +112,42 @@ See [cloud.gov docs](https://cloud.gov/docs/services/relational-database/) for i
 
 #### Staging
 <% if !@github_actions && !@circleci_pipeline %>
-Before the first deploy only, create DB service with `cf create-service aws-rds micro-psql <%= app_name %>-rds-staging`
+First, follow the `terraform/README.md` instructions to set up your backend, then:
 
-`cf push --strategy rolling --vars-file config/deployment/staging.yml --var rails_master_key=$(cat config/master.key)`
+```bash
+$ cd terraform
+$ terraform apply -var-file=staging.tfvars -var rails_master_key=$(cat ../config/master.key)
+```
 <% end %>
 
 #### Production
 <% if !@github_actions && !@circleci_pipeline %>
-Before the first deploy only, create DB service with `cf create-service aws-rds <<SERVICE_PLAN_NAME>> <%= app_name %>-rds-production`
+First, follow the `terraform/README.md` instructions to set up your backend, then:
 
-`cf push --strategy rolling --vars-file config/deployment/production.yml --var rails_master_key=$(cat config/credentials/production.key)`
+```bash
+$ cd terraform
+$ terraform apply -var-file=production.tfvars -var rails_master_key=$(cat ../config/credentials/production.key)
+```
 <% end %>
 
 ### Configuring ENV variables in cloud.gov
 
 All configuration that needs to be added to the deployed application's ENV should be added to
-the `env:` block in `manifest.yml`
+the `environment = {}` block in `terraform/app.tf`
 
-Items that are both **public** and **consistent** across staging and production can be set directly there.
+Items that are both **public** and **consistent** across environments can be set directly there.
 
-Otherwise, they are set as a `((variable))` within `manifest.yml` and the variable is defined depending on sensitivity:
+Otherwise:
+
+1. add a new `variable "variable_name" {}` block to `terraform/variables.tf`
+2. add a new entry in the `environment = {}` block to reference that variable
+3. set that variable depending on sensitivity:
 
 #### Credentials and other Secrets
 
 #### Non-secrets
 
-Configuration that changes from staging to production, but is public, should be added to `config/deployment/staging.yml` and `config/deployment/production.yml`
+Configuration that changes by environemnt, but is public, should be added to the `tfvars` files, such as `terraform/production.tfvars` and `terraform/staging.tfvars`
 
 ## Documentation
 

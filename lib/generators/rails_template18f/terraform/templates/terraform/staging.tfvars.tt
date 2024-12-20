@@ -1,0 +1,6 @@
+cf_space_name   = "<%= cloud_gov_staging_space %>"
+env             = "staging"
+allow_space_ssh = true
+space_developers = [
+  # enter developer emails that should have ssh access to staging
+]
