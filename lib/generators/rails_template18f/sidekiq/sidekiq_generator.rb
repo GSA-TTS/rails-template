@@ -29,13 +29,14 @@ module RailsTemplate18f
 
       def configure_server_runner
         append_to_file "Procfile.dev", "worker: bundle exec sidekiq\n"
-        # insert_into_file "manifest.yml", indent(<<~EOYAML), after: /processes:$\n/
-        #   - type: worker
-        #     instances: ((worker_instances))
-        #     memory: ((worker_memory))
-        #     command: bundle exec sidekiq
-        # EOYAML
-        # insert_into_file "manifest.yml", "\n  - #{app_name}-redis-((env))", after: "services:"
+        insert_into_file file_path("terraform/app.tf"), <<EOT, after: "processes = [\n"
+    {
+      type      = "worker"
+      instances = var.worker_instances
+      memory    = var.worker_memory
+      command   = "bundle exec sidekiq"
+    },
+EOT
       end
 
       def configure_active_job

@@ -23,6 +23,16 @@ module RailsTemplate18f
 
       def use_terraform_module
         append_to_file file_path("terraform/main.tf"), terraform_module
+        append_to_file file_path("terraform/variables.tf"), <<~EOT
+          variable "egress_allowlist" {
+            type        = set(string)
+            default     = []
+            description = "The set of hostnames that the application is allowed to connect to"
+          }
+        EOT
+        insert_into_file file_path("terraform/app.tf"), <<EOT, after: "environment = {\n"
+    no_proxy                 = "apps.internal,s3-fips.us-gov-west-1.amazonaws.com"
+EOT
         insert_into_file file_path("terraform/app.tf"), <<EOT, after: "service_bindings = [\n"
     { service_instance = "egress-proxy-${var.env}-credentials" },
 EOT
@@ -40,7 +50,7 @@ EOT
 
         EOP
         insert_into_file ".profile", <<~EOP
-          proxy_creds=$(echo "$VCAP_SERVICES" | jq --arg service_name "egress-proxy-$RAILS_ENV-credentials" ".[][] | select(.name == \$service_name) | .credentials")
+          proxy_creds=$(echo "$VCAP_SERVICES" | jq --arg service_name "egress-proxy-$RAILS_ENV-credentials" ".[][] | select(.name == $service_name) | .credentials")
           export http_proxy=$(echo "$proxy_creds" | jq --raw-output ".http_uri")
           export https_proxy=$(echo "$proxy_creds" | jq --raw-output ".https_uri")
         EOP
@@ -78,7 +88,7 @@ EOB
             ### Public Egress Proxy
 
             Traffic to be delivered to the public internet must be proxied through the [cg-egress-proxy](https://github.com/GSA-TTS/cg-egress-proxy) app. Hostnames that the app should be able to
-            reach should be added to the `allowlist` terraform configuration in `terraform/staging/main.tf` and `terraform/production/main.tf`
+            reach should be added to the `egress_allowlist` terraform variable in `terraform/production.tfvars` and `terraform/staging.tfvars`
 
             See the [ruby troubleshooting doc](https://github.com/GSA-TTS/cg-egress-proxy/blob/main/docs/ruby.md) first if you have any problems making outbound connections through the proxy.
           README
@@ -109,9 +119,7 @@ EOB
               cf_org_name     = local.cf_org_name
               cf_egress_space = module.egress_space.space
               name            = "egress-proxy-${var.env}"
-              allowlist = [
-                # "host.to.allow"
-              ]
+              allowlist       = var.egress_allowlist
               # depends_on line is needed only for initial creation and destruction. It should be commented out for updates to prevent unwanted cascading effects
               depends_on = [module.app_space, module.egress_space]
             }
