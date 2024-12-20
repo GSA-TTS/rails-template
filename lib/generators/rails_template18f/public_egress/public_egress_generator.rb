@@ -23,6 +23,27 @@ module RailsTemplate18f
 
       def use_terraform_module
         append_to_file file_path("terraform/main.tf"), terraform_module
+        insert_into_file file_path("terraform/app.tf"), <<EOT, after: "service_bindings = [\n"
+    { service_instance = "egress-proxy-${var.env}-credentials" },
+EOT
+        insert_into_file file_path("terraform/app.tf"), <<EOT, after: "depends_on = [\n"
+    cloudfoundry_service_instance.egress_proxy_credentials,
+EOT
+      end
+
+      def setup_proxy_vars
+        create_file ".profile", <<~EOP unless file_exists?(".profile")
+          ##
+          # Cloud Foundry app initialization script
+          # https://docs.cloudfoundry.org/devguide/deploy-apps/deploy-app.html#profile
+          ##
+
+        EOP
+        insert_into_file ".profile", <<~EOP
+          proxy_creds=$(echo "$VCAP_SERVICES" | jq --arg service_name "egress-proxy-$RAILS_ENV-credentials" ".[][] | select(.name == \$service_name) | .credentials")
+          export http_proxy=$(echo "$proxy_creds" | jq --raw-output ".http_uri")
+          export https_proxy=$(echo "$proxy_creds" | jq --raw-output ".https_uri")
+        EOP
       end
 
       def update_readme
@@ -93,6 +114,29 @@ EOB
               ]
               # depends_on line is needed only for initial creation and destruction. It should be commented out for updates to prevent unwanted cascading effects
               depends_on = [module.app_space, module.egress_space]
+            }
+
+            resource "cloudfoundry_network_policy" "egress_routing" {
+              provider = cloudfoundry-community
+              policy {
+                source_app      = cloudfoundry_app.app.id
+                destination_app = module.egress_proxy.app_id
+                port            = "61443"
+              }
+              policy {
+                source_app      = cloudfoundry_app.app.id
+                destination_app = module.egress_proxy.app_id
+                port            = "8080"
+              }
+            }
+
+            resource "cloudfoundry_service_instance" "egress_proxy_credentials" {
+              name        = "egress-proxy-${var.env}-credentials"
+              space       = module.app_space.space_id
+              type        = "user-provided"
+              credentials = module.egress_proxy.json_credentials
+              # depends_on line is needed only for initial creation and destruction. It should be commented out for updates to prevent unwanted cascading effects
+              depends_on = [module.app_space]
             }
           EOT
         end
