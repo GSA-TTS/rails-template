@@ -50,7 +50,7 @@ EOT
 
         EOP
         insert_into_file ".profile", <<~EOP
-          proxy_creds=$(echo "$VCAP_SERVICES" | jq --arg service_name "egress-proxy-$RAILS_ENV-credentials" ".[][] | select(.name == $service_name) | .credentials")
+          proxy_creds=$(echo "$VCAP_SERVICES" | jq --arg service_name "egress-proxy-$RAILS_ENV-credentials" '.[][] | select(.name == $service_name) | .credentials')
           export http_proxy=$(echo "$proxy_creds" | jq --raw-output ".http_uri")
           export https_proxy=$(echo "$proxy_creds" | jq --raw-output ".https_uri")
         EOP
@@ -114,7 +114,7 @@ EOB
             }
 
             module "egress_proxy" {
-              source = "github.com/gsa-tts/terraform-cloudgov//egress_proxy?ref=v2.0.0"
+              source = "github.com/gsa-tts/terraform-cloudgov//egress_proxy?ref=v2.0.1"
 
               cf_org_name     = local.cf_org_name
               cf_egress_space = module.egress_space.space

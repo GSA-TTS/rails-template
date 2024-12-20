@@ -14,4 +14,4 @@ fi
 set -e
 
 terraform init
-terraform apply
+terraform apply "$@"

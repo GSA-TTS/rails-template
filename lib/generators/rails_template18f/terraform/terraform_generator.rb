@@ -15,7 +15,7 @@ module RailsTemplate18f
 
       def install
         directory "terraform", mode: :preserve
-        chmod "terraform/bootstrap/run.sh", 0o755
+        chmod "terraform/bootstrap/apply.sh", 0o755
       end
 
       def ignore_files

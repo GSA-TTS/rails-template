@@ -16,14 +16,22 @@ variable "terraform_users" {
 
   validation {
     condition     = length(var.terraform_users) > 0
-    error_message = "terraform_users must include at least the current user calling run.sh"
+    error_message = "terraform_users must include at least the current user calling apply.sh"
   }
 }
+variable "create_bot_secrets_file" {
+  type        = bool
+  default     = false
+  description = "Flag whether to create secrets.auto.tfvars file"
+}
 
-module "mgmt-space" {
+locals {
+  org_name = "<%= cloud_gov_organization %>"
+}
+module "mgmt_space" {
   source = "github.com/gsa-tts/terraform-cloudgov//cg_space?ref=v2.0.1"
 
-  cf_org_name   = "<%= cloud_gov_organization %>"
+  cf_org_name   = local.org_name
   cf_space_name = "<%= cloud_gov_production_space %>-mgmt"
   developers    = var.terraform_users
 }
@@ -31,49 +39,102 @@ module "mgmt-space" {
 module "s3" {
   source = "github.com/gsa-tts/terraform-cloudgov//s3?ref=v2.0.0"
 
-  cf_space_id = module.mgmt-space.space_id
+  cf_space_id = module.mgmt_space.space_id
   name        = "<%= app_name %>-terraform-state"<% if cloud_gov_organization == "sandbox-gsa" %>
   s3_plan_name = "basic-sandbox"<% end %>
-  depends_on  = [module.mgmt-space]
+  depends_on  = [module.mgmt_space]
+}
+
+data "cloudfoundry_service_plans" "cg_service_account" {
+  name                  = "space-deployer"
+  service_offering_name = "cloud-gov-service-account"
+}
+locals {
+  sa_service_name    = "<%= app_name %>-cicd-deployer"
+  sa_key_name        = "cicd-deployer-access-key"
+  sa_bot_credentials = jsondecode(data.cloudfoundry_service_credential_binding.runner_sa_key.credential_bindings.0.credential_binding).credentials
+  sa_cf_username     = nonsensitive(local.sa_bot_credentials.username)
+  sa_cf_password     = local.sa_bot_credentials.password
+}
+resource "cloudfoundry_service_instance" "runner_service_account" {
+  name         = local.sa_service_name
+  type         = "managed"
+  space        = module.mgmt_space.space_id
+  service_plan = data.cloudfoundry_service_plans.cg_service_account.service_plans.0.id
+  depends_on   = [module.mgmt_space]
+}
+resource "cloudfoundry_service_credential_binding" "runner_sa_key" {
+  name             = local.sa_key_name
+  service_instance = cloudfoundry_service_instance.runner_service_account.id
+  type             = "key"
+}
+data "cloudfoundry_service_credential_binding" "runner_sa_key" {
+  name             = local.sa_key_name
+  service_instance = cloudfoundry_service_instance.runner_service_account.id
+  depends_on       = [cloudfoundry_service_credential_binding.runner_sa_key]
+}
+data "cloudfoundry_org" "org" {
+  name = local.org_name
+}
+resource "cloudfoundry_org_role" "sa_org_manager" {
+  username = local.sa_cf_username
+  type     = "organization_manager"
+  org      = data.cloudfoundry_org.org.id
 }
 
 locals {
   bucket_creds_key_name = "backend-state-bucket-creds"
 }
-resource "cloudfoundry_service_credential_binding" "bucket-creds" {
+resource "cloudfoundry_service_credential_binding" "bucket_creds" {
   name             = local.bucket_creds_key_name
   service_instance = module.s3.bucket_id
   type             = "key"
 }
-data "cloudfoundry_service_credential_binding" "bucket-creds" {
+data "cloudfoundry_service_credential_binding" "bucket_creds" {
   name             = local.bucket_creds_key_name
   service_instance = module.s3.bucket_id
-  depends_on       = [cloudfoundry_service_credential_binding.bucket-creds]
+  depends_on       = [cloudfoundry_service_credential_binding.bucket_creds]
 }
 
 locals {
-  developer_map = { for username, id in module.mgmt-space.developer_role_ids : "module.mgmt-space.cloudfoundry_space_role.developers[\"${username}\"]" => id }
-  manager_map   = { for username, id in module.mgmt-space.manager_role_ids : "module.mgmt-space.cloudfoundry_space_role.managers[\"${username}\"]" => id }
+  developer_map = { for username, id in module.mgmt_space.developer_role_ids : "module.mgmt_space.cloudfoundry_space_role.developers[\"${username}\"]" => id }
+  manager_map   = { for username, id in module.mgmt_space.manager_role_ids : "module.mgmt_space.cloudfoundry_space_role.managers[\"${username}\"]" => id }
   import_map = merge(local.developer_map, local.manager_map, {
-    "module.mgmt-space.cloudfoundry_space.space"           = module.mgmt-space.space_id
-    "module.s3.cloudfoundry_service_instance.bucket"       = module.s3.bucket_id
-    "cloudfoundry_service_credential_binding.bucket-creds" = cloudfoundry_service_credential_binding.bucket-creds.id
+    "module.mgmt_space.cloudfoundry_space.space"            = module.mgmt_space.space_id
+    "module.s3.cloudfoundry_service_instance.bucket"        = module.s3.bucket_id
+    "cloudfoundry_service_credential_binding.bucket_creds"  = cloudfoundry_service_credential_binding.bucket_creds.id
+    "cloudfoundry_service_instance.runner_service_account"  = cloudfoundry_service_instance.runner_service_account.id
+    "cloudfoundry_service_credential_binding.runner_sa_key" = cloudfoundry_service_credential_binding.runner_sa_key.id
+    "cloudfoundry_org_role.sa_org_manager"                  = cloudfoundry_org_role.sa_org_manager.id
   })
 
   recreate_state_template = templatefile("${path.module}/recreate_state.sh.tftpl", { import_map = local.import_map })
 }
-resource "local_file" "recreate-script" {
+resource "local_file" "recreate_script" {
   content         = local.recreate_state_template
   filename        = "${path.module}/recreate_state.sh"
   file_permission = "0700"
 }
 
 locals {
-  bucket_creds   = jsondecode(data.cloudfoundry_service_credential_binding.bucket-creds.credential_bindings.0.credential_binding).credentials
+  bucket_creds   = jsondecode(data.cloudfoundry_service_credential_binding.bucket_creds.credential_bindings.0.credential_binding).credentials
   backend_config = templatefile("${path.module}/backend_config.tftpl", { creds = local.bucket_creds })
 }
-resource "local_sensitive_file" "bucket-creds" {
+resource "local_sensitive_file" "bucket_creds" {
   content         = local.backend_config
   filename        = "${path.module}/../secrets.backend.tfvars"
   file_permission = "0600"
+}
+
+resource "local_sensitive_file" "bot_secrets_file" {
+  count           = (var.create_bot_secrets_file ? 1 : 0)
+  filename        = "${path.module}/../secrets.auto.tfvars"
+  file_permission = "0600"
+
+  content = templatefile("${path.module}/bot_secrets.tftpl", {
+    service_name = local.sa_service_name,
+    key_name     = local.sa_key_name,
+    username     = local.sa_cf_username,
+    password     = local.sa_cf_password
+  })
 }
