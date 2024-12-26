@@ -6,11 +6,6 @@ then
   exit 1
 fi
 
-if [ ! -f terraform.tfstate ] && [ -f recreate_state.sh ]; then
-  ./recreate_state.sh
-  exit $?
-fi
-
 set -e
 
 terraform init
