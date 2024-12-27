@@ -17,6 +17,7 @@ module "app_space" {
 data "external" "set-app-space-egress" {
   program     = ["/bin/sh", "set_space_egress.sh", "-t", "-s", module.app_space.space_name, "-o", local.cf_org_name]
   working_dir = path.module
+  # depends_on line is required only for initial creation and destruction. It can be commented out for updates if you see unwanted cascading effects
   depends_on  = [module.app_space]
 }
 
@@ -26,7 +27,7 @@ module "database" {
   cf_space_id   = module.app_space.space_id
   name          = "${local.app_name}-rds-${var.env}"
   rds_plan_name = var.rds_plan_name
-  # depends_on line is needed only for initial creation and destruction. It should be commented out for updates to prevent unwanted cascading effects
+  # depends_on line is required only for initial creation and destruction. It can be commented out for updates if you see unwanted cascading effects
   depends_on = [module.app_space]
 }
 <% if has_active_job? %>
@@ -36,7 +37,7 @@ module "redis" {
   cf_space_id     = module.app_space.space_id
   name            = "${local.app_name}-redis-${var.env}"
   redis_plan_name = var.redis_plan_name
-  # depends_on line is needed only for initial creation and destruction. It should be commented out for updates to prevent unwanted cascading effects
+  # depends_on line is required only for initial creation and destruction. It can be commented out for updates if you see unwanted cascading effects
   depends_on = [module.app_space]
 }
 <% end %>
@@ -47,7 +48,7 @@ module "s3" {
   cf_space_id = module.app_space.space_id
   name        = "${local.app_name}-s3-${var.env}"<% if cloud_gov_organization == "sandbox-gsa" %>
   s3_plan_name = "basic-sandbox"<% end %>
-  # depends_on line is needed only for initial creation and destruction. It should be commented out for updates to prevent unwanted cascading effects
+  # depends_on line is required only for initial creation and destruction. It can be commented out for updates if you see unwanted cascading effects
   depends_on = [module.app_space]
 }
 
@@ -59,7 +60,7 @@ module "clamav" {
   name          = "${local.app_name}-clamapi-${var.env}"
   clamav_image  = "ghcr.io/gsa-tts/clamav-rest/clamav:latest"
   max_file_size = "30M"
-  # depends_on line is needed only for initial creation and destruction. It should be commented out for updates to prevent unwanted cascading effects
+  # depends_on line is required only for initial creation and destruction. It can be commented out for updates if you see unwanted cascading effects
   depends_on = [module.app_space]
 }
 
@@ -89,6 +90,6 @@ module "domain" {
   cdn_plan_name = "domain"
   domain_name   = var.custom_domain_name
   host_name     = var.host_name
-  # depends_on line is needed only for initial creation and destruction. It should be commented out for updates to prevent unwanted cascading effects
+  # depends_on line is required only for initial creation and destruction. It can be commented out for updates if you see unwanted cascading effects
   depends_on = [module.app_space]
 }
