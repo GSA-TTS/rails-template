@@ -82,7 +82,7 @@ EOB
         def readme_staging_deploy
           <<~EOM
 
-            Deploys to staging via terraform happen on every push to the `main` branch in GitHub.
+            Deploys to staging happen via terraform on every push to the `main` branch in GitHub.
 
             The following secrets must be set within [CircleCI Environment Variables](https://circleci.com/docs/2.0/env-vars/)
             to enable a deploy to work:
@@ -99,7 +99,7 @@ EOB
         def readme_prod_deploy
           <<~EOM
 
-            Deploys to production via terraform happen on every push to the `production` branch in GitHub.
+            Deploys to production happen via terraform on every push to the `production` branch in GitHub.
 
             The following secrets must be set within [CircleCI Environment Variables](https://circleci.com/docs/2.0/env-vars/)
             to enable a deploy to work:

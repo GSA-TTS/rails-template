@@ -76,7 +76,7 @@ EOB
         def readme_staging_deploy
           <<~EOM
 
-            Deploys to staging via terraform happen on every push to the `main` branch in GitHub.
+            Deploys to staging happen via terraform on every push to the `main` branch in GitHub.
 
             The following secrets must be set within the `staging` [environment secrets](https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-an-environment)
             to enable a deploy to work:
@@ -93,7 +93,7 @@ EOB
         def readme_prod_deploy
           <<~EOM
 
-            Deploys to production via terraform happen on every push to the `production` branch in GitHub.
+            Deploys to production happen via terraform on every push to the `production` branch in GitHub.
 
             The following secrets must be set within the `production` [environment secrets](https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-an-environment)
             to enable a deploy to work:

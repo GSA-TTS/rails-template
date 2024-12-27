@@ -147,7 +147,7 @@ Otherwise:
 
 #### Non-secrets
 
-Configuration that changes by environemnt, but is public, should be added to the `tfvars` files, such as `terraform/production.tfvars` and `terraform/staging.tfvars`
+Configuration that changes by environment, but is public, should be added to the `tfvars` files, such as `terraform/production.tfvars` and `terraform/staging.tfvars`
 
 ## Documentation
 
