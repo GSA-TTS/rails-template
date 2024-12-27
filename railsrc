@@ -12,5 +12,4 @@
 --skip-rubocop
 --skip-ci
 --skip-kamal
---skip-thruster
 --skip-solid
