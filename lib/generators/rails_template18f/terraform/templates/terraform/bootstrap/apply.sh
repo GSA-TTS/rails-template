@@ -8,5 +8,8 @@ fi
 
 set -e
 
+# ensure we're logged in via cli
+cf spaces &> /dev/null || cf login -a api.fr.cloud.gov --sso
+
 terraform init
 terraform apply "$@"
