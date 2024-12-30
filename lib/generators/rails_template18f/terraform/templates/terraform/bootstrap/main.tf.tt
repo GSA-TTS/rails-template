@@ -1,5 +1,5 @@
 terraform {
-  required_version = "~> 1.7"
+  required_version = "~> 1.10"
   required_providers {
     cloudfoundry = {
       source  = "cloudfoundry/cloudfoundry"
@@ -147,4 +147,11 @@ resource "local_sensitive_file" "bot_secrets_file" {
     username     = local.sa_cf_username,
     password     = local.sa_cf_password
   })
+}
+
+output "mgmt_space_id" {
+  value = module.mgmt_space.space_id
+}
+output "mgmt_org_id" {
+  value = data.cloudfoundry_org.org.id
 }
