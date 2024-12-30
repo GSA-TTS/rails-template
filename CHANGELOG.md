@@ -1,5 +1,11 @@
 ## [Unreleased]
 
+- Default new apps to Rails 8, including support for thruster proxy
+- Massive overhaul of the Terraform generator
+  - Creates and configures spaces for app and egress proxy
+  - Moves from module-per-environment to a single module with per-env variable files
+  - Ability for a one-script deployment from nothing, enabling easy developer sandboxes and review apps
+
 ## [1.3.0] - 2024-12-18
 
 - Set up app space via terraform, with proper restricted egress security group
