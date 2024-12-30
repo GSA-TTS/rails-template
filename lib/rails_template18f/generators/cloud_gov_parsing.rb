@@ -34,7 +34,7 @@ module RailsTemplate18f
             return matches[:space_name]
           end
         end
-        "prod"
+        "production"
       end
     end
   end

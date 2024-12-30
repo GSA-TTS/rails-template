@@ -259,7 +259,7 @@ jobs:
       - checkout
       - terraform/init:
           path: terraform
-          backend_config: "key=terraform.tfstate.stage,bucket=$TERRAFORM_STATE_BUCKET_NAME"
+          backend_config: "key=terraform.tfstate.staging,bucket=$TERRAFORM_STATE_BUCKET_NAME"
       - terraform/validate:
           path: terraform
       - terraform/fmt:
@@ -288,7 +288,7 @@ jobs:
       - checkout
       - terraform/init:
           path: terraform
-          backend_config: "key=terraform.tfstate.prod,bucket=$TERRAFORM_STATE_BUCKET_NAME"
+          backend_config: "key=terraform.tfstate.production,bucket=$TERRAFORM_STATE_BUCKET_NAME"
       - terraform/validate:
           path: terraform
       - terraform/fmt:

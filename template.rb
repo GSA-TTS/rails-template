@@ -82,7 +82,7 @@ end
 @cloud_gov_organization = ask("What is your cloud.gov organization name? (Leave blank to fill in later)")
 default_staging_space = "staging"
 cloud_gov_staging_space = ask("What is your cloud.gov staging space name? (Default: #{default_staging_space})")
-default_prod_space = "prod"
+default_prod_space = "production"
 cloud_gov_production_space = ask("What is your cloud.gov production space name? (Default: #{default_prod_space})")
 @cloud_gov_organization = "TKTK-cloud.gov-org-name" if @cloud_gov_organization.blank?
 cloud_gov_staging_space = default_staging_space if cloud_gov_staging_space.blank?

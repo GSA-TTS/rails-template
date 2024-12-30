@@ -36,4 +36,4 @@ jobs:
             access_key=${{ secrets.TERRAFORM_STATE_ACCESS_KEY }}
             secret_key=${{ secrets.TERRAFORM_STATE_SECRET_ACCESS_KEY }}
             bucket=${{ secrets.TERRAFORM_STATE_BUCKET_NAME }}
-            key=terraform.tfstate.prod
+            key=terraform.tfstate.production

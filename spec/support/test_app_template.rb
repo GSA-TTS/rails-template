@@ -22,7 +22,7 @@ def cloud_gov_staging_space
 end
 
 def cloud_gov_production_space
-  "prod"
+  "production"
 end
 
 def has_active_job?
