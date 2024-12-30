@@ -6,7 +6,7 @@ module RailsTemplate18f
   module Generators
     class CircleciGenerator < ::Rails::Generators::Base
       include Base
-      include PipelineOptions
+      include CloudGovOptions
 
       desc <<~DESC
         Description:
@@ -82,8 +82,7 @@ EOB
         def readme_staging_deploy
           <<~EOM
 
-            Deploys to staging#{terraform? ? ", including applying changes in terraform," : ""} happen
-            on every push to the `main` branch in GitHub.
+            Deploys to staging happen via terraform on every push to the `main` branch in GitHub.
 
             The following secrets must be set within [CircleCI Environment Variables](https://circleci.com/docs/2.0/env-vars/)
             to enable a deploy to work:
@@ -100,8 +99,7 @@ EOB
         def readme_prod_deploy
           <<~EOM
 
-            Deploys to production#{terraform? ? ", including applying changes in terraform," : ""} happen
-            on every push to the `production` branch in GitHub.
+            Deploys to production happen via terraform on every push to the `production` branch in GitHub.
 
             The following secrets must be set within [CircleCI Environment Variables](https://circleci.com/docs/2.0/env-vars/)
             to enable a deploy to work:
@@ -119,7 +117,7 @@ EOB
           <<~EOM
 
             1. Store variables that must be secret using [CircleCI Environment Variables](https://circleci.com/docs/2.0/env-vars/)
-            1. Add the appropriate `--var` addition to the `cf push` line on the deploy job
+            1. Add the appropriate entries to the "Set terraform variables" steps in .circleci/config.yml
           EOM
         end
       end
@@ -127,12 +125,11 @@ EOB
       private
 
       def terraform_secret_values
-        if terraform?
-          <<~EOM
-            | `AWS_ACCESS_KEY_ID` | Access key for terraform state bucket |
-            | `AWS_SECRET_ACCESS_KEY` | Secret key for terraform state bucket |
-          EOM
-        end
+        <<~EOM
+          | `AWS_ACCESS_KEY_ID` | Access key for terraform state bucket |
+          | `AWS_SECRET_ACCESS_KEY` | Secret key for terraform state bucket |
+          | `TERRAFORM_STATE_BUCKET_NAME` | Bucket name for terraform state bucket |
+        EOM
       end
     end
   end

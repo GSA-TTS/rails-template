@@ -33,7 +33,7 @@ RSpec.describe RailsTemplate18f::Generators::NewrelicGenerator, type: :generator
   end
 
   it "sets ENV var for deployed app" do
-    expect(file("manifest.yml")).to contain(/^    NEW_RELIC_LOG: stdout$/)
+    expect(file("terraform/app.tf")).to contain('NEW_RELIC_LOG = "stdout"')
   end
 
   it "copies the new relic component" do

@@ -8,7 +8,7 @@ RSpec.describe RailsTemplate18f::Generators::ActiveStorageGenerator, type: :gene
 
   it "configures a local clamav runner" do
     run_generator
-    expect(file("Procfile.dev")).to contain(/^clamav: docker run --rm -p 9443:9443 ajilaag\/clamav-rest:20211229$/)
+    expect(file("Procfile.dev")).to contain(/^clamav: docker run --rm -p 9443:9443 ghcr.io\/gsa-tts\/clamav-rest\/clamav:latest$/)
   end
 
   it "creates the active_storage migration file" do
@@ -48,8 +48,7 @@ RSpec.describe RailsTemplate18f::Generators::ActiveStorageGenerator, type: :gene
   it "configures the env var" do
     run_generator
     expect(file(".env")).to contain("CLAMAV_API_URL=https://localhost:9443")
-    expect(file("manifest.yml")).to contain("CLAMAV_API_URL: \"https://tmp-clamapi-((env)).apps.internal:9443")
-    expect(file("manifest.yml")).to contain("  - tmp-s3-((env))")
+    expect(file("terraform/app.tf")).to contain('CLAMAV_API_URL = "https://tmp-clamapi-${var.env}.apps.internal:61443"')
   end
 
   it "updates the boundary diagram" do

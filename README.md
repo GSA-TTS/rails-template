@@ -89,11 +89,6 @@ Follow up questions if you answer `y`:
 * "Run compliance checks with auditree?" Answer `y` if you want to integrate with [auditree](https://github.com/gsa-tts/auditree-devtools) for automated compliance checks.
 </details>
 
-<details><summary>Create terraform files for cloud.gov services?</summary>
-
-Answer `y` to run the `terraform` generator. This includes a `/terraform` folder defining services and infrastructure within cloud.gov as well as support for deploying that infrastructure in your chosen CI/CD pipeline.
-</details>
-
 <details><summary>Cloud.gov organization and space names</summary>
 
 Provide your cloud.gov organization and space names for use in terraform and deploy scripts.
@@ -179,12 +174,11 @@ Run `bin/rails generate rails_template_18f:GENERATOR --help` for information on 
 1. Update `app/views/layouts/application.html.erb` to pass the `pa11y-ci` scan and include the USWDS Banner
 1. Create a `PagesController` and root route
 1. Create boundary and logical data model compliance diagrams
-1. Create `manifest.yml` and variable files for cloud.gov deployment
+1. Create terraform modules supporting staging & production cloud.gov spaces for infrastructure and app deployment
 1. Optionally run the `rake db:create` and `rake db:migrate` setup steps
 1. Optionally integrate with https://github.com/GSA-TTS/docker-trestle
 1. Optionally integrate with https://github.com/GSA-TTS/auditree-devtools
 1. Optionally create GitHub Actions workflows for testing and cloud.gov deploy
-1. Optionally create terraform modules supporting staging & production cloud.gov spaces
 1. Optionally create CircleCI workflows for testing and cloud.gov deploy
 1. Optionally create a New Relic config with FEDRAMP-specific host
 1. Optionally configure DAP (Digital Analytics Program)

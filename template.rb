@@ -79,7 +79,6 @@ if auditree
   auditree_evidence_repo = ask("What is the https address of your auditree evidence repo? (Leave blank to fill in later)")
 end
 
-terraform = yes?("Create terraform files for cloud.gov services? (y/n)")
 @cloud_gov_organization = ask("What is your cloud.gov organization name? (Leave blank to fill in later)")
 default_staging_space = "staging"
 cloud_gov_staging_space = ask("What is your cloud.gov staging space name? (Default: #{default_staging_space})")
@@ -389,29 +388,24 @@ if dap
 end
 
 # infrastructure & deploy
-template "manifest.yml"
 copy_file "lib/tasks/cf.rake"
-directory "config/deployment"
 
-if terraform
-  after_bundle do
-    generator_arguments = [
-      "--cg-org=#{@cloud_gov_organization}",
-      "--cg-staging=#{cloud_gov_staging_space}",
-      "--cg-prod=#{cloud_gov_production_space}"
-    ]
-    generate "rails_template18f:terraform", *generator_arguments
-  end
-  if cloud_gov_org_tktk?
-    register_announcement("Terraform", <<~EOM)
-      Fill in the cloud.gov organization information in:
-        * terraform/bootstrap/main.tf
-        * terraform/staging/main.tf
-        * terraform/production/main.tf
-    EOM
-  end
-  register_announcement("Terraform", "Run the bootstrap script and update the appropriate CI/CD environment variables defined in the Deployment section of the README")
+after_bundle do
+  generator_arguments = [
+    "--cg-org=#{@cloud_gov_organization}",
+    "--cg-staging=#{cloud_gov_staging_space}",
+    "--cg-prod=#{cloud_gov_production_space}"
+  ]
+  generate "rails_template18f:terraform", *generator_arguments
 end
+if cloud_gov_org_tktk?
+  register_announcement("Terraform", <<~EOM)
+    Fill in the cloud.gov organization information in:
+      * terraform/bootstrap/main.tf
+      * terraform/main.tf
+  EOM
+end
+register_announcement("Terraform", "Run the bootstrap script and update the appropriate CI/CD environment variables defined in the Deployment section of the README")
 
 if !skip_active_job?
   after_bundle do
@@ -428,7 +422,6 @@ end
 if @github_actions
   after_bundle do
     generator_arguments = [
-      (terraform ? "--terraform" : "--no-terraform"),
       "--cg-org=#{@cloud_gov_organization}",
       "--cg-staging=#{cloud_gov_staging_space}",
       "--cg-prod=#{cloud_gov_production_space}"
@@ -448,7 +441,6 @@ end
 if @circleci_pipeline
   after_bundle do
     generator_arguments = [
-      (terraform ? "--terraform" : "--no-terraform"),
       "--cg-org=#{@cloud_gov_organization}",
       "--cg-staging=#{cloud_gov_staging_space}",
       "--cg-prod=#{cloud_gov_production_space}"
@@ -515,12 +507,6 @@ after_bundle do
   run "bundle exec standardrb --fix"
 
   unless skip_git?
-    run "cp .gitignore .cfignore"
-    append_to_file ".cfignore", <<~EOM
-
-      # compliance documentation
-      /doc/compliance/
-    EOM
     if compliance_trestle_submodule
       inside "doc/compliance/oscal" do
         run "git add -A"

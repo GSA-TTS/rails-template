@@ -22,44 +22,38 @@ module RailsTemplate18f
       end
 
       def use_terraform_module
-        append_to_file file_path("terraform/staging/main.tf"), terraform_module
-        append_to_file file_path("terraform/production/main.tf"), terraform_module
+        append_to_file file_path("terraform/main.tf"), terraform_module
+        append_to_file file_path("terraform/variables.tf"), <<~EOT
+          variable "egress_allowlist" {
+            type        = set(string)
+            default     = []
+            description = "The set of hostnames that the application is allowed to connect to"
+          }
+        EOT
+        insert_into_file file_path("terraform/app.tf"), <<EOT, after: "environment = {\n"
+    no_proxy                 = "apps.internal,s3-fips.us-gov-west-1.amazonaws.com"
+EOT
+        insert_into_file file_path("terraform/app.tf"), <<EOT, after: "service_bindings = [\n"
+    { service_instance = "egress-proxy-${var.env}-credentials" },
+EOT
+        insert_into_file file_path("terraform/app.tf"), <<EOT, after: "depends_on = [\n"
+    cloudfoundry_service_instance.egress_proxy_credentials,
+EOT
       end
 
-      def add_to_deploy_steps
-        if file_exists?(".github/workflows/deploy-staging.yml")
-          insert_into_file ".github/workflows/deploy-staging.yml", <<EOD, before: "      - name: Deploy app"
-      - name: Set public egress
-        uses: cloud-gov/cg-cli-tools@main
-        with:
-          cf_username: ${{ secrets.CF_USERNAME }}
-          cf_password: ${{ secrets.CF_PASSWORD }}
-          cf_org: #{cloud_gov_organization}
-          cf_space: #{cloud_gov_staging_space}-egress
-          cf_command: bind-security-group public_networks_egress $INPUT_CF_ORG --space $INPUT_CF_SPACE
-EOD
-        end
-        if file_exists?(".github/workflows/deploy-production.yml")
-          insert_into_file ".github/workflows/deploy-production.yml", <<EOD, before: "      - name: Deploy app"
-      - name: Set public egress
-        uses: cloud-gov/cg-cli-tools@main
-        with:
-          cf_username: ${{ secrets.CF_USERNAME }}
-          cf_password: ${{ secrets.CF_PASSWORD }}
-          cf_org: #{cloud_gov_organization}
-          cf_space: #{cloud_gov_production_space}-egress
-          cf_command: bind-security-group public_networks_egress $INPUT_CF_ORG --space $INPUT_CF_SPACE
-EOD
-        end
-        if file_exists?(".circleci/config.yml")
-          insert_into_file ".circleci/config.yml", <<EOD, before: "          name: Push application with deployment vars"
-          name: Set public egress
-          command: |
-            cf bind-security-group public_networks_egress << parameters.cloudgov_org >> \
-              --space << parameters.cloudgov_space >>-egress
-        - run:
-EOD
-        end
+      def setup_proxy_vars
+        create_file ".profile", <<~EOP unless file_exists?(".profile")
+          ##
+          # Cloud Foundry app initialization script
+          # https://docs.cloudfoundry.org/devguide/deploy-apps/deploy-app.html#profile
+          ##
+
+        EOP
+        insert_into_file ".profile", <<~EOP
+          proxy_creds=$(echo "$VCAP_SERVICES" | jq --arg service_name "egress-proxy-$RAILS_ENV-credentials" '.[][] | select(.name == $service_name) | .credentials')
+          export http_proxy=$(echo "$proxy_creds" | jq --raw-output ".http_uri")
+          export https_proxy=$(echo "$proxy_creds" | jq --raw-output ".https_uri")
+        EOP
       end
 
       def update_readme
@@ -94,7 +88,7 @@ EOB
             ### Public Egress Proxy
 
             Traffic to be delivered to the public internet must be proxied through the [cg-egress-proxy](https://github.com/GSA-TTS/cg-egress-proxy) app. Hostnames that the app should be able to
-            reach should be added to the `allowlist` terraform configuration in `terraform/staging/main.tf` and `terraform/production/main.tf`
+            reach should be added to the `egress_allowlist` terraform variable in `terraform/production.tfvars` and `terraform/staging.tfvars`
 
             See the [ruby troubleshooting doc](https://github.com/GSA-TTS/cg-egress-proxy/blob/main/docs/ruby.md) first if you have any problems making outbound connections through the proxy.
           README
@@ -104,29 +98,53 @@ EOB
           <<~EOT
 
             module "egress_space" {
-              source = "github.com/gsa-tts/terraform-cloudgov//cg_space?ref=v1.1.0"
+              source = "github.com/gsa-tts/terraform-cloudgov//cg_space?ref=v2.0.0"
 
               cf_org_name   = local.cf_org_name
-              cf_space_name = "${local.cf_space_name}-egress"
-              # deployers should include any user or service account ID that will deploy the egress proxy
-              deployers = [
-                var.cf_user
-              ]
+              cf_space_name = "${var.cf_space_name}-egress"
+              allow_ssh     = var.allow_space_ssh
+              deployers     = local.space_deployers
+              developers    = var.space_developers
+            }
+            # temporary method for setting egress rules until terraform provider supports it and cg_space module is updated
+            data "external" "set-egress-space-egress" {
+              program     = ["/bin/sh", "set_space_egress.sh", "-p", "-s", module.egress_space.space_name, "-o", local.cf_org_name]
+              working_dir = path.module
+              depends_on  = [module.egress_space]
             }
 
             module "egress_proxy" {
-              source = "github.com/gsa-tts/terraform-cloudgov//egress_proxy?ref=v1.1.0"
+              source = "github.com/gsa-tts/terraform-cloudgov//egress_proxy?ref=v2.0.1"
 
-              cf_org_name   = local.cf_org_name
-              cf_space_name = module.egress_space.space_name
-              client_space  = local.cf_space_name
-              name          = "egress-proxy-${local.env}"
-              # comment out allowlist if this module is being deployed before the app has ever been deployed
-              allowlist = {
-                "${local.app_name}-${local.env}" = []
-              }
+              cf_org_name     = local.cf_org_name
+              cf_egress_space = module.egress_space.space
+              name            = "egress-proxy-${var.env}"
+              allowlist       = var.egress_allowlist
               # depends_on line is needed only for initial creation and destruction. It should be commented out for updates to prevent unwanted cascading effects
               depends_on = [module.app_space, module.egress_space]
+            }
+
+            resource "cloudfoundry_network_policy" "egress_routing" {
+              provider = cloudfoundry-community
+              policy {
+                source_app      = cloudfoundry_app.app.id
+                destination_app = module.egress_proxy.app_id
+                port            = "61443"
+              }
+              policy {
+                source_app      = cloudfoundry_app.app.id
+                destination_app = module.egress_proxy.app_id
+                port            = "8080"
+              }
+            }
+
+            resource "cloudfoundry_service_instance" "egress_proxy_credentials" {
+              name        = "egress-proxy-${var.env}-credentials"
+              space       = module.app_space.space_id
+              type        = "user-provided"
+              credentials = module.egress_proxy.json_credentials
+              # depends_on line is needed only for initial creation and destruction. It should be commented out for updates to prevent unwanted cascading effects
+              depends_on = [module.app_space]
             }
           EOT
         end

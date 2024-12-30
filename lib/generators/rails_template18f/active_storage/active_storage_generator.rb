@@ -55,7 +55,7 @@ module RailsTemplate18f
       end
 
       def configure_local_clamav_runner
-        append_to_file "Procfile.dev", "clamav: docker run --rm -p 9443:9443 ajilaag/clamav-rest:20211229\n"
+        append_to_file "Procfile.dev", "clamav: docker run --rm -p 9443:9443 ghcr.io/gsa-tts/clamav-rest/clamav:latest\n"
       end
 
       def configure_clamav_env_var
@@ -64,8 +64,9 @@ module RailsTemplate18f
           # CLAMAV_API_URL tells FileScanJob where to send files for virus scans
           CLAMAV_API_URL=https://localhost:9443
         EOM
-        insert_into_file "manifest.yml", "    CLAMAV_API_URL: \"https://#{app_name}-clamapi-((env)).apps.internal:9443\"\n", before: /^\s+processes:/
-        insert_into_file "manifest.yml", "\n  - #{app_name}-s3-((env))", after: "services:"
+        insert_into_file file_path("terraform/app.tf"), <<EOT, after: "environment = {\n"
+    CLAMAV_API_URL = "https://#{app_name}-clamapi-${var.env}.apps.internal:61443"
+EOT
       end
 
       def update_boundary_diagram
