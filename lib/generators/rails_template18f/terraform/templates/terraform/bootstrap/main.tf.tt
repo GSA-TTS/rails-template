@@ -32,6 +32,8 @@ variable "create_bot_secrets_file" {
 
 locals {
   org_name = "<%= cloud_gov_organization %>"
+  # s3_plan_name should be basic when holding production data, though basic-sandbox will make early iterations easier
+  s3_plan_name = "basic<%= cloud_gov_organization == "sandbox-gsa" ? "-sandbox" : "" %>"
 }
 module "mgmt_space" {
   source = "github.com/gsa-tts/terraform-cloudgov//cg_space?ref=v2.0.2"
@@ -44,10 +46,10 @@ module "mgmt_space" {
 module "s3" {
   source = "github.com/gsa-tts/terraform-cloudgov//s3?ref=v2.0.0"
 
-  cf_space_id = module.mgmt_space.space_id
-  name        = "<%= app_name %>-terraform-state"<% if cloud_gov_organization == "sandbox-gsa" %>
-  s3_plan_name = "basic-sandbox"<% end %>
-  depends_on  = [module.mgmt_space]
+  cf_space_id  = module.mgmt_space.space_id
+  name         = "<%= app_name %>-terraform-state"
+  s3_plan_name = local.s3_plan_name
+  depends_on   = [module.mgmt_space]
 }
 
 data "cloudfoundry_service_plans" "cg_service_account" {

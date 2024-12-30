@@ -43,6 +43,13 @@ variable "redis_plan_name" {
   description = "The name of the redis plan to create"
 }
 <% end %>
+<% if has_active_storage? %>
+variable "s3_plan_name" {
+  type        = string
+  default     = "basic-sandbox"
+  description = "The name of the s3 plan to use"
+}
+<% end %>
 
 # routing settings
 variable "custom_domain_name" {
