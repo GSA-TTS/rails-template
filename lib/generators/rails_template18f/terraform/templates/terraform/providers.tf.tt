@@ -9,13 +9,13 @@ terraform {
       source  = "cloudfoundry-community/cloudfoundry"
       version = "0.53.1"
     }
-  }
+  }<% if terraform_manage_spaces? %>
 
   backend "s3" {
     encrypt      = true
     use_lockfile = true
     region       = "us-gov-west-1"
-  }
+  }<% end %>
 }
 
 provider "cloudfoundry" {

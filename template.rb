@@ -83,7 +83,9 @@ end
 default_staging_space = "staging"
 cloud_gov_staging_space = ask("What is your cloud.gov staging space name? (Default: #{default_staging_space})")
 default_prod_space = "production"
-cloud_gov_production_space = ask("What is your cloud.gov production space name? (Default: #{default_prod_space})")
+if @cloud_gov_organization != "sandbox-gsa"
+  cloud_gov_production_space = ask("What is your cloud.gov production space name? (Default: #{default_prod_space})")
+end
 @cloud_gov_organization = "TKTK-cloud.gov-org-name" if @cloud_gov_organization.blank?
 cloud_gov_staging_space = default_staging_space if cloud_gov_staging_space.blank?
 cloud_gov_production_space = default_prod_space if cloud_gov_production_space.blank?

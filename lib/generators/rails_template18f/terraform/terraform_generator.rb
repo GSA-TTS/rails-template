@@ -15,7 +15,12 @@ module RailsTemplate18f
 
       def install
         directory "terraform", mode: :preserve
-        chmod "terraform/bootstrap/apply.sh", 0o755
+        chmod "terraform/terraform.sh", 0o755
+        unless terraform_manage_spaces?
+          remove_dir "terraform/bootstrap"
+          remove_dir "terraform/sandbox_bot"
+          remove_file "terraform/production.tfvars"
+        end
       end
 
       def ignore_files
@@ -63,6 +68,7 @@ module RailsTemplate18f
       end
 
       no_tasks do
+
         def githook_content
           <<~EOM
             echo "Running Terraform formatter"

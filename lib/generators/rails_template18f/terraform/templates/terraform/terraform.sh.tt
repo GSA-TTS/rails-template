@@ -69,13 +69,18 @@ cf spaces &> /dev/null || cf login -a api.fr.cloud.gov --sso
 
 tfm_needs_init=true
 if [[ -f .terraform/terraform.tfstate ]]; then
+  <% if terraform_manage_spaces? %>
   backend_state_env=`cat .terraform/terraform.tfstate | jq -r ".backend.config.key" | cut -d '.' -f3`
   if [[ "$backend_state_env" = "$env" ]]; then
     tfm_needs_init=false
   fi
+  <% else %>
+  tfm_needs_init=false
+  <% end %>
 fi
 
 if [[ $tfm_needs_init = true ]]; then
+  <% if terraform_manage_spaces? %>
   if [[ ! -f secrets.backend.tfvars ]]; then
     echo "=============================================================================================================="
     echo "= Recreating backend config file. It is fine if this step wants to delete any local_sensitive_file resources"
@@ -84,8 +89,12 @@ if [[ $tfm_needs_init = true ]]; then
   fi
   terraform init -backend-config=secrets.backend.tfvars -backend-config="key=terraform.tfstate.$env" -reconfigure
   rm secrets.backend.tfvars
+  <% else %>
+  terraform init
+  <% end %>
 fi
 
+<% if terraform_manage_spaces? %>
 echo "=============================================================================================================="
 echo "= Creating or finding a bot deployer for $env"
 echo "=============================================================================================================="
@@ -94,12 +103,21 @@ if [[ "$env" = "staging" ]] || [[ "$env" = "production" ]]; then
 else
   (cd sandbox_bot && ./run.sh "$env" apply $force)
 fi
+<% else %>
+if [[ ! -f secrets.auto.tfvars ]]; then
+  echo "=============================================================================================================="
+  echo "= Creating a bot deployer for $env"
+  echo "=============================================================================================================="
+  ../bin/ops/create_service_account.sh -s <%= cloud_gov_staging_space %> -u terraform-deployer > secrets.auto.tfvars
+fi
+<% end %>
 
 echo "=============================================================================================================="
 echo "= Calling $cmd $force on the application infrastructure"
 echo "=============================================================================================================="
 terraform "$cmd" -var-file="$env.tfvars" -var rails_master_key="$rmk" $force "$@"
 
+<% if terraform_manage_spaces? %>
 if [[ "$cmd" = "destroy" ]] && [[ "$env" != "staging" ]] && [[ "$env" != "production" ]]; then
   if [[ -z "$force" ]]; then
     read -p "Destroy the sandbox_bot user? (y/n) " confirm
@@ -112,3 +130,4 @@ if [[ "$cmd" = "destroy" ]] && [[ "$env" != "staging" ]] && [[ "$env" != "produc
   echo "=============================================================================================================="
   (cd sandbox_bot && ./run.sh "$env" destroy -auto-approve)
 fi
+<% end %>

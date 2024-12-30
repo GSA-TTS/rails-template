@@ -2,6 +2,24 @@
 
 This directory holds the terraform module for maintaining the system infrastructure and deploying the application.
 
+<% unless terraform_manage_spaces? %>
+## READ ME FIRST
+
+Due to users not having `OrgManager` permission in the `sandbox-gsa` organization, this version of the terraform module
+is very limited and most of the rest of this README does not apply.
+
+You can skip down to [Set up a sandbox environment / Steps](#steps) and run the `terraform.sh` script to deploy the staging
+environment with local state storage.
+
+When you are ready to move the application to a non-sandbox cloud.gov organization, please re-run the terraform generator with
+
+```bash
+bin/rails generate rails_template18f:terraform --cg-org=<ORG_NAME> --cg-staging=<STAGING_SPACE_NAME> --cg-prod=<PRODUCTION_SPACE_NAME>
+```
+
+to take full advantage of the generator
+<% end %>
+
 ## Terraform State Credentials
 
 The `bootstrap` module is used to create an s3 bucket for later terraform runs to store their state in as well as
