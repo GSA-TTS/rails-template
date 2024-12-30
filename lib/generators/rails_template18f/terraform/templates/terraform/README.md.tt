@@ -2,41 +2,36 @@
 
 This directory holds the terraform module for maintaining the system infrastructure and deploying the application.
 
-## Initial project setup
+## Terraform State Credentials
+
+The `bootstrap` module is used to create an s3 bucket for later terraform runs to store their state in as well as
+create credentials files so developers can use that s3 bucket to create their own sandbox environments.
+
+### Initial project setup
 
 These steps only need to be run once per project.
 
-1. Manually [bootstrap the state storage bucket](#bootstrapping-the-state-storage-s3-buckets-for-the-first-time) within the `bootstrap` directory
-1. Setup CI/CD Pipeline to run Terraform
-    1. Copy backend credentials from `secrets.backend.tfvars` to your CI/CD secrets using the instructions in the base README
-    1. Copy the cf_user and cf_password credentials from `secrets.auto.tfvars` to your CI/CD secrets using the instructions in the base README
-1. Manually Running Terraform
-    1. Follow instructions under `Set up a new environment` to create your infrastructure
-
-## Initial developer setup
-
-These steps should be run for any developer that needs to start running terraform or who just moved to a new machine.
-
-They are not necessary for the developer who runs the [initial project setup](#initial-project-setup)
-
-1. Import the existing bootstrap resources to your local state with `./apply.sh`
-1. Follow instructions under [Use backend credentials](#use-backend-credentials)
-1. Follow instructions under `Set up a new environment` to create your infrastructure
-
-
-## Terraform State Credentials
-
-The `bootstrap` module is used to create an s3 bucket for later terraform runs to store their state in.
-
-### Bootstrapping the state storage s3 buckets for the first time
-
-These steps are run once per project.
-
+1. `cd bootstrap`
 1. Add any users who should have access to the terraform state bucket to `users.auto.tfvars`
 1. Run `cf login --sso` to log in to cloud.gov
 1. Run `./apply.sh -var create_bot_secrets_file=true`
 1. Add `imports.tf` to git and commit the changes
-1. Follow instructions under [Use backend credentials](#use-backend-credentials)
+1. Setup CI/CD Pipeline to run Terraform
+    1. Copy backend credentials from `/terraform/secrets.backend.tfvars` to your CI/CD secrets using the instructions in the base README
+    1. Copy the cf_user and cf_password credentials from `/terraform/secrets.auto.tfvars` to your CI/CD secrets using the instructions in the base README
+1. Optional: Follow instructions under [Set up a new environment](#set-up-a-new-environment) to create a developer sandbox
+1. Delete the two secrets files
+
+### Initial developer setup
+
+These steps should be run for any developer that needs to start running terraform or who just moved to a new machine.
+
+They are not necessary for the developer who runs the [initial project setup](#initial-project-setup) unless they need to re-create either of the secrets files.
+
+1. Prerequisite: a developer already in `users.auto.tfvars` must [add a new developer to that list](#to-make-changes-to-the-bootstrap-module) before they can run these steps.
+1. `cd bootstrap`
+1. Import the existing bootstrap resources to your local state with `./apply.sh`
+1. Follow instructions under [Set up a new environment](#set-up-a-new-environment) to create a developer sandbox
 
 ### To make changes to the bootstrap module
 
@@ -46,24 +41,13 @@ These steps are run once per project.
 1. Run `./apply.sh` and verify the plan before entering `yes`
 1. Commit any changes to `imports.tf`
 
-### Use backend credentials
-
-1. In the main `terraform` module, run: `terraform init -backend-config=secrets.backend.tfvars`
-1. When prompted for the key, enter a keyfile for your environment: for example `terraform.tfstate.my_name` for a per-developer sandbox
-1. Delete the `secrets.backend.tfvars` file.
-
-## SpaceDeployers
-
-A [SpaceDeployer](https://cloud.gov/docs/services/cloud-gov-service-account/) account is required to run the main terraform module or
-deploy the application from the CI/CD pipeline. Create a new account by running:
-
-`../bin/ops/create_service_account.sh -s <SPACE_NAME> -u <ACCOUNT_NAME> -m`
-
-## Set up a new environment manually
+## Set up a new environment
 
 The below steps rely on you first configuring access to the Terraform state in s3 as described in [initial project setup](#initial-project-setup) or [initial developer setup](#initial-developer-setup).
 
-1. Initialize a new terraform state file: `terraform init -backend-config=secrets.backend.tfvars -backend-config="key=terraform.tfstate.sandbox-name" -reconfigure`
+1. Initialize a new terraform state file for your sandbox: `terraform init -backend-config=secrets.backend.tfvars -backend-config="key=terraform.tfstate.sandbox-name" -reconfigure`
+
+1. Delete the `secrets.backend.tfvars` file to prevent accidental leaking of its contents
 
 1. Set up a SpaceDeployer and save the credentials in a file named `secrets.auto.tfvars`
     ```bash
@@ -71,29 +55,29 @@ The below steps rely on you first configuring access to the Terraform state in s
     # the value for < SPACE_NAME > should be your management space, by default "<%= cloud_gov_production_space %>-mgmt"
     # the value for < ACCOUNT_NAME > can be anything, although we recommend
     # something that communicates the purpose of the deployer
-    # for example: circleci-deployer for the credentials CircleCI uses to
-    # deploy the application or <your_name>-terraform for credentials to run terraform manually
+    # for example: sandbox-name-local-deployer for the credentials you are using locally to deploy sandbox-name
     ../../bin/ops/create_service_account.sh -s <SPACE_NAME> -u <ACCOUNT_NAME> -m > secrets.auto.tfvars
     ```
 
     The script will output the `username` (as `cf_user`) and `password` (as `cf_password`) for your `<ACCOUNT_NAME>`. Read more in the [cloud.gov service account documentation](https://cloud.gov/docs/services/cloud-gov-service-account/).
 
-    The easiest way to use this script locally is to redirect the output directly to the `secrets.auto.tfvars` file it needs to be used in
+    The easiest way to use this script locally is to redirect the output directly to the `secrets.auto.tfvars` file that will auto-load when running terraform
 
-1. Create a new `sandbox-name.tfvars` file to hold variable values for your environment.
+1. Create a new `sandbox-name.tfvars` file to hold variable values for your environment. A good starting point is copying `staging.tfvars` and editing it with your values.
 
-1. Run terraform from your new environment directory with
+1. Run terraform plan with
     ```bash
     terraform plan -var-file=sandbox-name.tfvars -var rails_master_key=$(cat ../config/master.key)
     ```
 
 1. Apply changes with
     ```bash
-    terraform apply -var-file=sandbox-name.tfvars -var rails_master_key=$(cat ../config/master.key)`.
+    terraform apply -var-file=sandbox-name.tfvars -var rails_master_key=$(cat ../config/master.key)`
     ```
 
-1. Remove the space deployer service instance if it doesn't need to be used again, such as when manually running terraform plan before letting CI/CD apply the changes.
+1. Optional: tear down the sandbox if it does not need to be used anymore
     ```bash
+    terraform destroy -var-file=sandbox-name.tfvars -var rails_master_key=anything
     # <SPACE_NAME> and <ACCOUNT_NAME> have the same values as used above.
     ../../bin/ops/destroy_service_account.sh -s <SPACE_NAME> -u <ACCOUNT_NAME>
     rm secrets.auto.tfvars
