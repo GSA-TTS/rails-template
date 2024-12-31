@@ -16,8 +16,13 @@ module RailsTemplate18f
       def install
         directory "terraform", mode: :preserve
         chmod "terraform/terraform.sh", 0o755
-        unless terraform_manage_spaces?
-          remove_dir "terraform/bootstrap"
+        if terraform_manage_spaces?
+          template "full_bootstrap/main.tf", "terraform/bootstrap/main.tf"
+          copy_file "full_bootstrap/imports.tf.tftpl", "terraform/bootstrap/templates/imports.tftpl"
+        else
+          template "sandbox_bootstrap/main.tf", "terraform/bootstrap/main.tf"
+          copy_file "sandbox_bootstrap/imports.tf.tftpl", "terraform/bootstrap/templates/imports.tftpl"
+          remove_file "terraform/bootstrap/users.auto.tfvars"
           remove_dir "terraform/sandbox_bot"
           remove_file "terraform/production.tfvars"
         end

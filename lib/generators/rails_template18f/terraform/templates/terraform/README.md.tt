@@ -6,10 +6,7 @@ This directory holds the terraform module for maintaining the system infrastruct
 ## READ ME FIRST
 
 Due to users not having `OrgManager` permission in the `sandbox-gsa` organization, this version of the terraform module
-is very limited and most of the rest of this README does not apply.
-
-You can skip down to [Set up a sandbox environment / Steps](#steps) and run the `terraform.sh` script to deploy the staging
-environment with local state storage.
+is very limited and some of the rest of this README does not apply.
 
 When you are ready to move the application to a non-sandbox cloud.gov organization, please re-run the terraform generator with
 
@@ -29,8 +26,8 @@ create credentials files so developers can use that s3 bucket to create their ow
 
 These steps only need to be run once per project.
 
-1. `cd bootstrap`
-1. Add any users who should have access to the terraform state bucket to `users.auto.tfvars`
+1. `cd bootstrap`<% if terraform_manage_spaces? %>
+1. Add any users who should have access to the terraform state bucket to `users.auto.tfvars`<% end %>
 1. Run `./apply.sh -var create_bot_secrets_file=true`
 1. Add `imports.tf` to git and commit the changes
 1. Setup your CI/CD Pipeline to run terraform and deploy your staging and production environments
@@ -40,7 +37,7 @@ These steps only need to be run once per project.
 
 ### To make changes to the bootstrap module
 
-*This should not be necessary in most cases, other than adding or removing users who should have access to the state bucket in `bootstrap/users.auto.tfvars`*
+*This should not be necessary in most cases<% if terraform_manage_spaces? %>, other than adding or removing users who should have access to the state bucket in `bootstrap/users.auto.tfvars`<% end %>*
 
 1. Make your changes
 1. Run `./apply.sh` and verify the plan before entering `yes`
@@ -51,7 +48,7 @@ These steps only need to be run once per project.
 ### Pre-requisites:
 
 1. Someone on the team has run the [Initial project setup](#initial-project-setup) steps and `imports.tf` is up-to-date on your branch.
-2. You are included in the list of users in `bootstrap/users.auto.tfvars` and `bootstrap/imports.tf`
+<% if terraform_manage_spaces? %>1. You are included in the list of users in `bootstrap/users.auto.tfvars` and `bootstrap/imports.tf`<% end %>
 
 ### Steps:
 

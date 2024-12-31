@@ -1,0 +1,10 @@
+# This file takes care of importing bootstrap
+# resources onto a new developer's machine if needed
+# import happens automatically on a normal ./apply.sh run
+
+%{ for resource_name, id in import_map ~}
+import {
+  to = ${resource_name}
+  id = "${id}"
+}
+%{ endfor ~}

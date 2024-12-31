@@ -1,0 +1,117 @@
+terraform {
+  required_version = "~> 1.10"
+  required_providers {
+    cloudfoundry = {
+      source  = "cloudfoundry/cloudfoundry"
+      version = "1.1.0"
+    }
+  }
+}
+# empty config will let terraform borrow cf-cli's auth
+provider "cloudfoundry" {}
+
+variable "create_bot_secrets_file" {
+  type        = bool
+  default     = false
+  description = "Flag whether to create secrets.auto.tfvars file"
+}
+
+locals {
+  org_name      = "<%= cloud_gov_organization %>"
+  cf_space_name = "<%= cloud_gov_staging_space %>"
+}
+
+data "cloudfoundry_org" "org" {
+  name = local.org_name
+}
+data "cloudfoundry_space" "space" {
+  name = local.cf_space_name
+  org  = data.cloudfoundry_org.org.id
+}
+
+module "s3" {
+  source = "github.com/gsa-tts/terraform-cloudgov//s3?ref=v2.0.2"
+
+  cf_space_id  = data.cloudfoundry_space.space.id
+  name         = "<%= app_name %>-terraform-state"
+  s3_plan_name = "basic-sandbox"
+}
+
+data "cloudfoundry_service_plans" "cg_service_account" {
+  name                  = "space-deployer"
+  service_offering_name = "cloud-gov-service-account"
+}
+locals {
+  sa_service_name    = "<%= app_name %>-tfm-deployer"
+  sa_key_name        = "cicd-deployer-access-key"
+  sa_bot_credentials = jsondecode(data.cloudfoundry_service_credential_binding.runner_sa_key.credential_bindings.0.credential_binding).credentials
+}
+resource "cloudfoundry_service_instance" "runner_service_account" {
+  name         = local.sa_service_name
+  type         = "managed"
+  space        = data.cloudfoundry_space.space.id
+  service_plan = data.cloudfoundry_service_plans.cg_service_account.service_plans.0.id
+}
+resource "cloudfoundry_service_credential_binding" "runner_sa_key" {
+  name             = local.sa_key_name
+  service_instance = cloudfoundry_service_instance.runner_service_account.id
+  type             = "key"
+}
+data "cloudfoundry_service_credential_binding" "runner_sa_key" {
+  name             = local.sa_key_name
+  service_instance = cloudfoundry_service_instance.runner_service_account.id
+  depends_on       = [cloudfoundry_service_credential_binding.runner_sa_key]
+}
+
+locals {
+  bucket_creds_key_name = "backend-state-bucket-creds"
+}
+resource "cloudfoundry_service_credential_binding" "bucket_creds" {
+  name             = local.bucket_creds_key_name
+  service_instance = module.s3.bucket_id
+  type             = "key"
+}
+data "cloudfoundry_service_credential_binding" "bucket_creds" {
+  name             = local.bucket_creds_key_name
+  service_instance = module.s3.bucket_id
+  depends_on       = [cloudfoundry_service_credential_binding.bucket_creds]
+}
+
+locals {
+  import_map = {
+    "module.s3.cloudfoundry_service_instance.bucket"        = module.s3.bucket_id
+    "cloudfoundry_service_credential_binding.bucket_creds"  = cloudfoundry_service_credential_binding.bucket_creds.id
+    "cloudfoundry_service_instance.runner_service_account"  = cloudfoundry_service_instance.runner_service_account.id
+    "cloudfoundry_service_credential_binding.runner_sa_key" = cloudfoundry_service_credential_binding.runner_sa_key.id
+  }
+
+  recreate_state_template = templatefile("${path.module}/templates/imports.tf.tftpl", {import_map = local.import_map})
+}
+resource "local_file" "recreate_script" {
+  content         = local.recreate_state_template
+  filename        = "${path.module}/imports.tf"
+  file_permission = "0644"
+}
+
+locals {
+  bucket_creds   = jsondecode(data.cloudfoundry_service_credential_binding.bucket_creds.credential_bindings.0.credential_binding).credentials
+  backend_config = templatefile("${path.module}/templates/backend_config.tftpl", {creds = local.bucket_creds})
+}
+resource "local_sensitive_file" "bucket_creds" {
+  content         = local.backend_config
+  filename        = "${path.module}/../secrets.backend.tfvars"
+  file_permission = "0600"
+}
+
+resource "local_sensitive_file" "bot_secrets_file" {
+  count           = (var.create_bot_secrets_file ? 1 : 0)
+  filename        = "${path.module}/../secrets.auto.tfvars"
+  file_permission = "0600"
+
+  content = templatefile("${path.module}/templates/bot_secrets.tftpl", {
+    service_name = local.sa_service_name,
+    key_name     = local.sa_key_name,
+    username     = local.sa_bot_credentials.username,
+    password     = local.sa_bot_credentials.password
+  })
+}
