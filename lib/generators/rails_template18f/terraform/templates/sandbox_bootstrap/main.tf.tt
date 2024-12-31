@@ -13,7 +13,7 @@ provider "cloudfoundry" {}
 variable "create_bot_secrets_file" {
   type        = bool
   default     = false
-  description = "Flag whether to create secrets.auto.tfvars file"
+  description = "Flag whether to create secrets.cicd.tfvars file"
 }
 
 locals {
@@ -42,7 +42,7 @@ data "cloudfoundry_service_plans" "cg_service_account" {
   service_offering_name = "cloud-gov-service-account"
 }
 locals {
-  sa_service_name    = "<%= app_name %>-tfm-deployer"
+  sa_service_name    = "<%= app_name %>-cicd-deployer"
   sa_key_name        = "cicd-deployer-access-key"
   sa_bot_credentials = jsondecode(data.cloudfoundry_service_credential_binding.runner_sa_key.credential_bindings.0.credential_binding).credentials
 }
@@ -105,7 +105,7 @@ resource "local_sensitive_file" "bucket_creds" {
 
 resource "local_sensitive_file" "bot_secrets_file" {
   count           = (var.create_bot_secrets_file ? 1 : 0)
-  filename        = "${path.module}/../secrets.auto.tfvars"
+  filename        = "${path.module}/../secrets.cicd.tfvars"
   file_permission = "0600"
 
   content = templatefile("${path.module}/templates/bot_secrets.tftpl", {

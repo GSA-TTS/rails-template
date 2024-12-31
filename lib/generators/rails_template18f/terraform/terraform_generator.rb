@@ -21,7 +21,7 @@ module RailsTemplate18f
           copy_file "full_bootstrap/imports.tf.tftpl", "terraform/bootstrap/templates/imports.tftpl"
         else
           template "sandbox_bootstrap/main.tf", "terraform/bootstrap/main.tf"
-          copy_file "sandbox_bootstrap/imports.tf.tftpl", "terraform/bootstrap/templates/imports.tftpl"
+          copy_file "sandbox_bootstrap/imports.tf.tftpl", "terraform/bootstrap/templates/imports.tf.tftpl"
           remove_file "terraform/bootstrap/users.auto.tfvars"
           remove_dir "terraform/sandbox_bot"
           remove_file "terraform/production.tfvars"
