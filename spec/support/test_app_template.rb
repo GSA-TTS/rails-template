@@ -25,6 +25,10 @@ def cloud_gov_production_space
   "production"
 end
 
+def terraform_manage_spaces?
+  true
+end
+
 def has_active_job?
   false
 end

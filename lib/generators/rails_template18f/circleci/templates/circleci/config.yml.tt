@@ -281,7 +281,7 @@ jobs:
       - attach_workspace:
           at: .
       - terraform/apply:
-          path: terraform
+          path: terraform<% if terraform_manage_spaces? %>
   terraform_plan_production:
     executor: terraform/default
     steps:
@@ -310,7 +310,7 @@ jobs:
       - attach_workspace:
           at: .
       - terraform/apply:
-          path: terraform
+          path: terraform<% end %>
 
 workflows:
   version: 2.1
@@ -348,7 +348,7 @@ workflows:
             branches:
               only: main
           requires:
-            - terraform_plan_staging
+            - terraform_plan_staging<% if terraform_manage_spaces? %>
       - terraform_plan_production
       - approve_production_terraform:
           type: approval
@@ -362,7 +362,7 @@ workflows:
             branches:
               only: production
           requires:
-            - approve_production_terraform
+            - approve_production_terraform<% end %>
   daily_scan:
     triggers:
       - schedule:

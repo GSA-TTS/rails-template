@@ -73,7 +73,6 @@ module RailsTemplate18f
       end
 
       no_tasks do
-
         def githook_content
           <<~EOM
             echo "Running Terraform formatter"

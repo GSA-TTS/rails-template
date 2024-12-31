@@ -21,6 +21,10 @@ module RailsTemplate18f
           remove_file ".github/workflows/validate-ssp.yml"
           remove_file ".github/workflows/assemble-ssp.yml"
         end
+        if !terraform_manage_spaces?
+          remove_file ".github/workflows/terraform-production.yml"
+          remove_file ".github/workflows/deploy-production.yml"
+        end
       end
 
       def update_readme
@@ -91,20 +95,24 @@ EOB
         end
 
         def readme_prod_deploy
-          <<~EOM
+          if terraform_manage_spaces?
+            <<~EOM
 
-            Deploys to production happen via terraform on every push to the `production` branch in GitHub.
+              Deploys to production happen via terraform on every push to the `production` branch in GitHub.
 
-            The following secrets must be set within the `production` [environment secrets](https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-an-environment)
-            to enable a deploy to work:
+              The following secrets must be set within the `production` [environment secrets](https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-an-environment)
+              to enable a deploy to work:
 
-            | Secret Name | Description |
-            | ----------- | ----------- |
-            | `CF_USERNAME` | cloud.gov SpaceDeployer username |
-            | `CF_PASSWORD` | cloud.gov SpaceDeployer password |
-            | `RAILS_MASTER_KEY` | `config/credentials/production.key` |
-            #{terraform_secret_values}
-          EOM
+              | Secret Name | Description |
+              | ----------- | ----------- |
+              | `CF_USERNAME` | cloud.gov SpaceDeployer username |
+              | `CF_PASSWORD` | cloud.gov SpaceDeployer password |
+              | `RAILS_MASTER_KEY` | `config/credentials/production.key` |
+              #{terraform_secret_values}
+            EOM
+          else
+            "Production deploys are not supported in the sandbox organization."
+          end
         end
 
         def readme_credentials
@@ -132,7 +140,7 @@ EOB
         elsif File.exist?(nvmrc_path)
           File.read(nvmrc_path).strip
         else
-          "16.15"
+          "20.16"
         end
       end
 

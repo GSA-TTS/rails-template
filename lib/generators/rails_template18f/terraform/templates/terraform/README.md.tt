@@ -14,7 +14,7 @@ When you are ready to move the application to a non-sandbox cloud.gov organizati
 bin/rails generate rails_template18f:terraform --cg-org=<ORG_NAME> --cg-staging=<STAGING_SPACE_NAME> --cg-prod=<PRODUCTION_SPACE_NAME>
 ```
 
-to take full advantage of the generator
+to take full advantage of the generator, and then re-run your CI generator of choice to add production terraform plan and apply steps to your workflow.
 <% end %>
 
 ## Terraform State Credentials
