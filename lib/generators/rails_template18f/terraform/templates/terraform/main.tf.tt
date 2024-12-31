@@ -14,13 +14,6 @@ module "app_space" {
   deployers     = local.space_deployers
   developers    = var.space_developers
 }
-# temporary method for setting egress rules until terraform provider supports it and cg_space module is updated
-data "external" "set-app-space-egress" {
-  program     = ["/bin/sh", "set_space_egress.sh", "-t", "-s", module.app_space.space_name, "-o", local.cf_org_name]
-  working_dir = path.module
-  # depends_on line is required only for initial creation and destruction. It can be commented out for updates if you see unwanted cascading effects
-  depends_on  = [module.app_space]
-}
 <% else %>
 data "cloudfoundry_org" "org" {
   name = local.cf_org_name

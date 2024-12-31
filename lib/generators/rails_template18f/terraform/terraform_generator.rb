@@ -18,7 +18,7 @@ module RailsTemplate18f
         chmod "terraform/terraform.sh", 0o755
         if terraform_manage_spaces?
           template "full_bootstrap/main.tf", "terraform/bootstrap/main.tf"
-          copy_file "full_bootstrap/imports.tf.tftpl", "terraform/bootstrap/templates/imports.tftpl"
+          copy_file "full_bootstrap/imports.tf.tftpl", "terraform/bootstrap/templates/imports.tf.tftpl"
         else
           template "sandbox_bootstrap/main.tf", "terraform/bootstrap/main.tf"
           copy_file "sandbox_bootstrap/imports.tf.tftpl", "terraform/bootstrap/templates/imports.tf.tftpl"

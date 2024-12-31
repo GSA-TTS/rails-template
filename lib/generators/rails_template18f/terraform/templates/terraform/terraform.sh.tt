@@ -8,7 +8,7 @@ $0: Run terraform commands against a given environment
 
 Usage:
   $0 -h
-  $0 -e <ENV NAME> [-k <RAILS_MASTER_KEY>] [-f] [-c <TERRAFORM-CMD>] [<EXTRA CMD ARGUMENTS>]
+  $0 -e <ENV NAME> [-k <RAILS_MASTER_KEY>] [-f] [-c <TERRAFORM-CMD>] [-- <EXTRA CMD ARGUMENTS>]
 
 Options:
 -h: show help and exit
@@ -52,6 +52,9 @@ while getopts ":he:k:fc:" opt; do
 done
 
 shift $args_to_shift
+if [[ "$1" = "--" ]]; then
+  shift 1
+fi
 
 if [[ -z "$env" ]]; then
   echo "-e <ENV_NAME> is required"
