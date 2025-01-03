@@ -6,7 +6,7 @@ This directory holds the terraform module for maintaining the system infrastruct
 ## READ ME FIRST
 
 Due to users not having `OrgManager` permission in the `sandbox-gsa` organization, this version of the terraform module
-is very limited and some of the rest of this README does not apply.
+is very limited.
 
 When you are ready to move the application to a non-sandbox cloud.gov organization, please re-run the terraform generator with…
 
@@ -52,21 +52,21 @@ These steps only need to be run once per project.
 
 ### Steps:
 
-1. Create a new `sandbox-<NAME>.tfvars` file to hold variable values for your environment. A good starting point is copying `staging.tfvars` and editing it with your values.
+<% if terraform_manage_spaces? %>1. Create a new `sandbox-<NAME>.tfvars` file to hold variable values for your environment. A good starting point is copying `staging.tfvars` and editing it with your values.<% end %>
 
 1. Run terraform plan with:
     ```bash
-    ./terraform.sh -e sandbox-<NAME>
+    ./terraform.sh -e <%= terraform_manage_spaces? ? "sandbox-<NAME>" : "staging" %>
     ```
 
 1. Apply changes with:
     ```bash
-    ./terraform.sh -e sandbox-<NAME> -c apply
+    ./terraform.sh -e <%= terraform_manage_spaces? ? "sandbox-<NAME>" : "staging" %> -c apply
     ```
 
-1. Optional: tear down the sandbox if it does not need to be used anymore
+1. <%= terraform_manage_spaces? ? "Optional: tear down the sandbox if" : "Destroy the app when" %> it does not need to be used anymore
     ```bash
-    ./terraform.sh -e sandbox-<NAME> -c destroy
+    ./terraform.sh -e <%= terraform_manage_spaces? ? "sandbox-<NAME>" : "staging" %> -c destroy
     ```
 
 ## Structure
@@ -81,12 +81,12 @@ These steps only need to be run once per project.
 |  |- templates/
 |     |- backend_config.tftpl
 |     |- bot_secrets.tftpl
-|     |- imports.tf.tftpl
+|     |- imports.tf.tftpl<% if terraform_manage_spaces? %>
 |- sandbox_bot/
 |  |- main.tf
 |  |- run.sh
 |  |- <sandbox_name>/ (automatically generated)
-|     |- terraform.tfstate(.backup) (automatically generated)
+|     |- terraform.tfstate(.backup) (automatically generated)<% end %>
 |- dist/
 |  |- src.zip (automatically generated)
 |- README.md
