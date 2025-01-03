@@ -8,13 +8,13 @@ This directory holds the terraform module for maintaining the system infrastruct
 Due to users not having `OrgManager` permission in the `sandbox-gsa` organization, this version of the terraform module
 is very limited and some of the rest of this README does not apply.
 
-When you are ready to move the application to a non-sandbox cloud.gov organization, please re-run the terraform generator with
+When you are ready to move the application to a non-sandbox cloud.gov organization, please re-run the terraform generator with…
 
 ```bash
 bin/rails generate rails_template18f:terraform --cg-org=<ORG_NAME> --cg-staging=<STAGING_SPACE_NAME> --cg-prod=<PRODUCTION_SPACE_NAME>
 ```
 
-to take full advantage of the generator, and then re-run your CI generator of choice to add production terraform plan and apply steps to your workflow.
+…to take full advantage of the generator, and then re-run your CI generator of choice to add production terraform plan and apply steps to your workflow.
 <% end %>
 
 ## Terraform State Credentials
