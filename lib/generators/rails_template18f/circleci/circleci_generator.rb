@@ -97,20 +97,24 @@ EOB
         end
 
         def readme_prod_deploy
-          <<~EOM
+          if terraform_manage_spaces?
+            <<~EOM
 
-            Deploys to production happen via terraform on every push to the `production` branch in GitHub.
+              Deploys to production happen via terraform on every push to the `production` branch in GitHub.
 
-            The following secrets must be set within [CircleCI Environment Variables](https://circleci.com/docs/2.0/env-vars/)
-            to enable a deploy to work:
+              The following secrets must be set within [CircleCI Environment Variables](https://circleci.com/docs/2.0/env-vars/)
+              to enable a deploy to work:
 
-            | Secret Name | Description |
-            | ----------- | ----------- |
-            | `CF_PRODUCTION_USERNAME` | cloud.gov SpaceDeployer username |
-            | `CF_PRODUCTION_PASSWORD` | cloud.gov SpaceDeployer password |
-            | `PRODUCTION_RAILS_MASTER_KEY` | `config/credentials/production.key` |
-            #{terraform_secret_values}
-          EOM
+              | Secret Name | Description |
+              | ----------- | ----------- |
+              | `CF_PRODUCTION_USERNAME` | cloud.gov SpaceDeployer username |
+              | `CF_PRODUCTION_PASSWORD` | cloud.gov SpaceDeployer password |
+              | `PRODUCTION_RAILS_MASTER_KEY` | `config/credentials/production.key` |
+              #{terraform_secret_values}
+            EOM
+          else
+            "Production deploys are not supported in the sandbox organization."
+          end
         end
 
         def readme_credentials

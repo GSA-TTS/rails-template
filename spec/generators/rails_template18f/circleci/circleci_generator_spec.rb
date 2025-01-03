@@ -43,7 +43,5 @@ RSpec.describe RailsTemplate18f::Generators::CircleciGenerator, type: :generator
   it "includes terraform actions in pipeline" do
     expect(file(".circleci/config.yml")).to contain("terraform_plan_staging")
     expect(file(".circleci/config.yml")).to contain("terraform_apply_staging")
-    expect(file(".circleci/config.yml")).to contain("terraform_plan_production")
-    expect(file(".circleci/config.yml")).to contain("terraform_apply_production")
   end
 end

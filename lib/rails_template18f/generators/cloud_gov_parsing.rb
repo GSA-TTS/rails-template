@@ -9,8 +9,8 @@ module RailsTemplate18f
 
       def cloud_gov_organization
         if terraform_dir_exists?
-          staging_main = file_content("terraform/staging/main.tf")
-          if (matches = staging_main.match(/cf_org_name\s+= "(?<org_name>.*)"/))
+          main_tf = file_content("terraform/main.tf")
+          if (matches = main_tf.match(/cf_org_name\s+= "(?<org_name>.*)"/))
             return matches[:org_name]
           end
         end
@@ -19,8 +19,8 @@ module RailsTemplate18f
 
       def cloud_gov_staging_space
         if terraform_dir_exists?
-          staging_main = file_content("terraform/staging/main.tf")
-          if (matches = staging_main.match(/cf_space_name\s+= "(?<space_name>.*)"/))
+          staging_vars = file_content("terraform/staging.tfvars")
+          if (matches = staging_vars.match(/cf_space_name\s+= "(?<space_name>.*)"/))
             return matches[:space_name]
           end
         end
@@ -29,12 +29,12 @@ module RailsTemplate18f
 
       def cloud_gov_production_space
         if terraform_dir_exists?
-          prod_main = file_content("terraform/production/main.tf")
-          if (matches = prod_main.match(/cf_space_name\s+= "(?<space_name>.*)"/))
+          production_vars = file_content("terraform/production.tfvars")
+          if (matches = production_vars.match(/cf_space_name\s+= "(?<space_name>.*)"/))
             return matches[:space_name]
           end
         end
-        "prod"
+        "production"
       end
     end
   end

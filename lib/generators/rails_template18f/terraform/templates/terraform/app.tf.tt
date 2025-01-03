@@ -19,7 +19,7 @@ locals {
 
 resource "cloudfoundry_app" "app" {
   name       = "${local.app_name}-${var.env}"
-  space_name = module.app_space.space_name
+  space_name = var.cf_space_name
   org_name   = local.cf_org_name
 
   path             = data.archive_file.src.output_path
@@ -53,7 +53,7 @@ resource "cloudfoundry_app" "app" {
   depends_on = [
     <% if has_active_job? %>module.redis,<% end %>
     <% if has_active_storage? %>module.s3,<% end %>
-    module.database,
-    module.app_space
+    <% if terraform_manage_spaces? %>module.app_space,<% end %>
+    module.database
   ]
 }

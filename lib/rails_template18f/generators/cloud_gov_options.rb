@@ -14,19 +14,22 @@ module RailsTemplate18f
 
       private
 
+      def terraform_manage_spaces?
+        # when operating in sandbox-gsa we can't use many features that rely
+        # on being an OrgManager
+        cloud_gov_organization != "sandbox-gsa"
+      end
+
       def cloud_gov_organization
-        return options[:cg_org] if options[:cg_org].present?
-        super
+        @cloud_gov_organization ||= (options[:cg_org].present? ? options[:cg_org] : super)
       end
 
       def cloud_gov_staging_space
-        return options[:cg_staging] if options[:cg_staging].present?
-        super
+        @cloud_gov_staging_space ||= (options[:cg_staging].present? ? options[:cg_staging] : super)
       end
 
       def cloud_gov_production_space
-        return options[:cg_prod] if options[:cg_prod].present?
-        super
+        @cloud_gov_production_space ||= (options[:cg_prod].present? ? options[:cg_prod] : super)
       end
     end
   end

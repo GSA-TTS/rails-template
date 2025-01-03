@@ -1,4 +1,5 @@
 require "colorize"
+require "bundler/version"
 
 ## Supporting methods
 # tell our template to grab all files from the templates directory
@@ -26,9 +27,17 @@ def cloud_gov_org_tktk?
   @cloud_gov_organization =~ /TKTK/
 end
 
+def gem_ruby_entry
+  if Gem::Version.new(Bundler::VERSION) >= Gem::Version.new("2.4.20") # add file: option to #ruby
+    'ruby file: ".ruby-version"'
+  else
+    "ruby \"#{@ruby_version}\""
+  end
+end
+
 @announcements = Hash.new { |h, k| h[k] = [] }
 def register_announcement(section_name, instructions)
-  @announcements[section_name.to_sym] << instructions
+  @announcements[section_name.to_sym] << instructions.strip
 end
 
 def print_announcements
@@ -82,8 +91,10 @@ end
 @cloud_gov_organization = ask("What is your cloud.gov organization name? (Leave blank to fill in later)")
 default_staging_space = "staging"
 cloud_gov_staging_space = ask("What is your cloud.gov staging space name? (Default: #{default_staging_space})")
-default_prod_space = "prod"
-cloud_gov_production_space = ask("What is your cloud.gov production space name? (Default: #{default_prod_space})")
+default_prod_space = "production"
+if @cloud_gov_organization != "sandbox-gsa"
+  cloud_gov_production_space = ask("What is your cloud.gov production space name? (Default: #{default_prod_space})")
+end
 @cloud_gov_organization = "TKTK-cloud.gov-org-name" if @cloud_gov_organization.blank?
 cloud_gov_staging_space = default_staging_space if cloud_gov_staging_space.blank?
 cloud_gov_production_space = default_prod_space if cloud_gov_production_space.blank?
@@ -107,6 +118,8 @@ running_node_version = `node --version`.gsub(/^v/, "").strip
 run_db_setup = yes?("Run db setup steps? (y/n)")
 
 ## Start of app customizations
+insert_into_file "Gemfile", "\n#{gem_ruby_entry}\n", after: /^source "https.*\n/
+
 template "README.md", force: true
 register_announcement("Documentation", <<~EOM)
   * Complete the project README by adding a quick summary of the project in the top section.

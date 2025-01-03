@@ -110,13 +110,16 @@ To enable automatic ruby linting on every `git commit` follow the instructions a
 Each environment has dependencies on a PostgreSQL RDS instance managed by cloud.gov.
 See [cloud.gov docs](https://cloud.gov/docs/services/relational-database/) for information on RDS.
 
+Terraform is used to deploy the application and supporting services. See [terraform/README.md](./terraform/README.md)
+for more information on how to set up your terraform backend and deploy the app.
+
 #### Staging
 <% if !@github_actions && !@circleci_pipeline %>
 First, follow the `terraform/README.md` instructions to set up your backend, then:
 
 ```bash
 $ cd terraform
-$ terraform apply -var-file=staging.tfvars -var rails_master_key=$(cat ../config/master.key)
+$ ./terraform.sh -e staging -c apply
 ```
 <% end %>
 
@@ -126,7 +129,7 @@ First, follow the `terraform/README.md` instructions to set up your backend, the
 
 ```bash
 $ cd terraform
-$ terraform apply -var-file=production.tfvars -var rails_master_key=$(cat ../config/credentials/production.key)
+$ ./terraform.sh -e production -k $(cat ../config/credentials/production.key) -c apply
 ```
 <% end %>
 
