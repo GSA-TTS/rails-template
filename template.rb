@@ -37,7 +37,7 @@ end
 
 @announcements = Hash.new { |h, k| h[k] = [] }
 def register_announcement(section_name, instructions)
-  @announcements[section_name.to_sym] << instructions
+  @announcements[section_name.to_sym] << instructions.strip
 end
 
 def print_announcements
