@@ -1,4 +1,5 @@
 require "colorize"
+require "bundler/version"
 
 ## Supporting methods
 # tell our template to grab all files from the templates directory
@@ -24,6 +25,14 @@ end
 
 def cloud_gov_org_tktk?
   @cloud_gov_organization =~ /TKTK/
+end
+
+def gem_ruby_entry
+  if Gem::Version.new(Bundler::VERSION) >= Gem::Version.new("2.4.20") # add file: option to #ruby
+    'ruby file: ".ruby-version"'
+  else
+    "ruby \"#{@ruby_version}\""
+  end
 end
 
 @announcements = Hash.new { |h, k| h[k] = [] }
@@ -109,6 +118,8 @@ running_node_version = `node --version`.gsub(/^v/, "").strip
 run_db_setup = yes?("Run db setup steps? (y/n)")
 
 ## Start of app customizations
+insert_into_file "Gemfile", "\n#{gem_ruby_entry}\n", after: /^source "https.*\n/
+
 template "README.md", force: true
 register_announcement("Documentation", <<~EOM)
   * Complete the project README by adding a quick summary of the project in the top section.
