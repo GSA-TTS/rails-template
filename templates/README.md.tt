@@ -111,7 +111,7 @@ Each environment has dependencies on a PostgreSQL RDS instance managed by cloud.
 See [cloud.gov docs](https://cloud.gov/docs/services/relational-database/) for information on RDS.
 
 Terraform is used to deploy the application and supporting services. See [terraform/README.md](./terraform/README.md)
-for more infromation on how to set up your terraform backend and deploy the app.
+for more information on how to set up your terraform backend and deploy the app.
 
 #### Staging
 <% if !@github_actions && !@circleci_pipeline %>
