@@ -1,0 +1,52 @@
+name: Compile assets
+description: Restore an asset cache, precompile, clean, and optionally save the cache back
+inputs:
+  rails_env:
+    description: RAILS_ENV in use.
+    required: true
+  fail_on_missing_cache:
+    description: Whether to fail the action on a missing cache restore
+    required: false
+    default: 'false'
+  save_cache:
+    description: Whether to save the compiled assets cache
+    required: false
+    default: 'false'
+runs:
+  using: composite
+  steps:
+    - uses: ./.github/actions/setup-languages
+
+    - name: Restore asset cache
+      uses: actions/cache/restore@v4
+      with:
+        key: ${{ inputs.rails_env }}-assets-
+        fail-on-cache-miss: ${{ inputs.fail_on_missing_cache }}
+        path: |
+          public/assets
+          app/assets/builds
+          app/javascript/generated
+
+    - name: Precompile assets
+      env:
+        RAILS_ENV: ${{ inputs.rails_env }}
+        SECRET_KEY_BASE_DUMMY: 1
+      shell: bash
+      run: ./bin/rake assets:precompile
+
+    - name: "Clean old assets, keeping current + 2 old versions + anything created within past 1 hour"
+      env:
+        RAILS_ENV: ${{ inputs.rails_env }}
+        SECRET_KEY_BASE_DUMMY: 1
+      shell: bash
+      run: ./bin/rake assets:clean
+
+    - name: Save cache
+      if: ${{ inputs.save_cache == 'true' }}
+      uses: actions/cache/save@v4
+      with:
+        key: ${{ inputs.rails_env }}-assets-${{ hashFiles('public/assets/.manifest.json') }}
+        path: |
+          public/assets
+          app/assets/builds
+          app/javascript/generated

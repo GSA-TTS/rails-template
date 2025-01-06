@@ -31,6 +31,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Touch staging cache
+        uses: ./.github/actions/compile-assets
+        with:
+          rails_env: staging
+      - name: Touch production cache
+        uses: ./.github/actions/compile-assets
+        with:
+          rails_env: production
+
       - id: setup
         uses: ./.github/actions/setup-project
 

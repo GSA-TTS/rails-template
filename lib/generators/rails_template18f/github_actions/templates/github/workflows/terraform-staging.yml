@@ -29,6 +29,14 @@ jobs:
         with:
           path: terraform
 
+      - name: Compile assets
+        uses: .github/actions/compile-assets
+        with:
+          rails_env: staging
+          # you may want to enable the next line to surface issues with missing assets,
+          # but not until after you've deployed once and the cache has been created
+          # fail_on_missing_cache: true
+
       - name: terraform plan
         uses: dflook/terraform-plan@v1
         env:
@@ -41,6 +49,7 @@ jobs:
         with:
           path: terraform
           var_file: terraform/staging.tfvars
+          add_github_comment: changes-only
           backend_config: >
             access_key=${{ secrets.TERRAFORM_STATE_ACCESS_KEY }}
             secret_key=${{ secrets.TERRAFORM_STATE_SECRET_ACCESS_KEY }}

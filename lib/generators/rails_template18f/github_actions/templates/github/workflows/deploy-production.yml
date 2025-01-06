@@ -20,6 +20,13 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Compile assets
+        uses: ./.github/actions/compile-assets
+        with:
+          rails_env: production
+          save_cache: true
+
       - name: Terraform apply
         uses: dflook/terraform-apply@v1
         env:
