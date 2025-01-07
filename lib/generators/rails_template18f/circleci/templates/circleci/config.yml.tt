@@ -319,8 +319,8 @@ jobs:
           var_file: staging.tfvars
           var: >-
             rails_master_key="$RAILS_MASTER_KEY",
-            cf_user="$CF_STAGING_USERNAME",
-            cf_password="$CF_STAGING_PASSWORD"
+            cf_user="$CF_USERNAME",
+            cf_password="$CF_PASSWORD"
       - persist_to_workspace:
           root: .
           paths:
@@ -363,8 +363,8 @@ jobs:
           var_file: production.tfvars
           var: >-
             rails_master_key="$PRODUCTION_RAILS_MASTER_KEY",
-            cf_user="$CF_PRODUCTION_USERNAME",
-            cf_password="$CF_PRODUCTION_PASSWORD"
+            cf_user="$CF_USERNAME",
+            cf_password="$CF_PASSWORD"
       - persist_to_workspace:
           root: .
           paths:

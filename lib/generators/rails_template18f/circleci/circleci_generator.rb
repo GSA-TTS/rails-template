@@ -89,8 +89,8 @@ EOB
 
             | Secret Name | Description |
             | ----------- | ----------- |
-            | `CF_STAGING_USERNAME` | cloud.gov SpaceDeployer username |
-            | `CF_STAGING_PASSWORD` | cloud.gov SpaceDeployer password |
+            | `CF_USERNAME` | cloud.gov SpaceDeployer username |
+            | `CF_PASSWORD` | cloud.gov SpaceDeployer password |
             | `RAILS_MASTER_KEY` | `config/master.key` |
             #{terraform_secret_values}
           EOM
@@ -107,8 +107,8 @@ EOB
 
               | Secret Name | Description |
               | ----------- | ----------- |
-              | `CF_PRODUCTION_USERNAME` | cloud.gov SpaceDeployer username |
-              | `CF_PRODUCTION_PASSWORD` | cloud.gov SpaceDeployer password |
+              | `CF_USERNAME` | cloud.gov SpaceDeployer username, if different value than staging, update name in .circleci/config.yml |
+              | `CF_PASSWORD` | cloud.gov SpaceDeployer password, if different value than staging, update name in .circleci/config.yml |
               | `PRODUCTION_RAILS_MASTER_KEY` | `config/credentials/production.key` |
               #{terraform_secret_values}
             EOM
