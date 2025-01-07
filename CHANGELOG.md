@@ -5,7 +5,7 @@
   - Creates and configures spaces for app and egress proxy
   - Moves from module-per-environment to a single module with per-env variable files
   - Ability for a one-script deployment from nothing, enabling easy developer sandboxes and review apps
-- Add asset cacheing to Github Actions & CircleCI deploy workflows to enable serving in-flight asset requests without error
+- Add asset caching to GitHub Actions & CircleCI deploy workflows to enable serving in-flight asset requests without error
 
 ## [1.3.0] - 2024-12-18
 
