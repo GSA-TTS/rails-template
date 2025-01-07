@@ -15,7 +15,51 @@ commands:
           install-yarn: true
       - node/install-packages:
           cache-only-lockfile: false
-          pkg-manager: yarn<% if oscal_dir_exists? %>
+          pkg-manager: yarn
+  compile-assets:
+    description: Restore asset cache and compile, optionally saving back to the cache
+    parameters:
+      rails_env:
+        description: RAILS_ENV to use for precompilation
+        type: string
+      restore_only:
+        description: Whether to skip compilation and cleaning
+        type: boolean
+        default: false
+      save_cache:
+        description: Whether to save the resulting asset cache
+        type: boolean
+        default: true
+    steps:
+      # Precompile assets
+      # Load assets from cache if possible, precompile assets then save cache
+      # Multiple caches are used to increase the chance of a cache hit
+      # https://circleci.com/docs/2.0/caching/#full-example-of-saving-and-restoring-cache
+      - restore_cache:
+          keys:
+            - asset-cache-v1-<< parameters.rails_env >>-{{ .Branch }}
+            - asset-cache-v1-<< parameters.rails_env >>
+      - when:
+          condition:
+            equal: [ false, << parameters.restore_only >> ]
+          steps:
+            - run:
+                environment:
+                  RAILS_ENV: << parameters.rails_env >>
+                  SECRET_KEY_BASE_DUMMY: 1
+                command: ./bin/rake assets:precompile
+            - run:
+                envronment:
+                  RAILS_ENV: << parameters.rails_env >>
+                  SECRET_KEY_BASE_DUMMY: 1
+                command: ./bin/rake assets:clean
+            - when:
+                condition: << parameters.save_cache >>
+                steps:
+                  - save_cache:
+                      key: asset-cache-v1-<< parameters.rails_env >>-{{ .Branch }}-{{ checksum "public/assets/.manifest.json" }}
+                      paths:
+                        - public/assets<% if oscal_dir_exists? %>
   trestle-cmd:
     description: Set up environment for running docker-trestle commands
     parameters:
@@ -37,6 +81,8 @@ jobs:
       - image: cimg/ruby:<%= ruby_version %>
     steps:
       - setup-project
+      - compile-assets:
+          rails_env: ci
 
   test:
     parallelism: 3
@@ -64,25 +110,8 @@ jobs:
       - run:
           name: Database setup
           command: bundle exec rails db:schema:load --trace
-
-      # Precompile assets
-      # Load assets from cache if possible, precompile assets then save cache
-      # Multiple caches are used to increase the chance of a cache hit
-      # https://circleci.com/docs/2.0/caching/#full-example-of-saving-and-restoring-cache
-      - restore_cache:
-          keys:
-            - asset-cache-v1-{{ .Environment.RAILS_ENV }}-{{ arch }}-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
-            - asset-cache-v1-{{ .Environment.RAILS_ENV }}-{{ arch }}-{{ .Branch }}
-            - asset-cache-v1-{{ .Environment.RAILS_ENV }}
-
-      - run: bundle exec rake assets:precompile
-
-      - save_cache:
-          key: asset-cache-v1-{{ .Environment.RAILS_ENV }}-{{ arch }}-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
-          paths:
-            - public/assets
-            - tmp/cache/assets/sprockets
-
+      - compile-assets:
+          rails_env: test
       - ruby/rspec-test
 <% if oscal_dir_exists? %>
   validate_ssp:
@@ -151,6 +180,9 @@ jobs:
       - restore_cache:
           keys:
             - node-deps-{{ arch }}-v1-{{ .Branch }}-{{ checksum "package.json" }}-{{ checksum "yarn.lock" }}
+      - compile-assets:
+          rails_env: ci
+          restore_only: true
 
       - run:
           name: Start up local server
@@ -181,6 +213,9 @@ jobs:
       - restore_cache:
           keys:
             - node-deps-{{ arch }}-v1-{{ .Branch }}-{{ checksum "package.json" }}-{{ checksum "yarn.lock" }}
+      - compile-assets:
+          rails_env: ci
+          restore_only: true
 
       - run:
           name: Start up local server
@@ -223,23 +258,9 @@ jobs:
           name: Database setup
           command: bundle exec rails db:schema:load --trace
 
-      # Precompile assets
-      # Load assets from cache if possible, precompile assets then save cache
-      # Multiple caches are used to increase the chance of a cache hit
-      # https://circleci.com/docs/2.0/caching/#full-example-of-saving-and-restoring-cache
-      - restore_cache:
-          keys:
-            - asset-cache-v1-{{ .Environment.RAILS_ENV }}-{{ arch }}-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
-            - asset-cache-v1-{{ .Environment.RAILS_ENV }}-{{ arch }}-{{ .Branch }}
-            - asset-cache-v1-{{ .Environment.RAILS_ENV }}
-
-      - run: bundle exec rake assets:precompile
-
-      - save_cache:
-          key: asset-cache-v1-{{ .Environment.RAILS_ENV }}-{{ arch }}-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
-          paths:
-            - public/assets
-            - tmp/cache/assets/sprockets
+      - compile-assets:
+          rails_env: ci
+          save_cache: false
 
       - run:
           name: Start server
@@ -254,6 +275,28 @@ jobs:
           name: Run pa11y-ci
           command: yarn run pa11y-ci -c pa11yci.js
 
+  refresh_asset_caches:
+    docker:
+      - image: cimg/ruby:<%= ruby_version %>
+    steps:
+      - setup-project
+      - compile-assets:
+          rails_env: staging
+          restore_only: true<% if terraform_manage_spaces? %>
+      - compile-assets:
+          rails_env: production
+          restore_only: true<% end %>
+  compile_staging_assets:
+    docker:
+      - image: cimg/ruby:<%= ruby_version %>
+    steps:
+      - setup-project
+      - compile-assets:
+          rails_env: staging
+      - persist_to_workspace:
+          root: .
+          paths:
+            - public/assets
   terraform_plan_staging:
     executor: terraform/default
     steps:
@@ -268,6 +311,8 @@ jobs:
       - terraform/fmt:
           path: terraform
           recursive: true
+      - attach_workspace:
+          at: .
       - terraform/plan:
           path: terraform
           out: staging.out
@@ -290,6 +335,17 @@ jobs:
           path: terraform
           plan: staging.out<% if terraform_manage_spaces? %>
 
+  compile_production_assets:
+    docker:
+      - image: cimg/ruby:<%= ruby_version %>
+    steps:
+      - setup-project
+      - compile-assets:
+          rails_env: production
+      - persist_to_workspace:
+          root: .
+          paths:
+            - public/assets
   terraform_plan_production:
     executor: terraform/default
     steps:
@@ -299,6 +355,8 @@ jobs:
           backend_config: >-
             key=terraform.tfstate.production,
             bucket=$TERRAFORM_STATE_BUCKET_NAME
+      - attach_workspace:
+          at: .
       - terraform/plan:
           path: terraform
           out: production.out
@@ -348,10 +406,16 @@ workflows:
       - a11y_scan:
           requires:
             - build
+      - compile_staging_assets:
+          filters:
+            branches:
+              ignore: production
       - terraform_plan_staging:
           filters:
             branches:
               ignore: production
+          requires:
+            - compile_staging_assets
       - terraform_apply_staging:
           filters:
             branches:
@@ -362,7 +426,12 @@ workflows:
             - static_security_scans
             - test
             - a11y_scan<% if terraform_manage_spaces? %>
-      - terraform_plan_production
+  production_plan_and_apply:
+    jobs:
+      - compile_production_assets
+      - terraform_plan_production:
+          requires:
+            - compile_production_assets
       - approve_production_terraform:
           type: approval
           filters:
@@ -375,11 +444,7 @@ workflows:
             branches:
               only: production
           requires:
-            - approve_production_terraform
-            - owasp_scan
-            - static_security_scans
-            - test
-            - a11y_scan<% end %>
+            - approve_production_terraform<% end %>
   daily_scan:
     triggers:
       - schedule:
@@ -392,6 +457,9 @@ workflows:
                 - production
     jobs:
       - build
+      - refresh_asset_caches:
+          requires:
+            - build
       - static_security_scans:
           requires:
             - build
