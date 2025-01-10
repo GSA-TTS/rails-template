@@ -15,15 +15,11 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Set up Ruby & Javascript
-      uses: ./.github/actions/setup-languages
-
     - name: Precompile assets
-      env:
-        RAILS_ENV: ${{ inputs.rails_env }}
-        SECRET_KEY_BASE: not-actually-secret
-      shell: bash
-      run: bundle exec rake assets:precompile
+      uses: ./.github/actions/compile-assets
+      with:
+        rails_env: ${{ inputs.rails_env }}
+        save_cache: true
 
     - name: Set up database
       env:

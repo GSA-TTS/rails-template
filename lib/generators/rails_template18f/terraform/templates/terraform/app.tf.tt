@@ -4,7 +4,8 @@ data "archive_file" "src" {
   output_path = "${path.module}/dist/src.zip"
   excludes = [
     ".git*",
-    "node_modules/*",
+    ".circleci/*",
+    ".bundle/*",
     "tmp/**/*",
     "terraform/*",
     "log/*",
@@ -45,15 +46,15 @@ resource "cloudfoundry_app" "app" {
   ]
 
   service_bindings = [
-    <% if has_active_job? %>{ service_instance = "${local.app_name}-redis-${var.env}" },<% end %>
-    <% if has_active_storage? %>{ service_instance = "${local.app_name}-s3-${var.env}" },<% end %>
+<% if has_active_job? %>    { service_instance = "${local.app_name}-redis-${var.env}" },<% end %>
+<% if has_active_storage? %>    { service_instance = "${local.app_name}-s3-${var.env}" },<% end %>
     { service_instance = "${local.app_name}-rds-${var.env}" }
   ]
 
   depends_on = [
-    <% if has_active_job? %>module.redis,<% end %>
-    <% if has_active_storage? %>module.s3,<% end %>
-    <% if terraform_manage_spaces? %>module.app_space,<% end %>
+<% if has_active_job? %>    module.redis,<% end %>
+<% if has_active_storage? %>    module.s3,<% end %>
+<% if terraform_manage_spaces? %>    module.app_space,<% end %>
     module.database
   ]
 }

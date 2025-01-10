@@ -28,7 +28,7 @@ data "external" "set-app-space-egress" {
   program     = ["/bin/sh", "set_space_egress.sh", "-t", "-s", var.cf_space_name, "-o", local.cf_org_name]
   working_dir = path.module<% if terraform_manage_spaces? %>
   # depends_on line is required only for initial creation and destruction. It can be commented out for updates if you see unwanted cascading effects
-  depends_on  = [module.app_space]<% end %>
+  depends_on = [module.app_space]<% end %>
 }
 
 module "database" {

@@ -17,8 +17,7 @@ updates:
   open-pull-requests-limit: 10
 - package-ecosystem: terraform
   directories:
-    - "/terraform/production"
-    - "/terraform/staging"
+    - "/terraform"
   schedule:
     interval: weekly
   open-pull-requests-limit: 10
