@@ -30,7 +30,7 @@ jobs:
           path: terraform
 
       - name: Compile assets
-        uses: .github/actions/compile-assets
+        uses: ./.github/actions/compile-assets
         with:
           rails_env: staging
           # you may want to enable the next line to surface issues with missing assets,
