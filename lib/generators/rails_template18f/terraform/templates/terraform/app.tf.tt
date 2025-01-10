@@ -4,7 +4,8 @@ data "archive_file" "src" {
   output_path = "${path.module}/dist/src.zip"
   excludes = [
     ".git*",
-    "node_modules/*",
+    ".circleci/*",
+    ".bundle/*",
     "tmp/**/*",
     "terraform/*",
     "log/*",
