@@ -10,12 +10,12 @@ RSpec.describe RailsTemplate18f::Generators::I18nJsGenerator, type: :generator d
     expect(file("Gemfile")).to contain('gem "i18n-js", "~> 4.2"')
     expect(file("Gemfile")).to contain('gem "listen", "~> 3.9"')
     expect(file("package.json")).to contain('"i18n-js":')
-    expect(file("config/i18n-js.yml")).to contain("app/javascript/generated/translations.json")
+    expect(file("config/i18n-js.yml")).to contain("app/javascript/i18n/translations.json")
   end
 
   it "configures asset pipeline" do
     expect(file("lib/tasks/i18n.rake")).to exist
     expect(file("config/initializers/i18n_js.rb")).to exist
-    expect(file("app/javascript/i18n.js")).to exist
+    expect(file("app/javascript/i18n/index.js")).to exist
   end
 end
