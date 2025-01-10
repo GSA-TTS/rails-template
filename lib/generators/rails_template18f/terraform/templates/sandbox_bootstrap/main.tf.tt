@@ -85,7 +85,7 @@ locals {
     "cloudfoundry_service_credential_binding.runner_sa_key" = cloudfoundry_service_credential_binding.runner_sa_key.id
   }
 
-  recreate_state_template = templatefile("${path.module}/templates/imports.tf.tftpl", {import_map = local.import_map})
+  recreate_state_template = templatefile("${path.module}/templates/imports.tf.tftpl", { import_map = local.import_map })
 }
 resource "local_file" "recreate_script" {
   content         = local.recreate_state_template
@@ -95,7 +95,7 @@ resource "local_file" "recreate_script" {
 
 locals {
   bucket_creds   = jsondecode(data.cloudfoundry_service_credential_binding.bucket_creds.credential_bindings.0.credential_binding).credentials
-  backend_config = templatefile("${path.module}/templates/backend_config.tftpl", {creds = local.bucket_creds})
+  backend_config = templatefile("${path.module}/templates/backend_config.tftpl", { creds = local.bucket_creds })
 }
 resource "local_sensitive_file" "bucket_creds" {
   content         = local.backend_config
