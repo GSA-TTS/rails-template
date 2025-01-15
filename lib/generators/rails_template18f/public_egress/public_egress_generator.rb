@@ -41,6 +41,24 @@ EOT
 EOT
       end
 
+      def setup_terraform_provider
+        insert_into_file file_path("terraform/providers.tf"), after: "required_providers {\n" do
+          <<-EOT
+    cloudfoundry-community = {
+      source  = "cloudfoundry-community/cloudfoundry"
+      version = "0.53.1"
+    }
+          EOT
+        end
+        append_to_file file_path("terraform/providers.tf"), <<~EOT
+          provider "cloudfoundry-community" {
+            api_url  = "https://api.fr.cloud.gov"
+            user     = var.cf_user
+            password = var.cf_password
+          }
+        EOT
+      end
+
       def setup_proxy_vars
         create_file ".profile", <<~EOP unless file_exists?(".profile")
           ##
@@ -91,6 +109,7 @@ EOB
             reach should be added to the `egress_allowlist` terraform variable in `terraform/production.tfvars` and `terraform/staging.tfvars`
 
             See the [ruby troubleshooting doc](https://github.com/GSA-TTS/cg-egress-proxy/blob/main/docs/ruby.md) first if you have any problems making outbound connections through the proxy.
+
           README
         end
 
