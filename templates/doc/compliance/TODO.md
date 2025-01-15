@@ -10,10 +10,7 @@ Egress Spaces
 
 If your application requires outbound communication to services outside of cloud.gov:
 
-1. Set up `<env>-egress` spaces for each environment.
-1. Set that space to public egress with `bin/ops/set_space_egress.sh -s <env>-egress -p`
-1. Run [cg-egress-proxy](https://github.com/GSA/cg-egress-proxy#deploying-proxies-for-a-bunch-of-apps-automatically) in that space
-1. Send all outbound traffic from your app through the proxy
+1. `bin/rails g rails_template18f:public_egress`
 1. Document this use under the SC-7 security control
 
 Log Drains
