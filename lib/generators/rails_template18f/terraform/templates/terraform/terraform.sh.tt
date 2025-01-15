@@ -99,7 +99,7 @@ else
 fi
 <% else %>
 if [[ ! -f secrets.auto.tfvars ]]; then
-  ../bin/ops/create_service_account.sh -s <%= cloud_gov_staging_space %> -u terraform-deployer > secrets.auto.tfvars
+  ../bin/ops/create_service_account.sh -s <%= cloud_gov_staging_space %> -u terraform-deployer -n > secrets.auto.tfvars
 fi
 <% end %>
 

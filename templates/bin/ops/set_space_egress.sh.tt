@@ -53,17 +53,15 @@ if [[ $space = "" ]]; then
 fi
 
 if [[ $public = true ]]; then
-  cf bind-security-group public_networks_egress $org --space $space >&2
+  cf bind-security-group public_networks_egress $org --space $space
 else
-  cf unbind-security-group public_networks_egress $org $space >&2
+  cf unbind-security-group public_networks_egress $org $space
 fi
 
 if [[ $trusted = true ]]; then
-  cf bind-security-group trusted_local_networks_egress $org --space $space >&2
+  cf bind-security-group trusted_local_networks_egress $org --space $space
 else
-  cf unbind-security-group trusted_local_networks_egress $org $space >&2
+  cf unbind-security-group trusted_local_networks_egress $org $space
 fi
 
-cat << EOF
-{ "success": "true" }
-EOF
+echo "Done"

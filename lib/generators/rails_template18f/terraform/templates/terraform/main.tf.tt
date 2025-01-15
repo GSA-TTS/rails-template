@@ -23,11 +23,12 @@ data "cloudfoundry_space" "app_space" {
   name = var.cf_space_name
   org  = data.cloudfoundry_org.org.id
 }
-# this data block will fail when deploying via CI/CD and should be commented out if you are
-# deploying via CI after running the set_space_egress script manually
-data "external" "set-app-space-egress" {
-  program     = ["../bin/ops/set_space_egress.sh", "-t", "-s", var.cf_space_name, "-o", local.cf_org_name]
-  working_dir = path.module
+data "cloudfoundry_security_group" "trusted_egress_security_group" {
+  name = "trusted_local_networks_egress"
+}
+resource "cloudfoundry_security_group_space_bindings" "trusted_egress_binding" {
+  security_group = data.cloudfoundry_security_group.trusted_egress_security_group.id
+  running_spaces = [data.cloudfoundry_space.app_space.id]
 }
 <% end %>
 

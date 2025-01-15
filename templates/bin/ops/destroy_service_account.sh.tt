@@ -39,12 +39,12 @@ while getopts ":hs:u:o:" opt; do
   esac
 done
 
-if [[ $space = "" || $service = "" ]]; then
+if [[ -z "$space" || -z "$service" ]]; then
   echo "$usage"
   exit 1
 fi
 
-cf target -o $org -s $space
+cf target -o "$org" -s "$space"
 
 # destroy service
-cf delete-service $service -f
+cf delete-service -f "$service"
