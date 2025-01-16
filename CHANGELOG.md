@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [2.0.0] - 2025-01-16
+
 - Default new apps to Rails 8, including support for thruster proxy
 - Massive overhaul of the Terraform generator
   - Creates and configures spaces for app and egress proxy

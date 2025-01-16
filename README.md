@@ -33,8 +33,8 @@ It is a good choice if you need [a bit of client-side interactivity][aBitOfJS]. 
 --skip-hotwire          # Don't include Hotwire JS library
 --skip-docker           # Don't include Dockerfile meant for production use
 --skip-test             # Skip built-in test framework. (We include RSpec)
---javascript=webpack    # Use webpack for JS bundling
---css=postcss           # Use the PostCSS framework for bundling CSS
+--javascript=esbuild    # Use esbuild for JS bundling
+--css=sass              # Use dart-sass for compiling SASS and bundling CSS
 --template=template.rb  # Add additional configuration from template.rb
 --database=postgresql   # Use a PostgreSQL database
 --skip-rubocop          # Skip rubocop integration in favor of Standard Ruby
@@ -53,9 +53,7 @@ Add the following options at the end of your `rails_template_18f new` command to
 | Option | Description |
 |--------|-------------|
 | `--no-skip-<framework>` | Each of the skipped frameworks listed above (also in `railsrc`) can be overridden on the command line. For example: `--no-skip-active-storage` will include support for `ActiveStorage` document uploads |
-| `--javascript=esbuild` | Use [esbuild](https://esbuild.github.io/) instead of [webpack](https://webpack.js.org/) for JavaScript bundling. Note that maintaining IE11 support with esbuild may be tricky. |
-
-_TODO: Documentation on whether you can override the `css` and `database` options._
+| `--javascript=webpack` | Use [webpack](https://webpack.js.org/) instead of [esbuild](https://esbuild.github.io/) for JavaScript bundling. |
 
 **Important:** Do not use flags `--skip-bundle` or `--skip-javascript`, or various parts of this template will break.
 
@@ -169,8 +167,8 @@ Run `bin/rails generate rails_template_18f:GENERATOR --help` for information on 
 1. Setup Rails credential diffing
 1. Create a separate production credentials file.
 1. Create a `pre-commit` hook that can be used to automatically run ruby linter & terraform format
-1. Setup USWDS via postcss
-1. Setup webpack with `.browserslistrc` from USWDS
+1. Setup USWDS via dart-sass
+1. Setup esbuild with a default `.browserslistrc`
 1. Update `app/views/layouts/application.html.erb` to pass the `pa11y-ci` scan and include the USWDS Banner
 1. Create a `PagesController` and root route
 1. Create boundary and logical data model compliance diagrams
