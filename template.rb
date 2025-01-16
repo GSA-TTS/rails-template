@@ -15,8 +15,8 @@ def skip_active_job?
   !!options[:skip_active_job]
 end
 
-def webpack?
-  options[:javascript] == "webpack"
+def esbuild?
+  options[:javascript] == "esbuild"
 end
 
 def hotwire?
@@ -277,27 +277,19 @@ unless skip_git?
 end
 
 # setup USWDS and asset pipeline
-copy_file "browserslistrc", ".browserslistrc" if webpack?
+copy_file "browserslistrc", ".browserslistrc"
 after_bundle do
-  run 'npm pkg set scripts.build:css="postcss ./app/assets/stylesheets/application.postcss.scss -o ./app/assets/builds/application.css"'
-  # include verbose flag for dev postcss output
-  gsub_file "Procfile.dev", "yarn build:css --watch", "yarn build:css --verbose --watch"
-  # Replace postcss-nesting with sass since USWDS uses sass
-  run "yarn remove postcss-nesting"
-  run "yarn add @csstools/postcss-sass postcss-scss postcss-minify"
-  insert_into_file "postcss.config.js", "  syntax: 'postcss-scss',\n", before: /^\s+plugins/
-  insert_into_file "package.json", <<-EOJSON, before: /^\s+\}$/
-  },
-  "resolutions": {
-    "@csstools/postcss-sass/@csstools/sass-import-resolve": "https://github.com/rahearn/sass-import-resolve"
-  EOJSON
-  gsub_file "postcss.config.js", "postcss-nesting'),", <<~EOJS.strip
-    @csstools/postcss-sass')({
-          includePaths: ['./node_modules/@uswds/uswds/packages'],
-        }),
-  EOJS
-  insert_into_file "postcss.config.js", "    process.env.NODE_ENV === 'production' ? require('postcss-minify') : null,\n", before: /^\s+\],/
   run "yarn add @uswds/uswds"
+  if esbuild?
+    run "yarn add --dev browserslist browserslist-to-esbuild"
+    run 'npm pkg set scripts.build:js="esbuild app/javascript/*.* --bundle --sourcemap --format=esm --outdir=app/assets/builds --public-path=/assets --target=\$(cat config/esbuild-targets.txt) --pure:console.log"'
+    run 'npm pkg set scripts.build="yarn build:js --minify"'
+    run 'npm pkg set scripts.update-browserslist="update-browserslist-db && browserslist-to-esbuild | sed \'s/ /,/g\' > config/esbuild-targets.txt"'
+    run "yarn update-browserslist"
+    gsub_file "Procfile.dev", "js: yarn build --watch", "js: yarn build:js --watch"
+  end
+  gsub_file "package.json", "--load-path=node_modules", "--load-path=node_modules/@uswds/uswds/packages --style=compressed"
+  gsub_file "Procfile.dev", "css: yarn build:css --watch", "css: yarn build:css --style=expanded --watch"
   appjs_file = "app/javascript/application.js"
   append_to_file appjs_file, "\nimport \"@uswds/uswds\"\n"
   if hotwire?
@@ -321,15 +313,12 @@ after_bundle do
     EOJS
   end
   directory "app/assets"
-  append_to_file "app/assets/stylesheets/application.postcss.css", <<~EOCSS
+  append_to_file "app/assets/stylesheets/application.sass.scss", <<~EOCSS
     @forward "uswds-settings";
     @forward "uswds-components";
 
     @forward "uswds-overrides";
   EOCSS
-  inside "app/assets/stylesheets" do
-    File.rename("application.postcss.css", "application.postcss.scss")
-  end
   gsub_file "app/views/layouts/application.html.erb", "<html>", '<html lang="<%= I18n.locale %>">'
   gsub_file "app/views/layouts/application.html.erb", /^\s+<%= yield %>/, <<-EOHTML
     <%= render "application/usa_banner" %>

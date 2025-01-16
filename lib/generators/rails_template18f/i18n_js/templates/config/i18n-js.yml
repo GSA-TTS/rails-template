@@ -1,4 +1,4 @@
 translations:
-  - file: "app/javascript/generated/translations.json"
+  - file: "app/javascript/i18n/translations.json"
     patterns:
       - "*.js.*"

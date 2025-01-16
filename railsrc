@@ -5,8 +5,8 @@
 --skip-hotwire
 --skip-docker
 --skip-test
---javascript=webpack
---css=postcss
+--javascript=esbuild
+--css=sass
 --template=template.rb
 --database=postgresql
 --skip-rubocop

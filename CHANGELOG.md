@@ -6,6 +6,8 @@
   - Moves from module-per-environment to a single module with per-env variable files
   - Ability for a one-script deployment from nothing, enabling easy developer sandboxes and review apps
 - Add asset caching to GitHub Actions & CircleCI deploy workflows to enable serving in-flight asset requests without error
+- Switch js bundling from webpack to esbuild
+- Switch css bundling from postcss to dart-sass
 
 ## [1.3.0] - 2024-12-18
 

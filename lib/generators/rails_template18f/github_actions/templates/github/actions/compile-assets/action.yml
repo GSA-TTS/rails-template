@@ -25,7 +25,6 @@ runs:
         path: |
           public/assets
           app/assets/builds
-          app/javascript/generated
 
     - name: Precompile assets
       env:
@@ -49,4 +48,3 @@ runs:
         path: |
           public/assets
           app/assets/builds
-          app/javascript/generated
