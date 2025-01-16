@@ -41,6 +41,24 @@ EOT
 EOT
       end
 
+      def setup_terraform_provider
+        insert_into_file file_path("terraform/providers.tf"), after: "required_providers {\n" do
+          <<-EOT
+    cloudfoundry-community = {
+      source  = "cloudfoundry-community/cloudfoundry"
+      version = "0.53.1"
+    }
+          EOT
+        end
+        append_to_file file_path("terraform/providers.tf"), <<~EOT
+          provider "cloudfoundry-community" {
+            api_url  = "https://api.fr.cloud.gov"
+            user     = var.cf_user
+            password = var.cf_password
+          }
+        EOT
+      end
+
       def setup_proxy_vars
         create_file ".profile", <<~EOP unless file_exists?(".profile")
           ##
@@ -91,6 +109,7 @@ EOB
             reach should be added to the `egress_allowlist` terraform variable in `terraform/production.tfvars` and `terraform/staging.tfvars`
 
             See the [ruby troubleshooting doc](https://github.com/GSA-TTS/cg-egress-proxy/blob/main/docs/ruby.md) first if you have any problems making outbound connections through the proxy.
+
           README
         end
 
@@ -98,23 +117,18 @@ EOB
           <<~EOT
 
             module "egress_space" {
-              source = "github.com/gsa-tts/terraform-cloudgov//cg_space?ref=v2.0.0"
+              source = "github.com/gsa-tts/terraform-cloudgov//cg_space?ref=v2.1.0"
 
-              cf_org_name   = local.cf_org_name
-              cf_space_name = "${var.cf_space_name}-egress"
-              allow_ssh     = var.allow_space_ssh
-              deployers     = local.space_deployers
-              developers    = var.space_developers
-            }
-            # temporary method for setting egress rules until terraform provider supports it and cg_space module is updated
-            data "external" "set-egress-space-egress" {
-              program     = ["/bin/sh", "set_space_egress.sh", "-p", "-s", module.egress_space.space_name, "-o", local.cf_org_name]
-              working_dir = path.module
-              depends_on  = [module.egress_space]
+              cf_org_name          = local.cf_org_name
+              cf_space_name        = "${var.cf_space_name}-egress"
+              allow_ssh            = var.allow_space_ssh
+              deployers            = local.space_deployers
+              developers           = var.space_developers
+              security_group_names = ["public_networks_egress"]
             }
 
             module "egress_proxy" {
-              source = "github.com/gsa-tts/terraform-cloudgov//egress_proxy?ref=v2.0.1"
+              source = "github.com/gsa-tts/terraform-cloudgov//egress_proxy?ref=v2.1.0"
 
               cf_org_name     = local.cf_org_name
               cf_egress_space = module.egress_space.space

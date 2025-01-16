@@ -93,7 +93,6 @@ These steps only need to be run once per project.
 |- app.tf
 |- main.tf
 |- providers.tf
-|- set_space_egress.sh
 |- terraform.sh
 |- variables.tf
 |- <env>.tfvars
@@ -105,7 +104,6 @@ In the root module:
 - `app.tf` defines the application resource and configuration
 - `main.tf` defines the persistent infrastructure
 - `providers.tf` lists the required providers and shell backend config
-- `set_space_egress.sh` is a helper script called by a terraform resource on apply
 - `variables.tf` lists the variables that will be needed
 
 In the bootstrap module:

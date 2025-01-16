@@ -6,13 +6,14 @@ locals {
 
 <% if terraform_manage_spaces? %>
 module "app_space" {
-  source = "github.com/gsa-tts/terraform-cloudgov//cg_space?ref=v2.0.2"
+  source = "github.com/gsa-tts/terraform-cloudgov//cg_space?ref=v2.1.0"
 
-  cf_org_name   = local.cf_org_name
-  cf_space_name = var.cf_space_name
-  allow_ssh     = var.allow_space_ssh
-  deployers     = local.space_deployers
-  developers    = var.space_developers
+  cf_org_name          = local.cf_org_name
+  cf_space_name        = var.cf_space_name
+  allow_ssh            = var.allow_space_ssh
+  deployers            = local.space_deployers
+  developers           = var.space_developers
+  security_group_names = ["trusted_local_networks_egress"]
 }
 <% else %>
 data "cloudfoundry_org" "org" {
@@ -22,17 +23,17 @@ data "cloudfoundry_space" "app_space" {
   name = var.cf_space_name
   org  = data.cloudfoundry_org.org.id
 }
-<% end %>
-# temporary method for setting egress rules until terraform provider supports it and cg_space module is updated
-data "external" "set-app-space-egress" {
-  program     = ["/bin/sh", "set_space_egress.sh", "-t", "-s", var.cf_space_name, "-o", local.cf_org_name]
-  working_dir = path.module<% if terraform_manage_spaces? %>
-  # depends_on line is required only for initial creation and destruction. It can be commented out for updates if you see unwanted cascading effects
-  depends_on = [module.app_space]<% end %>
+data "cloudfoundry_security_group" "trusted_egress_security_group" {
+  name = "trusted_local_networks_egress"
 }
+resource "cloudfoundry_security_group_space_bindings" "trusted_egress_binding" {
+  security_group = data.cloudfoundry_security_group.trusted_egress_security_group.id
+  running_spaces = [data.cloudfoundry_space.app_space.id]
+}
+<% end %>
 
 module "database" {
-  source = "github.com/gsa-tts/terraform-cloudgov//database?ref=v2.0.2"
+  source = "github.com/gsa-tts/terraform-cloudgov//database?ref=v2.1.0"
 
   cf_space_id   = <% if terraform_manage_spaces? %>module.app_space.space_id<% else %>data.cloudfoundry_space.app_space.id<% end %>
   name          = "${local.app_name}-rds-${var.env}"
@@ -42,7 +43,7 @@ module "database" {
 }
 <% if has_active_job? %>
 module "redis" {
-  source = "github.com/gsa-tts/terraform-cloudgov//redis?ref=v2.0.2"
+  source = "github.com/gsa-tts/terraform-cloudgov//redis?ref=v2.1.0"
 
   cf_space_id     = <% if terraform_manage_spaces? %>module.app_space.space_id<% else %>data.cloudfoundry_space.app_space.id<% end %>
   name            = "${local.app_name}-redis-${var.env}"
@@ -53,7 +54,7 @@ module "redis" {
 <% end %>
 <% if has_active_storage? %>
 module "s3" {
-  source = "github.com/gsa-tts/terraform-cloudgov//s3?ref=v2.0.2"
+  source = "github.com/gsa-tts/terraform-cloudgov//s3?ref=v2.1.0"
 
   cf_space_id  = <% if terraform_manage_spaces? %>module.app_space.space_id<% else %>data.cloudfoundry_space.app_space.id<% end %>
   name         = "${local.app_name}-s3-${var.env}"
@@ -63,7 +64,7 @@ module "s3" {
 }
 
 module "clamav" {
-  source = "github.com/gsa-tts/terraform-cloudgov//clamav?ref=v2.0.2"
+  source = "github.com/gsa-tts/terraform-cloudgov//clamav?ref=v2.1.0"
 
   cf_org_name   = local.cf_org_name
   cf_space_name = var.cf_space_name
@@ -93,7 +94,7 @@ resource "cloudfoundry_network_policy" "clamav_routing" {
 ###########################################################################
 module "domain" {
   count  = (var.custom_domain_name == null ? 0 : 1)
-  source = "github.com/gsa-tts/terraform-cloudgov//domain?ref=v2.0.2"
+  source = "github.com/gsa-tts/terraform-cloudgov//domain?ref=v2.1.0"
 
   cf_org_name   = local.cf_org_name
   cf_space      = <% if terraform_manage_spaces? %>module.app_space.space<% else %>data.cloudfoundry_space.app_space<% end %>

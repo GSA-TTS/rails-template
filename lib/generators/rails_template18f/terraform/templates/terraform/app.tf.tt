@@ -6,6 +6,7 @@ data "archive_file" "src" {
     ".git*",
     ".circleci/*",
     ".bundle/*",
+    "node_modules/*",
     "tmp/**/*",
     "terraform/*",
     "log/*",
@@ -26,7 +27,7 @@ resource "cloudfoundry_app" "app" {
   path             = data.archive_file.src.output_path
   source_code_hash = data.archive_file.src.output_base64sha256
   buildpacks       = ["ruby_buildpack"]
-  strategy         = "blue-green"
+  strategy         = "rolling"
   routes           = [{ route = "${local.host_name}.${local.domain}" }]
 
   environment = {
@@ -38,10 +39,12 @@ resource "cloudfoundry_app" "app" {
 
   processes = [
     {
-      type      = "web"
-      instances = var.web_instances
-      memory    = var.web_memory
-      command   = "./bin/rake cf:on_first_instance db:migrate && exec env HTTP_PORT=$PORT ./bin/thrust ./bin/rails server"
+      type                       = "web"
+      instances                  = var.web_instances
+      memory                     = var.web_memory
+      health_check_http_endpoint = "/up"
+      health_check_type          = "http"
+      command                    = "./bin/rake cf:on_first_instance db:migrate && exec env HTTP_PORT=$PORT ./bin/thrust ./bin/rails server"
     }
   ]
 
