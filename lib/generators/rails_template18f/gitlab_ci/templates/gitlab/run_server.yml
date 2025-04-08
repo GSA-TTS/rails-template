@@ -1,0 +1,9 @@
+include:
+  - local: ".gitlab/setup_project.yml"
+
+.run-server:
+  extends: .setup-project
+  before_script:
+    - !reference [.setup-script]
+    - bundle exec rails server > /dev/null 2>&1 &
+    - sleep 5

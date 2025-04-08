@@ -10,6 +10,16 @@ class CloudGovConfig
   end
 
   def self.vcap_services
-    @vcap_services ||= JSON.parse(ENV[ENV_VARIABLE]).with_indifferent_access
+    if Rails.env.test?
+      parse_env
+    else
+      @vcap_services ||= parse_env
+    end
+  end
+
+  private
+
+  def self.parse_env
+    JSON.parse(ENV[ENV_VARIABLE]).with_indifferent_access
   end
 end

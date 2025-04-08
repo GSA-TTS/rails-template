@@ -1,0 +1,77 @@
+# You can override the included template(s) by including variable overrides
+#
+# SAST customization: https://docs.gitlab.com/ee/user/application_security/sast/#customizing-the-sast-settings
+# Secret Detection customization: https://docs.gitlab.com/ee/user/application_security/secret_detection/#customizing-settings
+#
+# Dependency Scanning customization: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#customizing-the-dependency-scanning-settings
+#
+# Note that environment variables can be set in several places
+# See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
+
+stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  SECRET_KEY_BASE: not-actually-secret
+  POSTGRES_DB: rtci_test
+  POSTGRES_PASSWORD: testpass123
+  CACHE_FALLBACK_KEY: main
+  PACKAGE_MANAGER_SET: bundler,npm
+  SETTINGS__GITLAB_ACCESS_TOKEN: $DEPENDABOT_KEY
+
+include:
+  - local: ".gitlab/caches.yml"
+  - local: ".gitlab/setup_langs.yml"
+  - local: ".gitlab/setup_project.yml"
+  - local: ".gitlab/run_server.yml"
+
+default:
+  image: ruby:<%= ruby_version %>
+  cache:
+    - !reference [.cache-pull]
+
+build-project:
+  stage: build
+  inherit:
+    default:
+      - image
+      - tags
+  cache:
+    - !reference [.cache-ruby-pull-push]
+    - !reference [.cache-yarn-pull-push]
+    - !reference [.cache-assets-pull-push]
+  extends: .init-project-build
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
+
+brakeman-scan:
+  stage: test
+  extends: .setup-langs
+  script:
+    - bin/brakeman --no-pager --ensure-ignore-notes -f sarif -o output.sarif.json
+  artifacts:
+    when: always
+    paths:
+      - output.sarif.json
+
+dependency_scanning:
+  stage: test
+  extends: .setup-langs
+  script:
+    - bundle exec rake bundler:audit
+    - bundle exec rake yarn:audit
+    - gem install cyclonedx-ruby
+    - cyclonedx-ruby -p . -o ruby_bom.xml
+  artifacts:
+    paths:
+      - ruby_bom.xml
+
+rspec:
+  stage: test
+  extends: .setup-project
+  script:
+    - bundle exec rspec
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"

@@ -1,0 +1,43 @@
+.cache-ruby:
+  - &cache-ruby
+    key:
+      files:
+        - Gemfile.lock
+    paths:
+      - vendor/ruby
+    policy: pull
+
+.cache-yarn:
+  - &cache-yarn
+    key:
+      files:
+        - yarn.lock
+    paths:
+      - node_modules/
+    policy: pull
+
+.cache-assets:
+  - &cache-assets
+    key: $CI_COMMIT_SHA
+    paths:
+      - public/assets
+      - tmp/cache/assets
+      - node_modules/.cache/webpack/
+    policy: pull
+
+.cache-pull:
+  - <<: *cache-ruby
+  - <<: *cache-yarn
+  - <<: *cache-assets
+
+.cache-ruby-pull-push:
+  - <<: *cache-ruby
+    policy: pull-push
+
+.cache-yarn-pull-push:
+  - <<: *cache-yarn
+    policy: pull-push
+
+.cache-assets-pull-push:
+  - <<: *cache-assets
+    policy: pull-push

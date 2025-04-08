@@ -1,0 +1,26 @@
+include:
+  - local: ".gitlab/caches.yml"
+  - local: ".gitlab/setup_langs.yml"
+
+.pg-service: &pg-service
+  - name: postgres:15
+    alias: pg
+
+.setup-script: &setup-script
+  - !reference [.setup-langs, before_script]
+  - export DATABASE_URL="postgres://postgres:${POSTGRES_PASSWORD}@${CI_SERVICE_pg}:5432/${POSTGRES_DB}"
+  - bin/rails db:create
+  - bundle exec rake assets:precompile
+  - bundle exec rake db:schema:load
+
+.setup-project:
+  services:
+    - *pg-service
+  before_script:
+    - *setup-script
+
+.init-project-build:
+  services:
+    - *pg-service
+  script:
+    - *setup-script
