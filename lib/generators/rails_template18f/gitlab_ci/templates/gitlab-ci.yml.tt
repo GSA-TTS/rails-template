@@ -75,3 +75,15 @@ rspec:
     - bundle exec rspec
   rules:
     - if: $CI_PIPELINE_SOURCE != "schedule"
+
+pa11y_scan:
+  stage: test
+  extends: .run-server
+  variables:
+    RAILS_ENV: ci
+    RAILS_PORT: 3000
+  script:
+    - !reference [.install-puppet-deps]
+    - yarn run pa11y-ci -c pa11yci.js
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"

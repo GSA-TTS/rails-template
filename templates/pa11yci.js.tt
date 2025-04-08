@@ -2,7 +2,12 @@ let defaults = require("./pa11y.js");
 
 // set chrome path for github actions
 defaults.defaults.chromeLaunchConfig = {
+  <% if @gitlab_ci %>
+  "executablePath": "/usr/bin/chromium",
+  "args": ["--no-sandbox"]
+  <% else %>
   "executablePath": "/usr/bin/google-chrome"
+  <% end %>
 };
 
 module.exports = defaults;

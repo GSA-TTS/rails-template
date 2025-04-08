@@ -5,5 +5,5 @@ include:
   extends: .setup-project
   before_script:
     - !reference [.setup-script]
-    - bundle exec rails server > /dev/null 2>&1 &
+    - PORT=$RAILS_PORT bin/rails server > /dev/null 2>&1 &
     - sleep 5
