@@ -15,20 +15,18 @@ stages:
 
 variables:
   SECRET_KEY_BASE: not-actually-secret
-  POSTGRES_DB: rtci_test
-  POSTGRES_PASSWORD: testpass123
+  POSTGRES_DB: <%= app_name %>_test
+  POSTGRES_PASSWORD: not-actually-secret
   CACHE_FALLBACK_KEY: main
   PACKAGE_MANAGER_SET: bundler,npm
   SETTINGS__GITLAB_ACCESS_TOKEN: $DEPENDABOT_KEY
+  RUBY_VERSION: <%= RUBY_VERSION %>
 
 include:
-  - local: ".gitlab/caches.yml"
-  - local: ".gitlab/setup_langs.yml"
-  - local: ".gitlab/setup_project.yml"
-  - local: ".gitlab/run_server.yml"
+  - local: ".gitlab/rails_helpers.yml"
 
 default:
-  image: ruby:<%= ruby_version %>
+  image: "ruby:${RUBY_VERSION}"
   cache:
     - !reference [.cache-pull]
 
@@ -38,17 +36,13 @@ build-project:
     default:
       - image
       - tags
-  cache:
-    - !reference [.cache-ruby-pull-push]
-    - !reference [.cache-yarn-pull-push]
-    - !reference [.cache-assets-pull-push]
   extends: .init-project-build
   rules:
     - if: $CI_PIPELINE_SOURCE != "schedule"
 
 brakeman-scan:
   stage: test
-  extends: .setup-langs
+  extends: .setup-languages
   script:
     - bin/brakeman --no-pager --ensure-ignore-notes -f sarif -o output.sarif.json
   artifacts:
@@ -58,7 +52,7 @@ brakeman-scan:
 
 dependency_scanning:
   stage: test
-  extends: .setup-langs
+  extends: .setup-languages
   script:
     - bundle exec rake bundler:audit
     - bundle exec rake yarn:audit
@@ -79,11 +73,36 @@ rspec:
 pa11y_scan:
   stage: test
   extends: .run-server
-  variables:
-    RAILS_ENV: ci
-    RAILS_PORT: 3000
   script:
     - !reference [.install-puppet-deps]
     - yarn run pa11y-ci -c pa11yci.js
   rules:
     - if: $CI_PIPELINE_SOURCE != "schedule"
+
+.owasp_setup:
+  stage: test
+  extends: .run-server
+  image: "rcahearngsa/owasp-ruby:${RUBY_VERSION}"
+  variables:
+    WORKER_MEMORY: 3G
+    WORKER_DISK: 6G
+  before_script:
+    - !reference [.run-server, before_script]
+    - ln -s $PWD /zap/wrk
+  artifacts:
+    paths:
+      - zap_report.html
+
+owasp_scan:
+  extends: .owasp_setup
+  script:
+    - /zap/zap-baseline.py -t http://localhost:3000 -c zap.conf -I -r zap_report.html
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
+
+owasp_daily_scan:
+  extends: .owasp_setup
+  script:
+    - /zap/zap-full-scan.py -t http://localhost:3000 -c zap.conf -I -r zap_report.html
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
