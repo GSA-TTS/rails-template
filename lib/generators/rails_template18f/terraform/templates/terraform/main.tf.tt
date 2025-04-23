@@ -3,10 +3,9 @@ locals {
   app_name        = "<%= app_name %>"
   space_deployers = setunion([var.cf_user], var.space_deployers)
 }
-
 <% if terraform_manage_spaces? %>
 module "app_space" {
-  source = "github.com/gsa-tts/terraform-cloudgov//cg_space?ref=v2.1.0"
+  source = "github.com/gsa-tts/terraform-cloudgov//cg_space?ref=v2.3.0"
 
   cf_org_name          = local.cf_org_name
   cf_space_name        = var.cf_space_name
@@ -31,9 +30,8 @@ resource "cloudfoundry_security_group_space_bindings" "trusted_egress_binding" {
   running_spaces = [data.cloudfoundry_space.app_space.id]
 }
 <% end %>
-
 module "database" {
-  source = "github.com/gsa-tts/terraform-cloudgov//database?ref=v2.1.0"
+  source = "github.com/gsa-tts/terraform-cloudgov//database?ref=v2.3.0"
 
   cf_space_id   = <% if terraform_manage_spaces? %>module.app_space.space_id<% else %>data.cloudfoundry_space.app_space.id<% end %>
   name          = "${local.app_name}-rds-${var.env}"
@@ -43,7 +41,7 @@ module "database" {
 }
 <% if has_active_job? %>
 module "redis" {
-  source = "github.com/gsa-tts/terraform-cloudgov//redis?ref=v2.1.0"
+  source = "github.com/gsa-tts/terraform-cloudgov//redis?ref=v2.3.0"
 
   cf_space_id     = <% if terraform_manage_spaces? %>module.app_space.space_id<% else %>data.cloudfoundry_space.app_space.id<% end %>
   name            = "${local.app_name}-redis-${var.env}"
@@ -51,10 +49,9 @@ module "redis" {
   # depends_on line is required only for initial creation and destruction. It can be commented out for updates if you see unwanted cascading effects
   depends_on = [module.app_space]<% end %>
 }
-<% end %>
-<% if has_active_storage? %>
+<% end %><% if has_active_storage? %>
 module "s3" {
-  source = "github.com/gsa-tts/terraform-cloudgov//s3?ref=v2.1.0"
+  source = "github.com/gsa-tts/terraform-cloudgov//s3?ref=v2.3.0"
 
   cf_space_id  = <% if terraform_manage_spaces? %>module.app_space.space_id<% else %>data.cloudfoundry_space.app_space.id<% end %>
   name         = "${local.app_name}-s3-${var.env}"
@@ -64,7 +61,7 @@ module "s3" {
 }
 
 module "clamav" {
-  source = "github.com/gsa-tts/terraform-cloudgov//clamav?ref=v2.1.0"
+  source = "github.com/gsa-tts/terraform-cloudgov//clamav?ref=v2.3.0"
 
   cf_org_name   = local.cf_org_name
   cf_space_name = var.cf_space_name
@@ -83,23 +80,37 @@ resource "cloudfoundry_network_policy" "clamav_routing" {
   }]
 }
 <% end %>
-
-###########################################################################
+###########################################################################<% if terraform_manage_spaces? %>
+# Before setting var.custom_domain_name, ensure the ACME challenge record has been created:
+# See https://cloud.gov/docs/services/external-domain-service/#how-to-create-an-instance-of-this-service<% else %>
 # Before setting var.custom_domain_name, perform the following steps:
 # 1) Domain must be manually created by an OrgManager:
 #     cf create-domain var.cf_org_name var.domain_name
 # 2) ACME challenge record must be created.
-#     See https://cloud.gov/docs/services/external-domain-service/#how-to-create-an-instance-of-this-service
+#     See https://cloud.gov/docs/services/external-domain-service/#how-to-create-an-instance-of-this-service<% end %>
 ###########################################################################
 module "domain" {
   count  = (var.custom_domain_name == null ? 0 : 1)
-  source = "github.com/gsa-tts/terraform-cloudgov//domain?ref=v2.1.0"
+  source = "github.com/gsa-tts/terraform-cloudgov//domain?ref=v2.3.0"
 
   cf_org_name   = local.cf_org_name
   cf_space      = <% if terraform_manage_spaces? %>module.app_space.space<% else %>data.cloudfoundry_space.app_space<% end %>
   cdn_plan_name = "domain"
   domain_name   = var.custom_domain_name
+  create_domain = <%= terraform_manage_spaces? ? "true" : "false" %>
+  app_ids       = [cloudfoundry_app.app.id]
   host_name     = var.host_name<% if terraform_manage_spaces? %>
+  # depends_on line is required only for initial creation and destruction. It can be commented out for updates if you see unwanted cascading effects
+  depends_on = [module.app_space]<% end %>
+}
+module "app_route" {
+  count  = (var.custom_domain_name == null ? 1 : 0)
+  source = "github.com/gsa-tts/terraform-cloudgov//app_route?ref=v2.3.0"
+
+  cf_org_name   = local.cf_org_name
+  cf_space_name = <% if terraform_manage_spaces? %>module.app_space.space_name<% else %>var.cf_space_name<% end %>
+  app_ids       = [cloudfoundry_app.app.id]
+  hostname      = coalesce(var.host_name, "${local.app_name}-${var.env}")<% if terraform_manage_spaces? %>
   # depends_on line is required only for initial creation and destruction. It can be commented out for updates if you see unwanted cascading effects
   depends_on = [module.app_space]<% end %>
 }

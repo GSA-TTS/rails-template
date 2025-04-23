@@ -99,7 +99,7 @@ EOB
           <<~EOT
 
             module "egress_space" {
-              source = "github.com/gsa-tts/terraform-cloudgov//cg_space?ref=v2.1.0"
+              source = "github.com/gsa-tts/terraform-cloudgov//cg_space?ref=v2.3.0"
 
               cf_org_name          = local.cf_org_name
               cf_space_name        = "${var.cf_space_name}-egress"
@@ -110,7 +110,7 @@ EOB
             }
 
             module "egress_proxy" {
-              source = "github.com/gsa-tts/terraform-cloudgov//egress_proxy?ref=v2.1.0"
+              source = "github.com/gsa-tts/terraform-cloudgov//egress_proxy?ref=v2.3.0"
 
               cf_org_name     = local.cf_org_name
               cf_egress_space = module.egress_space.space
@@ -125,12 +125,12 @@ EOB
                 {
                   source_app      = cloudfoundry_app.app.id
                   destination_app = module.egress_proxy.app_id
-                  port            = "61443"
+                  port            = module.egress_proxy.https_port
                 },
                 {
                   source_app      = cloudfoundry_app.app.id
                   destination_app = module.egress_proxy.app_id
-                  port            = "8080"
+                  port            = module.egress_proxy.http_port
                 }
               ]
             }

@@ -83,7 +83,7 @@ if [[ $tfm_needs_init = true ]]; then
     echo "=============================================================================================================="
     echo "= Recreating backend config file. It is fine if this step wants to delete any local_sensitive_file resources"
     echo "=============================================================================================================="
-    (cd bootstrap && ./apply.sh $force)
+    (cd bootstrap && ./apply.sh -auto-approve)
   fi
   terraform init -backend-config=secrets.backend.tfvars -backend-config="key=terraform.tfstate.$env" -reconfigure
   rm secrets.backend.tfvars
