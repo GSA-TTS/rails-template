@@ -23,7 +23,6 @@ module RailsTemplate18f
           template "sandbox_bootstrap/main.tf", "terraform/bootstrap/main.tf"
           copy_file "sandbox_bootstrap/imports.tf.tftpl", "terraform/bootstrap/templates/imports.tf.tftpl"
           remove_file "terraform/bootstrap/users.auto.tfvars"
-          remove_dir "terraform/sandbox_bot"
           remove_file "terraform/production.tfvars"
         end
       end

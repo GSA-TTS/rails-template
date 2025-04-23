@@ -106,6 +106,7 @@ EOB
               allow_ssh            = var.allow_space_ssh
               deployers            = local.space_deployers
               developers           = var.space_developers
+              auditors             = var.space_auditors
               security_group_names = ["public_networks_egress"]
             }
 

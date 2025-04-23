@@ -8,7 +8,7 @@ variable "cf_user" {
 variable "cf_space_name" {
   type        = string
   description = "The space name to deploy the app into"
-}
+}<% if terraform_manage_spaces? %>
 variable "space_deployers" {
   type        = set(string)
   default     = []
@@ -19,11 +19,16 @@ variable "space_developers" {
   default     = []
   description = "A list of users to be granted SpaceDeveloper on cf_space_name"
 }
+variable "space_auditors" {
+  type        = set(string)
+  default     = []
+  description = "A list of users to be granted SpaceAuditor on cf_space_name"
+}
 variable "allow_space_ssh" {
   type        = bool
   default     = false
   description = "Whether to allow ssh to cf_space_name"
-}
+}<% end %>
 
 # supporting services settings
 variable "rds_plan_name" {

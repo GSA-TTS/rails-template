@@ -12,6 +12,7 @@ module "app_space" {
   allow_ssh            = var.allow_space_ssh
   deployers            = local.space_deployers
   developers           = var.space_developers
+  auditors             = var.space_auditors
   security_group_names = ["trusted_local_networks_egress"]
 }
 <% else %>
@@ -108,7 +109,7 @@ module "app_route" {
   source = "github.com/gsa-tts/terraform-cloudgov//app_route?ref=v2.3.0"
 
   cf_org_name   = local.cf_org_name
-  cf_space_name = <% if terraform_manage_spaces? %>module.app_space.space_name<% else %>var.cf_space_name<% end %>
+  cf_space_name = var.cf_space_name
   app_ids       = [cloudfoundry_app.app.id]
   hostname      = coalesce(var.host_name, "${local.app_name}-${var.env}")<% if terraform_manage_spaces? %>
   # depends_on line is required only for initial creation and destruction. It can be commented out for updates if you see unwanted cascading effects
