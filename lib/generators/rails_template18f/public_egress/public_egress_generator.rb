@@ -41,24 +41,6 @@ EOT
 EOT
       end
 
-      def setup_terraform_provider
-        insert_into_file file_path("terraform/providers.tf"), after: "required_providers {\n" do
-          <<-EOT
-    cloudfoundry-community = {
-      source  = "cloudfoundry-community/cloudfoundry"
-      version = "0.53.1"
-    }
-          EOT
-        end
-        append_to_file file_path("terraform/providers.tf"), <<~EOT
-          provider "cloudfoundry-community" {
-            api_url  = "https://api.fr.cloud.gov"
-            user     = var.cf_user
-            password = var.cf_password
-          }
-        EOT
-      end
-
       def setup_proxy_vars
         create_file ".profile", <<~EOP unless file_exists?(".profile")
           ##
@@ -139,17 +121,18 @@ EOB
             }
 
             resource "cloudfoundry_network_policy" "egress_routing" {
-              provider = cloudfoundry-community
-              policy {
-                source_app      = cloudfoundry_app.app.id
-                destination_app = module.egress_proxy.app_id
-                port            = "61443"
-              }
-              policy {
-                source_app      = cloudfoundry_app.app.id
-                destination_app = module.egress_proxy.app_id
-                port            = "8080"
-              }
+              policies = [
+                {
+                  source_app      = cloudfoundry_app.app.id
+                  destination_app = module.egress_proxy.app_id
+                  port            = "61443"
+                },
+                {
+                  source_app      = cloudfoundry_app.app.id
+                  destination_app = module.egress_proxy.app_id
+                  port            = "8080"
+                }
+              ]
             }
 
             resource "cloudfoundry_service_instance" "egress_proxy_credentials" {

@@ -1,12 +1,7 @@
 # Deploy user settings
 variable "cf_user" {
   type        = string
-  description = "The service account running the terraform"
-}
-variable "cf_password" {
-  type        = string
-  sensitive   = true
-  description = "The service account password"
+  description = "The user email or service account running the terraform"
 }
 
 # app_space settings

@@ -76,12 +76,11 @@ module "clamav" {
 }
 
 resource "cloudfoundry_network_policy" "clamav_routing" {
-  provider = cloudfoundry-community
-  policy {
+  policies = [{
     source_app      = cloudfoundry_app.app.id
     destination_app = module.clamav.app_id
     port            = "61443"
-  }
+  }]
 }
 <% end %>
 
