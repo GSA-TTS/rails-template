@@ -47,8 +47,10 @@ jobs:
       - name: Terraform apply
         uses: dflook/terraform-apply@v1
         env:
+          CF_API_URL: "https://api.fr.cloud.gov"
+          CF_USER: ${{ secrets.CF_USERNAME }}
+          CF_PASSWORD: ${{ secrets.CF_PASSWORD }}
           TF_VAR_cf_user: ${{ secrets.CF_USERNAME }}
-          TF_VAR_cf_password: ${{ secrets.CF_PASSWORD }}
           TF_VAR_rails_master_key: ${{ secrets.RAILS_MASTER_KEY }}
           TERRAFORM_PRE_RUN: |
             apt-get update

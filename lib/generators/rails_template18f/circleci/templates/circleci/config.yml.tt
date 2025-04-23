@@ -314,13 +314,15 @@ jobs:
       - attach_workspace:
           at: .
       - terraform/plan:
+          environment:
+            CF_API_URL: "https://api.fr.cloud.gov"
+            CF_USER: "$CF_USERNAME"
           path: terraform
           out: staging.out
           var_file: staging.tfvars
           var: >-
             rails_master_key="$RAILS_MASTER_KEY",
             cf_user="$CF_USERNAME",
-            cf_password="$CF_PASSWORD"
       - persist_to_workspace:
           root: .
           paths:
@@ -332,6 +334,9 @@ jobs:
       - attach_workspace:
           at: .
       - terraform/apply:
+          environment:
+            CF_API_URL: "https://api.fr.cloud.gov"
+            CF_USER: "$CF_USERNAME"
           path: terraform
           plan: staging.out<% if terraform_manage_spaces? %>
 
@@ -358,13 +363,15 @@ jobs:
       - attach_workspace:
           at: .
       - terraform/plan:
+          environment:
+            CF_API_URL: "https://api.fr.cloud.gov"
+            CF_USER: "$CF_USERNAME"
           path: terraform
           out: production.out
           var_file: production.tfvars
           var: >-
             rails_master_key="$PRODUCTION_RAILS_MASTER_KEY",
             cf_user="$CF_USERNAME",
-            cf_password="$CF_PASSWORD"
       - persist_to_workspace:
           root: .
           paths:
@@ -376,6 +383,9 @@ jobs:
       - attach_workspace:
           at: .
       - terraform/apply:
+          environment:
+            CF_API_URL: "https://api.fr.cloud.gov"
+            CF_USER: "$CF_USERNAME"
           path: terraform
           plan: production.out<% end %>
 
