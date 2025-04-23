@@ -41,24 +41,6 @@ EOT
 EOT
       end
 
-      def setup_terraform_provider
-        insert_into_file file_path("terraform/providers.tf"), after: "required_providers {\n" do
-          <<-EOT
-    cloudfoundry-community = {
-      source  = "cloudfoundry-community/cloudfoundry"
-      version = "0.53.1"
-    }
-          EOT
-        end
-        append_to_file file_path("terraform/providers.tf"), <<~EOT
-          provider "cloudfoundry-community" {
-            api_url  = "https://api.fr.cloud.gov"
-            user     = var.cf_user
-            password = var.cf_password
-          }
-        EOT
-      end
-
       def setup_proxy_vars
         create_file ".profile", <<~EOP unless file_exists?(".profile")
           ##
@@ -117,18 +99,19 @@ EOB
           <<~EOT
 
             module "egress_space" {
-              source = "github.com/gsa-tts/terraform-cloudgov//cg_space?ref=v2.1.0"
+              source = "github.com/gsa-tts/terraform-cloudgov//cg_space?ref=v2.3.0"
 
               cf_org_name          = local.cf_org_name
               cf_space_name        = "${var.cf_space_name}-egress"
               allow_ssh            = var.allow_space_ssh
               deployers            = local.space_deployers
               developers           = var.space_developers
+              auditors             = var.space_auditors
               security_group_names = ["public_networks_egress"]
             }
 
             module "egress_proxy" {
-              source = "github.com/gsa-tts/terraform-cloudgov//egress_proxy?ref=v2.1.0"
+              source = "github.com/gsa-tts/terraform-cloudgov//egress_proxy?ref=v2.3.0"
 
               cf_org_name     = local.cf_org_name
               cf_egress_space = module.egress_space.space
@@ -139,17 +122,18 @@ EOB
             }
 
             resource "cloudfoundry_network_policy" "egress_routing" {
-              provider = cloudfoundry-community
-              policy {
-                source_app      = cloudfoundry_app.app.id
-                destination_app = module.egress_proxy.app_id
-                port            = "61443"
-              }
-              policy {
-                source_app      = cloudfoundry_app.app.id
-                destination_app = module.egress_proxy.app_id
-                port            = "8080"
-              }
+              policies = [
+                {
+                  source_app      = cloudfoundry_app.app.id
+                  destination_app = module.egress_proxy.app_id
+                  port            = module.egress_proxy.https_port
+                },
+                {
+                  source_app      = cloudfoundry_app.app.id
+                  destination_app = module.egress_proxy.app_id
+                  port            = module.egress_proxy.http_port
+                }
+              ]
             }
 
             resource "cloudfoundry_service_instance" "egress_proxy_credentials" {
