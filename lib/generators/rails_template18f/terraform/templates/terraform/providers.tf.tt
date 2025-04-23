@@ -8,9 +8,10 @@ terraform {
   }
 
   backend "s3" {
-    encrypt      = true
-    use_lockfile = true
-    region       = "us-gov-west-1"
+    encrypt           = true
+    use_lockfile      = true
+    use_fips_endpoint = true
+    region            = "us-gov-west-1"
   }
 }
 

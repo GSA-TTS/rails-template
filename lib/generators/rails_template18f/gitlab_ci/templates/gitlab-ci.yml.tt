@@ -106,3 +106,84 @@ owasp_daily_scan:
     - /zap/zap-full-scan.py -t http://localhost:3000 -c zap.conf -I -r zap_report.html
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
+
+.terraform:setup:
+  stage: test
+  inherit:
+    default: false
+  image:
+    name: "hashicorp/terraform"
+    entrypoint: ["sh"]
+  variables:
+    CF_API_URL: https://api.fr.cloud.gov
+  before_script:
+    - cd terraform
+    - terraform init -backend-config=$TERRAFORM_PUBLIC_BACKEND_CONFIG -backend-config=$TERRAFORM_SECRET_BACKEND_CONFIG -backend-config="key=terraform.tfstate.staging"
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
+
+.terraform:variables:staging:
+  variables:
+    CF_USER: $CF_USERNAME
+
+.terraform:variables:production:
+  variables:
+    CF_USER: $CF_USERNAME
+
+terraform:fmt:
+  extends: .terraform:setup
+  script:
+    - terraform fmt -check -recursive .
+
+terraform:validate:
+  extends: .terraform:setup
+  script:
+    - terraform validate
+
+terraform:plan:staging:
+  needs: ["terraform:validate"]
+  extends:
+    - .terraform:setup
+    - .terraform:variables:staging
+  script:
+    - https_proxy=$http_proxy apk add zip
+    - terraform plan -var-file=staging.tfvars -var rails_master_key=$RAILS_MASTER_KEY -var cf_user=$CF_USERNAME
+
+terraform:apply:staging:
+  extends:
+    - .terraform:setup
+    - .terraform:variables:staging
+  stage: deploy
+  dependencies: []
+  script:
+    - https_proxy=$http_proxy apk add zip
+    - terraform apply -auto-approve -var-file=staging.tfvars -var rails_master_key=$RAILS_MASTER_KEY -var cf_user=$CF_USERNAME
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: manual
+
+terraform:plan:production:
+  needs: ["terraform:validate"]
+  extends:
+    - .terraform:setup
+    - .terraform:variables:production
+  script:
+    - https_proxy=$http_proxy apk add zip
+    - terraform plan -var-file=production.tfvars -var rails_master_key=$PRODUCTION_RAILS_MASTER_KEY -var cf_user=$CF_USERNAME
+
+terraform:apply:production:
+  extends:
+    - .terraform:setup
+    - .terraform:variables:production
+  stage: deploy
+  dependencies: []
+  script:
+    - https_proxy=$http_proxy apk add zip
+    - terraform apply -auto-approve -var-file=production.tfvars -var rails_master_key=$PRODUCTION_RAILS_MASTER_KEY -var cf_user=$CF_USERNAME
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "production"
+      when: manual
