@@ -13,29 +13,50 @@ stages:
   - deploy
 
 variables:
-  SECRET_KEY_BASE: not-actually-secret
   POSTGRES_DB: <%= app_name %>_test
   POSTGRES_PASSWORD: not-actually-secret
-  CACHE_FALLBACK_KEY: main
-  PACKAGE_MANAGER_SET: bundler,npm
-  SETTINGS__GITLAB_ACCESS_TOKEN: $DEPENDABOT_KEY
   RUBY_VERSION: <%= RUBY_VERSION %>
 
 include:
   - local: ".gitlab/rails_helpers.yml"
 
+# Cache Helpers
+.cache-dependencies: &cache-dependencies
+  key:
+    files:
+      - Gemfile.lock
+      - yarn.lock
+    prefix: dependencies
+  paths:
+    - vendor/ruby
+    - node_modules/
+  policy: pull
+
+.cache-assets: &cache-assets
+  key: assets-$CI_COMMIT_REF_SLUG
+  fallback_keys:
+    - assets
+  paths:
+    - public/assets
+    - app/assets/builds
+  policy: pull
+
 default:
   image: "ruby:${RUBY_VERSION}"
   cache:
-    - !reference [.cache-pull]
+    - <<: *cache-dependencies
+    - <<: *cache-assets
 
 build-project:
   stage: build
-  inherit:
-    default:
-      - image
-      - tags
-  extends: .init-project-build
+  extends: .setup-languages
+  cache:
+    - <<: *cache-dependencies
+      policy: pull-push
+    - <<: *cache-assets
+      policy: pull-push
+  script:
+    - bin/rake assets:precompile
   rules:
     - if: $CI_PIPELINE_SOURCE != "schedule"
 
@@ -119,6 +140,7 @@ owasp_daily_scan:
   variables:
     CF_API_URL: https://api.fr.cloud.gov
     TERRAFORM_BACKEND_KEY: terraform.tfstate.staging
+  dependencies: []
   before_script:
     - cd terraform
     - terraform init -backend-config=$TERRAFORM_PUBLIC_BACKEND_CONFIG -backend-config=$TERRAFORM_SECRET_BACKEND_CONFIG -backend-config="key=$TERRAFORM_BACKEND_KEY"
@@ -146,11 +168,61 @@ terraform:validate:
   script:
     - terraform validate
 
+terraform:assets:staging:
+  stage: build
+  needs: ["build-project"]
+  extends: .setup-languages
+  cache:
+    - <<: *cache-dependencies
+    - key: staging-assets-$CI_COMMIT_SHA
+      fallback_keys:
+        - staging-assets
+      paths:
+        - public/assets
+        - app/assets/builds
+      policy: pull-push
+  variables:
+    RAILS_ENV: staging
+    SECRET_KEY_BASE_DUMMY: 1
+  script:
+    - bin/rake assets:precompile
+    - bin/rake assets:clean
+  artifacts:
+    paths:
+      - public/assets
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
+
+terraform:assets:production:
+  stage: build
+  needs: ["build-project"]
+  extends: .setup-languages
+  cache:
+    - <<: *cache-dependencies
+    - key: production-assets-$CI_COMMIT_SHA
+      fallback_keys:
+        - production-assets
+      paths:
+        - public/assets
+        - app/assets/builds
+      policy: pull-push
+  variables:
+    RAILS_ENV: production
+    SECRET_KEY_BASE_DUMMY: 1
+  script:
+    - bin/rake assets:precompile
+    - bin/rake assets:clean
+  artifacts:
+    paths:
+      - public/assets
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
+
 terraform:plan:staging:
   extends:
     - .terraform:setup
     - .terraform:variables:staging
-  dependencies: []
+  dependencies: ["terraform:assets:staging"]
   script:
     - https_proxy=$http_proxy apk add zip
     - terraform plan -out=staging_plan.out -var-file=staging.tfvars -var rails_master_key=$RAILS_MASTER_KEY -var cf_user=$CF_USERNAME
@@ -162,7 +234,9 @@ terraform:apply:staging:
   extends:
     - .terraform:setup
     - .terraform:variables:staging
-  needs: ["terraform:plan:staging"]
+  needs:
+    - terraform:plan:staging
+    - terraform:assets:staging
   script:
     - https_proxy=$http_proxy apk add zip
     - terraform apply -var-file=staging.tfvars -var rails_master_key=$RAILS_MASTER_KEY -var cf_user=$CF_USERNAME staging_plan.out
@@ -175,7 +249,7 @@ terraform:plan:production:
   extends:
     - .terraform:setup
     - .terraform:variables:production
-  dependencies: []
+  dependencies: ["terraform:assets:production"]
   script:
     - https_proxy=$http_proxy apk add zip
     - terraform plan -out=production_plan.out -var-file=production.tfvars -var rails_master_key=$PRODUCTION_RAILS_MASTER_KEY -var cf_user=$CF_USERNAME
@@ -187,7 +261,9 @@ terraform:apply:production:
   extends:
     - .terraform:setup
     - .terraform:variables:production
-  needs: ["terraform:plan:production"]
+  needs:
+    - terraform:plan:production
+    - terraform:assets:production
   script:
     - https_proxy=$http_proxy apk add zip
     - terraform apply -var-file=production.tfvars -var rails_master_key=$PRODUCTION_RAILS_MASTER_KEY -var cf_user=$CF_USERNAME production_plan.out

@@ -1,34 +1,3 @@
-# Cache Helpers
-
-.cache-ruby: &cache-ruby
-  key:
-    files:
-      - Gemfile.lock
-  paths:
-    - vendor/ruby
-  policy: pull
-
-.cache-yarn: &cache-yarn
-  key:
-    files:
-      - yarn.lock
-  paths:
-    - node_modules/
-  policy: pull
-
-.cache-assets: &cache-assets
-  key: $CI_COMMIT_SHA
-  paths:
-    - public/assets
-    - tmp/cache/assets
-    - node_modules/.cache/webpack/
-  policy: pull
-
-.cache-pull:
-  - <<: *cache-ruby
-  - <<: *cache-yarn
-  - <<: *cache-assets
-
 # Language Helpers
 
 .setup-node: &setup-node
@@ -50,9 +19,10 @@
   - PUPPETEER_SKIP_DOWNLOAD=true https_proxy=$http_proxy yarn install --frozen-lockfile --no-progress
 
 .install-puppet-deps:
-  - command -v apt-get && apt-get update && apt-get install -y chromium
+  - apt-get update && apt-get install -y chromium
 
 .setup-languages:
+  dependencies: []
   before_script:
     - *ruby-deps
     - *node-deps
@@ -67,33 +37,21 @@
   - !reference [.setup-languages, before_script]
   - export DATABASE_URL="postgres://postgres:${POSTGRES_PASSWORD}@${CI_SERVICE_pg}:5432/${POSTGRES_DB}"
   - bin/rails db:prepare
-  - bundle exec rake assets:precompile
 
 .setup-project:
+  dependencies: []
   services:
     - *pg-service
   before_script:
-    - *setup-script
-
-.init-project-build:
-  cache:
-    - <<: *cache-ruby
-      policy: pull-push
-    - <<: *cache-yarn
-      policy: pull-push
-    - <<: *cache-assets
-      policy: pull-push
-  services:
-    - *pg-service
-  script:
     - *setup-script
 
 .run-server:
   extends: .setup-project
   variables:
     RAILS_ENV: ci
-    RAILS_PORT: 3000
+    SECRET_KEY_BASE_DUMMY: 1
   before_script:
     - !reference [.setup-script]
-    - PORT=$RAILS_PORT bin/rails server > /dev/null 2>&1 &
+    - bin/rake assets:precompile
+    - PORT=3000 bin/rails server > /dev/null 2>&1 &
     - sleep 5
