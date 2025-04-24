@@ -1,12 +1,11 @@
-# You can override the included template(s) by including variable overrides
-#
-# SAST customization: https://docs.gitlab.com/ee/user/application_security/sast/#customizing-the-sast-settings
-# Secret Detection customization: https://docs.gitlab.com/ee/user/application_security/secret_detection/#customizing-settings
-#
-# Dependency Scanning customization: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#customizing-the-dependency-scanning-settings
-#
 # Note that environment variables can be set in several places
 # See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_BRANCH == "production"
 
 stages:
   - build
@@ -47,6 +46,7 @@ brakeman-scan:
     - bin/brakeman --no-pager --ensure-ignore-notes -f sarif -o output.sarif.json
   artifacts:
     when: always
+    expose_as: "Brakeman results"
     paths:
       - output.sarif.json
 
@@ -59,6 +59,7 @@ dependency_scanning:
     - gem install cyclonedx-ruby
     - cyclonedx-ruby -p . -o ruby_bom.xml
   artifacts:
+    expose_as: "Ruby SBOM"
     paths:
       - ruby_bom.xml
 
@@ -90,6 +91,7 @@ pa11y_scan:
     - !reference [.run-server, before_script]
     - ln -s $PWD /zap/wrk
   artifacts:
+    expose_as: "OWASP Report"
     paths:
       - zap_report.html
 
@@ -116,19 +118,23 @@ owasp_daily_scan:
     entrypoint: ["sh"]
   variables:
     CF_API_URL: https://api.fr.cloud.gov
+    TERRAFORM_BACKEND_KEY: terraform.tfstate.staging
   before_script:
     - cd terraform
-    - terraform init -backend-config=$TERRAFORM_PUBLIC_BACKEND_CONFIG -backend-config=$TERRAFORM_SECRET_BACKEND_CONFIG -backend-config="key=terraform.tfstate.staging"
+    - terraform init -backend-config=$TERRAFORM_PUBLIC_BACKEND_CONFIG -backend-config=$TERRAFORM_SECRET_BACKEND_CONFIG -backend-config="key=$TERRAFORM_BACKEND_KEY"
   rules:
     - if: $CI_PIPELINE_SOURCE != "schedule"
 
 .terraform:variables:staging:
+  stage: deploy
   variables:
     CF_USER: $CF_USERNAME
 
 .terraform:variables:production:
+  stage: deploy
   variables:
     CF_USER: $CF_USERNAME
+    TERRAFORM_BACKEND_KEY: terraform.tfstate.production
 
 terraform:fmt:
   extends: .terraform:setup
@@ -141,47 +147,50 @@ terraform:validate:
     - terraform validate
 
 terraform:plan:staging:
-  needs: ["terraform:validate"]
   extends:
     - .terraform:setup
     - .terraform:variables:staging
+  dependencies: []
   script:
     - https_proxy=$http_proxy apk add zip
-    - terraform plan -var-file=staging.tfvars -var rails_master_key=$RAILS_MASTER_KEY -var cf_user=$CF_USERNAME
+    - terraform plan -out=staging_plan.out -var-file=staging.tfvars -var rails_master_key=$RAILS_MASTER_KEY -var cf_user=$CF_USERNAME
+  artifacts:
+    paths:
+      - terraform/staging_plan.out
 
 terraform:apply:staging:
   extends:
     - .terraform:setup
     - .terraform:variables:staging
-  stage: deploy
-  dependencies: []
+  needs: ["terraform:plan:staging"]
   script:
     - https_proxy=$http_proxy apk add zip
-    - terraform apply -auto-approve -var-file=staging.tfvars -var rails_master_key=$RAILS_MASTER_KEY -var cf_user=$CF_USERNAME
+    - terraform apply -var-file=staging.tfvars -var rails_master_key=$RAILS_MASTER_KEY -var cf_user=$CF_USERNAME staging_plan.out
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      when: manual
 
 terraform:plan:production:
-  needs: ["terraform:validate"]
   extends:
     - .terraform:setup
     - .terraform:variables:production
+  dependencies: []
   script:
     - https_proxy=$http_proxy apk add zip
-    - terraform plan -var-file=production.tfvars -var rails_master_key=$PRODUCTION_RAILS_MASTER_KEY -var cf_user=$CF_USERNAME
+    - terraform plan -out=production_plan.out -var-file=production.tfvars -var rails_master_key=$PRODUCTION_RAILS_MASTER_KEY -var cf_user=$CF_USERNAME
+  artifacts:
+    paths:
+      - terraform/production_plan.out
 
 terraform:apply:production:
   extends:
     - .terraform:setup
     - .terraform:variables:production
-  stage: deploy
-  dependencies: []
+  needs: ["terraform:plan:production"]
   script:
     - https_proxy=$http_proxy apk add zip
-    - terraform apply -auto-approve -var-file=production.tfvars -var rails_master_key=$PRODUCTION_RAILS_MASTER_KEY -var cf_user=$CF_USERNAME
+    - terraform apply -var-file=production.tfvars -var rails_master_key=$PRODUCTION_RAILS_MASTER_KEY -var cf_user=$CF_USERNAME production_plan.out
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
