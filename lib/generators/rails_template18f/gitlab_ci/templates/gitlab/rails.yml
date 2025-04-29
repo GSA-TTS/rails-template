@@ -4,6 +4,8 @@ include:
 
 # Cache Helpers
 .cache-dependencies:
+  variables:
+    WORKER_MEMORY: 2G
   cache:
     key:
       files:

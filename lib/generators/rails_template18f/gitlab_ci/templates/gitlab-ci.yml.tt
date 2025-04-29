@@ -159,7 +159,7 @@ terraform:plan:staging:
     - .terraform:variables:staging
   needs: ["terraform:assets:staging"]
   script:
-    - https_proxy=$http_proxy apk add zip
+    - apk add zip
     - terraform plan -out=staging_plan.out -var-file=staging.tfvars -var rails_master_key=$RAILS_MASTER_KEY -var cf_user=$CF_USERNAME
   artifacts:
     paths:
@@ -174,7 +174,7 @@ terraform:apply:staging:
     - terraform:plan:staging
     - terraform:assets:staging
   script:
-    - https_proxy=$http_proxy apk add zip
+    - apk add zip
     - terraform apply -var-file=staging.tfvars -var rails_master_key=$RAILS_MASTER_KEY -var cf_user=$CF_USERNAME staging_plan.out
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
@@ -187,7 +187,7 @@ terraform:plan:production:
     - .terraform:variables:production
   needs: ["terraform:assets:production"]
   script:
-    - https_proxy=$http_proxy apk add zip
+    - apk add zip
     - terraform plan -out=production_plan.out -var-file=production.tfvars -var rails_master_key=$PRODUCTION_RAILS_MASTER_KEY -var cf_user=$CF_USERNAME
   artifacts:
     paths:
@@ -202,7 +202,7 @@ terraform:apply:production:
     - terraform:plan:production
     - terraform:assets:production
   script:
-    - https_proxy=$http_proxy apk add zip
+    - apk add zip
     - terraform apply -var-file=production.tfvars -var rails_master_key=$PRODUCTION_RAILS_MASTER_KEY -var cf_user=$CF_USERNAME production_plan.out
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"

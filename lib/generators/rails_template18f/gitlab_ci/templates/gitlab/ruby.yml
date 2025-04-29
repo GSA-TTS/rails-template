@@ -1,5 +1,4 @@
 .setup-ruby:
-  - "echo \"http_proxy: $http_proxy\" > $HOME/.gemrc"
   - export PATH=$PATH:/usr/local/bundle/bin
   - bundle config set --local path 'vendor/ruby'
   - bundle config set --local deployment true

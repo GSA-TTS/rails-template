@@ -5,7 +5,7 @@
   - npm install --global yarn
 
 .yarn-install:
-  - PUPPETEER_SKIP_DOWNLOAD=true https_proxy=$http_proxy yarn install --frozen-lockfile --no-progress
+  - PUPPETEER_SKIP_DOWNLOAD=true yarn install --frozen-lockfile --no-progress
 
 .install-puppet-deps:
   - apt-get update && apt-get install -y chromium
