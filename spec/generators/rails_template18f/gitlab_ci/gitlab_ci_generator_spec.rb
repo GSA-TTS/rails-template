@@ -14,7 +14,10 @@ RSpec.describe RailsTemplate18f::Generators::GitlabCiGenerator, type: :generator
 
   it "does include test and deploy files" do
     expect(file(".gitlab-ci.yml")).to exist
-    expect(file(".gitlab/setup_langs.yml")).to exist
+    expect(file(".gitlab/ruby.yml")).to exist
+    expect(file(".gitlab/node.yml")).to exist
+    expect(file(".gitlab/rails.yml")).to exist
+    expect(file(".gitlab/terraform.yml")).to exist
   end
 
   it "creates system entries in the boundary diagram" do

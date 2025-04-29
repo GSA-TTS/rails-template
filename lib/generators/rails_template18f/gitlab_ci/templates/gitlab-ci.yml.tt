@@ -18,8 +18,10 @@ variables:
   RUBY_VERSION: <%= RUBY_VERSION %>
 
 include:
-  - local: ".gitlab/rails_helpers.yml"
-  - local: ".gitlab/terraform_helpers.yml"
+  - local: ".gitlab/ruby.yml"
+  - local: ".gitlab/node.yml"
+  - local: ".gitlab/rails.yml"
+  - local: ".gitlab/terraform.yml"
 
 default:
   image: "ruby:${RUBY_VERSION}"
@@ -34,7 +36,8 @@ build-project:
   cache:
     policy: pull-push
   script:
-    - !reference [.install-dependencies]
+    - !reference [.bundle-install]
+    - !reference [.yarn-install]
     - bin/rake assets:precompile
   artifacts:
     expire_in: 1 hour
@@ -84,30 +87,15 @@ pa11y_scan:
   rules:
     - if: $CI_PIPELINE_SOURCE != "schedule"
 
-.owasp_setup:
-  stage: test
-  extends: .run-server
-  image: "rcahearngsa/owasp-ruby:${RUBY_VERSION}"
-  variables:
-    WORKER_MEMORY: 3G
-    WORKER_DISK: 6G
-  before_script:
-    - !reference [.run-server, before_script]
-    - ln -s $PWD /zap/wrk
-  artifacts:
-    expose_as: "OWASP Report"
-    paths:
-      - zap_report.html
-
 owasp_scan:
-  extends: .owasp_setup
+  extends: .owasp:setup
   script:
     - /zap/zap-baseline.py -t http://localhost:3000 -c zap.conf -I -r zap_report.html
   rules:
     - if: $CI_PIPELINE_SOURCE != "schedule"
 
 owasp_daily_scan:
-  extends: .owasp_setup
+  extends: .owasp:setup
   script:
     - /zap/zap-full-scan.py -t http://localhost:3000 -c zap.conf -I -r zap_report.html
   rules:
@@ -126,7 +114,7 @@ terraform:validate:
     - terraform validate
 
 terraform:assets:staging:
-  extends: .terraform:assets
+  extends: .assets:builder
   cache:
     - !reference [.cache-dependencies, cache]
     - key: staging-assets
@@ -147,7 +135,7 @@ terraform:assets:staging:
         CACHE_POLICY: pull
 <% if terraform_manage_spaces? %>
 terraform:assets:production:
-  extends: .terraform:assets
+  extends: .assets:builder
   cache:
     - !reference [.cache-dependencies, cache]
     - key: production-assets

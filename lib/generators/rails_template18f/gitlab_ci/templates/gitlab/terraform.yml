@@ -1,8 +1,4 @@
 # Shared setup helpers for terraform jobs
-
-include:
-  - local: "./rails_helpers.yml"
-
 .terraform:setup:
   stage: deploy
   inherit:
@@ -30,16 +26,3 @@ include:
   variables:
     CF_USER: $CF_USERNAME
     TERRAFORM_BACKEND_KEY: terraform.tfstate.production
-
-.terraform:assets:
-  stage: deploy
-  extends: .setup-languages
-  dependencies: []
-  variables:
-    SECRET_KEY_BASE_DUMMY: 1
-  script:
-    - bin/rake assets:precompile
-    - bin/rake assets:clean
-  artifacts:
-    paths:
-      - public/assets

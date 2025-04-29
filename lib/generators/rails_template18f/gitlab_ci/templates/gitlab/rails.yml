@@ -1,3 +1,7 @@
+include:
+  - local: ".gitlab/ruby.yml"
+  - local: ".gitlab/node.yml"
+
 # Cache Helpers
 .cache-dependencies:
   cache:
@@ -12,39 +16,16 @@
     policy: pull
 
 # Language Helpers
-.setup-ruby: &setup-ruby
-  - "echo \"http_proxy: $http_proxy\" > $HOME/.gemrc"
-  - export PATH=$PATH:/usr/local/bundle/bin
-  - bundle config set --local path 'vendor/ruby'
-  - bundle config set --local deployment true
-
-.setup-node: &setup-node
-  - curl -fsSL https://deb.nodesource.com/setup_<%= node_major %>.x -o nodesource_setup.sh
-  - bash nodesource_setup.sh
-  - apt-get install -y nodejs
-  - npm install --global yarn
-
-.install-dependencies:
-  - bundle install
-  - PUPPETEER_SKIP_DOWNLOAD=true https_proxy=$http_proxy yarn install --frozen-lockfile --no-progress
-
-.install-puppet-deps:
-  - apt-get update && apt-get install -y chromium
-
 .setup-languages:
   before_script:
-    - *setup-ruby
-    - *setup-node
+    - !reference [.setup-ruby]
+    - !reference [.setup-node]
 
 # Project Helpers
-
-.pg-service: &pg-service
-  - name: postgres:15
-    alias: pg
-
 .setup-project:
   services:
-    - *pg-service
+    - name: postgres:15
+      alias: pg
   before_script:
     - !reference [.setup-ruby]
     - export DATABASE_URL="postgres://postgres:${POSTGRES_PASSWORD}@${CI_SERVICE_pg}:5432/${POSTGRES_DB}"
@@ -62,3 +43,31 @@
     - bin/rake assets:precompile
     - PORT=3000 bin/rails server > /dev/null 2>&1 &
     - sleep 5
+
+.owasp:setup:
+  stage: test
+  extends: .run-server
+  image: "rcahearngsa/owasp-ruby:${RUBY_VERSION}"
+  variables:
+    WORKER_MEMORY: 3G
+    WORKER_DISK: 6G
+  before_script:
+    - !reference [.run-server, before_script]
+    - ln -s $PWD /zap/wrk
+  artifacts:
+    expose_as: "OWASP Report"
+    paths:
+      - zap_report.html
+
+.assets:builder:
+  stage: deploy
+  extends: .setup-languages
+  dependencies: []
+  variables:
+    SECRET_KEY_BASE_DUMMY: 1
+  script:
+    - bin/rake assets:precompile
+    - bin/rake assets:clean
+  artifacts:
+    paths:
+      - public/assets

@@ -17,9 +17,7 @@ class CloudGovConfig
     end
   end
 
-  private
-
-  def self.parse_env
+  private_class_method def self.parse_env
     JSON.parse(ENV[ENV_VARIABLE]).with_indifferent_access
   end
 end
