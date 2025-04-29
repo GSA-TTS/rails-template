@@ -405,9 +405,10 @@ after_bundle do
 end
 if cloud_gov_org_tktk?
   register_announcement("Terraform", <<~EOM)
-    Fill in the cloud.gov organization information in:
+    Fill in the cloud.gov organization and space information in:
       * terraform/bootstrap/main.tf
       * terraform/main.tf
+      * terraform/*.tfvars
   EOM
 end
 register_announcement("Terraform", "Run the bootstrap script and update the appropriate CI/CD environment variables defined in the Deployment section of the README")
@@ -433,11 +434,6 @@ if @github_actions
     ]
     generate "rails_template18f:github_actions", *generator_arguments
   end
-  if cloud_gov_org_tktk?
-    register_announcement("GitHub Actions", <<~EOM)
-      * Fill in the cloud.gov organization information in .github/workflows/deploy-staging.yml
-    EOM
-  end
   register_announcement("GitHub Actions", <<~EOM)
     * Create environment variable secrets for deploy users as defined in the Deployment section of the README
   EOM
@@ -452,11 +448,6 @@ if @circleci_pipeline
     ]
     generate "rails_template18f:circleci", *generator_arguments
   end
-  if cloud_gov_org_tktk?
-    register_announcement("CircleCI", <<~EOM)
-      * Fill in the cloud.gov organization information in .circleci/config.yml
-    EOM
-  end
   register_announcement("CircleCI", <<~EOM)
     * Create project environment variables for deploy users as defined in the Deployment section of the README
   EOM
@@ -470,11 +461,6 @@ if @gitlab_ci
       "--cg-prod=#{cloud_gov_production_space}"
     ]
     generate "rails_template18f:gitlab_ci", *generator_arguments
-  end
-  if cloud_gov_org_tktk?
-    register_announcement("GitLab CI", <<~EOM)
-      * Fill in the cloud.gov organization information in .gitlab-ci.yml
-    EOM
   end
   register_announcement("GitLab CI", <<~EOM)
     * Create project environment variables for deploy users as defined in the Deployment section of the README
