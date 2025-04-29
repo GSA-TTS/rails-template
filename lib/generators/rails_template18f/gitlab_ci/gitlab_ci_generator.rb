@@ -9,6 +9,7 @@ module RailsTemplate18f
       include CloudGovOptions
 
       class_option :node_version, desc: "Node version to test against in actions"
+      class_option :postgres_version, default: "15", desc: "PostgreSQL version "
 
       desc <<~DESC
         Description:
@@ -118,6 +119,10 @@ EOB
           | `TERRAFORM_PUBLIC_BACKEND_CONFIG` | File-type variable containing all entries from secrets.backend.tfvars _except_ `secret_key`. Marked as `Visible` |
           | `TERRAFORM_SECRET_BACKEND_CONFIG` | File-type variable containing the `secret_key` line from secrets.backend.tfvars. Masked and hidden. |
         EOM
+      end
+
+      def postgres_version
+        options[:postgres_version]
       end
 
       def node_version

@@ -26,7 +26,7 @@ include:
 # Project Helpers
 .setup-project:
   services:
-    - name: postgres:15
+    - name: "postgres:${POSTGRES_VERSION}"
       alias: pg
   before_script:
     - !reference [.setup-ruby]
