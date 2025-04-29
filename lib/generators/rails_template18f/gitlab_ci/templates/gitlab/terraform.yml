@@ -1,0 +1,28 @@
+# Shared setup helpers for terraform jobs
+.terraform:setup:
+  stage: deploy
+  inherit:
+    default: false
+  image:
+    name: "hashicorp/terraform"
+    entrypoint: ["sh"]
+  variables:
+    CF_API_URL: https://api.fr.cloud.gov
+    TERRAFORM_BACKEND_KEY: terraform.tfstate.staging
+  dependencies: []
+  before_script:
+    - cd terraform
+    - terraform init -backend-config=$TERRAFORM_PUBLIC_BACKEND_CONFIG -backend-config=$TERRAFORM_SECRET_BACKEND_CONFIG -backend-config="key=$TERRAFORM_BACKEND_KEY"
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
+
+.terraform:variables:staging:
+  dependencies: null
+  variables:
+    CF_USER: $CF_USERNAME
+
+.terraform:variables:production:
+  dependencies: null
+  variables:
+    CF_USER: $CF_USERNAME
+    TERRAFORM_BACKEND_KEY: terraform.tfstate.production

@@ -1,0 +1,11 @@
+.setup-node:
+  - curl -fsSL https://deb.nodesource.com/setup_<%= node_major %>.x -o nodesource_setup.sh
+  - bash nodesource_setup.sh
+  - apt-get install -y nodejs
+  - npm install --global yarn
+
+.yarn-install:
+  - PUPPETEER_SKIP_DOWNLOAD=true yarn install --frozen-lockfile --no-progress
+
+.install-puppet-deps:
+  - apt-get update && apt-get install -y chromium

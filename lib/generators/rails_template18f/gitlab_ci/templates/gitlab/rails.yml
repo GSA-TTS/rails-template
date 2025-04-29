@@ -1,0 +1,75 @@
+include:
+  - local: ".gitlab/ruby.yml"
+  - local: ".gitlab/node.yml"
+
+# Cache Helpers
+.cache-dependencies:
+  variables:
+    WORKER_MEMORY: 2G
+  cache:
+    key:
+      files:
+        - Gemfile.lock
+        - yarn.lock
+      prefix: dependencies
+    paths:
+      - vendor/ruby
+      - node_modules/
+    policy: pull
+
+# Language Helpers
+.setup-languages:
+  before_script:
+    - !reference [.setup-ruby]
+    - !reference [.setup-node]
+
+# Project Helpers
+.setup-project:
+  services:
+    - name: "postgres:${POSTGRES_VERSION}"
+      alias: pg
+  before_script:
+    - !reference [.setup-ruby]
+    - export DATABASE_URL="postgres://postgres:${POSTGRES_PASSWORD}@${CI_SERVICE_pg}:5432/${POSTGRES_DB}"
+    - bin/rails db:prepare
+
+.run-server:
+  extends: .setup-project
+  dependencies: []
+  variables:
+    RAILS_ENV: ci
+    SECRET_KEY_BASE_DUMMY: 1
+  before_script:
+    - !reference [.setup-node]
+    - !reference [.setup-project, before_script]
+    - bin/rake assets:precompile
+    - PORT=3000 bin/rails server > /dev/null 2>&1 &
+    - sleep 5
+
+.owasp:setup:
+  stage: test
+  extends: .run-server
+  image: "rcahearngsa/owasp-ruby:${RUBY_VERSION}"
+  variables:
+    WORKER_MEMORY: 3G
+    WORKER_DISK: 6G
+  before_script:
+    - !reference [.run-server, before_script]
+    - ln -s $PWD /zap/wrk
+  artifacts:
+    expose_as: "OWASP Report"
+    paths:
+      - zap_report.html
+
+.assets:builder:
+  stage: deploy
+  extends: .setup-languages
+  dependencies: []
+  variables:
+    SECRET_KEY_BASE_DUMMY: 1
+  script:
+    - bin/rake assets:precompile
+    - bin/rake assets:clean
+  artifacts:
+    paths:
+      - public/assets
