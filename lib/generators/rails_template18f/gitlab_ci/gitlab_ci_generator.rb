@@ -60,7 +60,7 @@ EOB
         def readme_cicd
           <<~EOM
 
-            GitLab CI are used to run all tests and scans as part of pull requests.
+            GitLab CI is used to run all tests and scans as part of pull requests.
 
             Security scans are also run on a scheduled basis. DEVELOPER TODO: create a pipeline schedule in the GitLab UI and update this sentence with the cadence.
           EOM
