@@ -18,15 +18,6 @@ module RailsTemplate18f
       def install_actions
         template "gitlab-ci.yml", ".gitlab-ci.yml"
         directory "gitlab", ".gitlab"
-        # directory "github", ".github"
-        # if !oscal_dir_exists?
-        #   remove_file ".github/workflows/validate-ssp.yml"
-        #   remove_file ".github/workflows/assemble-ssp.yml"
-        # end
-        # if !terraform_manage_spaces?
-        #   remove_file ".github/workflows/terraform-production.yml"
-        #   remove_file ".github/workflows/deploy-production.yml"
-        # end
       end
 
       def update_readme

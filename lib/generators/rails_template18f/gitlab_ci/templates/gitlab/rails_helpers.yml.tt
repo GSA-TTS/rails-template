@@ -1,31 +1,40 @@
+# Cache Helpers
+.cache-dependencies:
+  cache:
+    key:
+      files:
+        - Gemfile.lock
+        - yarn.lock
+      prefix: dependencies
+    paths:
+      - vendor/ruby
+      - node_modules/
+    policy: pull
+
 # Language Helpers
+.setup-ruby: &setup-ruby
+  - "echo \"http_proxy: $http_proxy\" > $HOME/.gemrc"
+  - export PATH=$PATH:/usr/local/bundle/bin
+  - bundle config set --local path 'vendor/ruby'
+  - bundle config set --local deployment true
 
 .setup-node: &setup-node
   - curl -fsSL https://deb.nodesource.com/setup_<%= node_major %>.x -o nodesource_setup.sh
   - bash nodesource_setup.sh
   - apt-get install -y nodejs
   - npm install --global yarn
-  - echo 'yarn-offline-mirror ".yarn-cache/"' >> .yarnrc
-  - echo 'yarn-offline-mirror-pruning true' >> .yarnrc
 
-.ruby-deps: &ruby-deps
-  - "echo \"http_proxy: $http_proxy\" > $HOME/.gemrc"
-  - export PATH=$PATH:/usr/local/bundle/bin
-  - bundle config set --local path 'vendor/ruby'
-  - bundle install -j 1
-
-.node-deps: &node-deps
-  - *setup-node
+.install-dependencies:
+  - bundle install
   - PUPPETEER_SKIP_DOWNLOAD=true https_proxy=$http_proxy yarn install --frozen-lockfile --no-progress
 
 .install-puppet-deps:
   - apt-get update && apt-get install -y chromium
 
 .setup-languages:
-  dependencies: []
   before_script:
-    - *ruby-deps
-    - *node-deps
+    - *setup-ruby
+    - *setup-node
 
 # Project Helpers
 
@@ -33,25 +42,23 @@
   - name: postgres:15
     alias: pg
 
-.setup-script: &setup-script
-  - !reference [.setup-languages, before_script]
-  - export DATABASE_URL="postgres://postgres:${POSTGRES_PASSWORD}@${CI_SERVICE_pg}:5432/${POSTGRES_DB}"
-  - bin/rails db:prepare
-
 .setup-project:
-  dependencies: []
   services:
     - *pg-service
   before_script:
-    - *setup-script
+    - !reference [.setup-ruby]
+    - export DATABASE_URL="postgres://postgres:${POSTGRES_PASSWORD}@${CI_SERVICE_pg}:5432/${POSTGRES_DB}"
+    - bin/rails db:prepare
 
 .run-server:
   extends: .setup-project
+  dependencies: []
   variables:
     RAILS_ENV: ci
     SECRET_KEY_BASE_DUMMY: 1
   before_script:
-    - !reference [.setup-script]
+    - !reference [.setup-node]
+    - !reference [.setup-project, before_script]
     - bin/rake assets:precompile
     - PORT=3000 bin/rails server > /dev/null 2>&1 &
     - sleep 5
