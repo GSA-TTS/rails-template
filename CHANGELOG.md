@@ -1,5 +1,10 @@
 ## [Unreleased]
 
+## [2.1.0] - 2025-04-29
+
+- Terraform generator updates to remove the old cloudfoundy-community provider and reduce the need for cloud.gov service accounts
+- New GitLab CI generator for use with DevTools GitLab
+
 ## [2.0.0] - 2025-01-16
 
 - Default new apps to Rails 8, including support for thruster proxy
