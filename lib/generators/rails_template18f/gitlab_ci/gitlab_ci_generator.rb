@@ -62,7 +62,7 @@ EOB
 
             GitLab CI are used to run all tests and scans as part of pull requests.
 
-            Security scans are also run on a scheduled basis. Weekly for static code scans, and daily for dependency scans.
+            Security scans are also run on a scheduled basis. DEVELOPER TODO: create a pipeline schedule in the GitLab UI and update this sentence with the cadence.
           EOM
         end
 
@@ -71,7 +71,7 @@ EOB
 
             Deploys to staging happen via terraform on every push to the `main` branch in GitLab.
 
-            TKTK staging secrets instructions
+            The following secrets must be set within the masked and hidden [CI/CD variables](https://docs.gitlab.com/ci/variables/)
 
             | Secret Name | Description |
             | ----------- | ----------- |
@@ -88,13 +88,13 @@ EOB
 
               Deploys to production happen via terraform on every push to the `production` branch in GitLab.
 
-              TKTK production secrets instructions
+              The following secrets must be set within the masked and hidden [CI/CD variables](https://docs.gitlab.com/ci/variables/)
 
               | Secret Name | Description |
               | ----------- | ----------- |
               | `CF_USERNAME` | cloud.gov SpaceDeployer username |
               | `CF_PASSWORD` | cloud.gov SpaceDeployer password |
-              | `RAILS_MASTER_KEY` | `config/credentials/production.key` |
+              | `PRODUCTION_RAILS_MASTER_KEY` | `config/credentials/production.key`. Should be marked as `Protected`. |
               #{terraform_secret_values}
             EOM
           else
@@ -105,8 +105,8 @@ EOB
         def readme_credentials
           <<~EOM
 
-            1. TKTK instructions for where to store secrets in GitLab
-            1. Add the appropriate `TF_VAR_<variable name>` addition to the `terraform-<env>.yml` and `deploy-<env>.yml` workflows like the existing `TF_VAR_rails_master_key`
+            1. Store variables that must be secret using masked and hidden [CI/CD variables](https://docs.gitlab.com/ci/variables/) in GitLab
+            1. Add the appropriate `-var` arguments to the `terraform:plan:<env>` and `terraform:apply:<env>` jobs like the existing `-var rails_master_key=`
           EOM
         end
       end
@@ -115,9 +115,8 @@ EOB
 
       def terraform_secret_values
         <<~EOM
-          | `TERRAFORM_STATE_ACCESS_KEY` | Access key for terraform state bucket |
-          | `TERRAFORM_STATE_SECRET_ACCESS_KEY` | Secret key for terraform state bucket |
-          | `TERRAFORM_STATE_BUCKET_NAME` | Bucket name for terraform state bucket |
+          | `TERRAFORM_PUBLIC_BACKEND_CONFIG` | File-type variable containing all entries from secrets.backend.tfvars _except_ `secret_key`. Marked as `Visible` |
+          | `TERRAFORM_SECRET_BACKEND_CONFIG` | File-type variable containing the `secret_key` line from secrets.backend.tfvars. Masked and hidden. |
         EOM
       end
 
