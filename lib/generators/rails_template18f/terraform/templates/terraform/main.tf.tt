@@ -1,6 +1,6 @@
 locals {
   cf_org_name     = "<%= cloud_gov_organization %>"
-  app_name        = "<%= app_name %>"
+  app_name        = "<%= app_name.tr("_", "-") %>"
   space_deployers = setunion([var.cf_user], var.space_deployers)
 }
 <% if terraform_manage_spaces? %>
