@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+- Prevent non-compliant hostnames by replacing underscores with dashes
+
 ## [2.1.0] - 2025-04-29
 
 - Terraform generator updates to remove the old cloudfoundy-community provider and reduce the need for cloud.gov service accounts
