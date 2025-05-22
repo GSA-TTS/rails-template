@@ -8,11 +8,16 @@
     entrypoint: ["sh"]
   variables:
     CF_API_URL: https://api.fr.cloud.gov
-    TERRAFORM_BACKEND_KEY: terraform.tfstate.staging
+    TF_STATE_NAME: staging
+    TF_HTTP_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/${TF_STATE_NAME}
+    TF_HTTP_LOCK_ADDRESS: ${TF_HTTP_ADDRESS}/lock
+    TF_HTTP_UNLOCK_ADDRESS: ${TF_HTTP_ADDRESS}/lock
+    TF_HTTP_USERNAME: gitlab-ci-token
+    TF_HTTP_PASSWORD: ${CI_JOB_TOKEN}
   dependencies: []
   before_script:
     - cd terraform
-    - terraform init -backend-config=$TERRAFORM_PUBLIC_BACKEND_CONFIG -backend-config=$TERRAFORM_SECRET_BACKEND_CONFIG -backend-config="key=$TERRAFORM_BACKEND_KEY"
+    - terraform init
   rules:
     - if: $CI_PIPELINE_SOURCE != "schedule"
 
@@ -25,4 +30,4 @@
   dependencies: null
   variables:
     CF_USER: $CF_USERNAME
-    TERRAFORM_BACKEND_KEY: terraform.tfstate.production
+    TF_STATE_NAME: "production"
