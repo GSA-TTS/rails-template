@@ -8,6 +8,8 @@ module RailsTemplate18f
       include Base
       include CloudGovOptions
 
+      class_option :backend, default: "s3", desc: "Which terraform backend to use. Options: [s3, gitlab]"
+
       desc <<~DESC
         Description:
           Install terraform files for cloud.gov database and s3 services
@@ -16,14 +18,22 @@ module RailsTemplate18f
       def install
         directory "terraform", mode: :preserve
         chmod "terraform/terraform.sh", 0o755
-        if terraform_manage_spaces?
-          template "full_bootstrap/main.tf", "terraform/bootstrap/main.tf"
-          copy_file "full_bootstrap/imports.tf.tftpl", "terraform/bootstrap/templates/imports.tf.tftpl"
+      end
+
+      def install_bootstrap
+        if use_gitlab_backend?
+          directory "gitlab_bootstrap", "terraform/bootstrap", mode: :preserve
         else
-          template "sandbox_bootstrap/main.tf", "terraform/bootstrap/main.tf"
-          copy_file "sandbox_bootstrap/imports.tf.tftpl", "terraform/bootstrap/templates/imports.tf.tftpl"
-          remove_file "terraform/bootstrap/users.auto.tfvars"
-          remove_file "terraform/production.tfvars"
+          directory "s3_bootstrap/common", "terraform/bootstrap", mode: :preserve
+          if terraform_manage_spaces?
+            template "s3_bootstrap/full/main.tf", "terraform/bootstrap/main.tf"
+            copy_file "s3_bootstrap/full/imports.tf.tftpl", "terraform/bootstrap/templates/imports.tf.tftpl"
+          else
+            template "s3_bootstrap/sandbox/main.tf", "terraform/bootstrap/main.tf"
+            copy_file "s3_bootstrap/sandbox/imports.tf.tftpl", "terraform/bootstrap/templates/imports.tf.tftpl"
+            remove_file "terraform/bootstrap/users.auto.tfvars"
+            remove_file "terraform/production.tfvars"
+          end
         end
       end
 
@@ -94,6 +104,14 @@ module RailsTemplate18f
               fi
             done
           EOM
+        end
+
+        def use_gitlab_backend?
+          backend == "gitlab"
+        end
+
+        def backend
+          options[:backend]
         end
       end
     end

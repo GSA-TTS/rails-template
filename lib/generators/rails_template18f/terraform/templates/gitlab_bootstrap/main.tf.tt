@@ -1,0 +1,97 @@
+terraform {
+  required_version = "~> 1.10"
+  required_providers {
+    cloudfoundry = {
+      source  = "cloudfoundry/cloudfoundry"
+      version = "1.5.0"
+    }
+  }
+  backend "http" {
+    lock_method    = "POST"
+    unlock_method  = "DELETE"
+    retry_wait_min = 5
+  }
+}
+# empty config will let terraform borrow cf-cli's auth
+provider "cloudfoundry" {}
+
+locals {
+  org_name   = "<%= cloud_gov_organization %>"
+  space_name = "<%= terraform_manage_spaces? ? "#{ cloud_gov_production_space }-mgmt" : cloud_gov_staging_space %>"
+}
+
+variable "terraform_users" {
+  type        = set(string)
+  description = "The list of developer emails and service account usernames who should be granted access to retrieve state bucket credentials"
+
+  validation {
+    condition     = length(var.terraform_users) > 0
+    error_message = "terraform_users must include at least the current user calling apply.sh"
+  }
+}
+
+data "cloudfoundry_org" "org" {
+  name = local.org_name
+}
+<% if terraform_manage_spaces? %>
+module "mgmt_space" {
+  source = "github.com/gsa-tts/terraform-cloudgov//cg_space?ref=v2.3.0"
+
+  cf_org_name   = local.org_name
+  cf_space_name = local.space_name
+  developers    = var.terraform_users
+}
+<% else %>
+data "cloudfoundry_space" "space" {
+  name = local.space_name
+  org  = data.cloudfoundry_org.org.id
+}
+<% end %>
+data "cloudfoundry_service_plans" "cg_service_account" {
+  name                  = "space-auditor"
+  service_offering_name = "cloud-gov-service-account"
+}
+locals {
+  sa_service_name    = "<%= app_name %>-cicd-deployer"
+  sa_key_name        = "cicd-deployer-access-key"
+  sa_bot_credentials = jsondecode(data.cloudfoundry_service_credential_binding.runner_sa_key.credential_bindings.0.credential_binding).credentials
+  sa_cf_username     = nonsensitive(local.sa_bot_credentials.username)
+  sa_cf_password     = local.sa_bot_credentials.password
+}
+resource "cloudfoundry_service_instance" "runner_service_account" {
+  name         = local.sa_service_name
+  type         = "managed"
+  space        = module.mgmt_space.space_id
+  service_plan = data.cloudfoundry_service_plans.cg_service_account.service_plans.0.id
+  depends_on   = [module.mgmt_space]
+}
+resource "cloudfoundry_service_credential_binding" "runner_sa_key" {
+  name             = local.sa_key_name
+  service_instance = cloudfoundry_service_instance.runner_service_account.id
+  type             = "key"
+}
+data "cloudfoundry_service_credential_binding" "runner_sa_key" {
+  name             = local.sa_key_name
+  service_instance = cloudfoundry_service_instance.runner_service_account.id
+  depends_on       = [cloudfoundry_service_credential_binding.runner_sa_key]
+}<% if terraform_manage_spaces? %>
+data "cloudfoundry_user" "sa_user" {
+  name = local.sa_cf_username
+}
+resource "cloudfoundry_org_role" "sa_org_manager" {
+  user = data.cloudfoundry_user.sa_user.users.0.id
+  type = "organization_manager"
+  org  = data.cloudfoundry_org.org.id
+}<% end %>
+
+resource "local_sensitive_file" "bot_secrets_file" {
+  filename        = "${path.module}/secrets.cicd.tfvars"
+  file_permission = "0600"
+
+  content = templatefile("${path.module}/bot_secrets.tftpl", {
+    service_name = local.sa_service_name,
+    key_name     = local.sa_key_name,
+    username     = local.sa_cf_username,
+    password     = local.sa_cf_password
+  })
+}
