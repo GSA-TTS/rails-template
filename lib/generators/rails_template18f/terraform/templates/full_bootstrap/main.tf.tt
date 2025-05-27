@@ -3,7 +3,7 @@ terraform {
   required_providers {
     cloudfoundry = {
       source  = "cloudfoundry/cloudfoundry"
-      version = "1.2.0"
+      version = "1.5.0"
     }
   }
 }
@@ -134,7 +134,7 @@ locals {
 }
 resource "local_sensitive_file" "bucket_creds" {
   content         = local.backend_config
-  filename        = "${path.module}/../secrets.backend.tfvars"
+  filename        = "${path.module}/../.shadowenv.d/500_tf_backend_secrets.lisp"
   file_permission = "0600"
 }
 
@@ -149,11 +149,4 @@ resource "local_sensitive_file" "bot_secrets_file" {
     username     = local.sa_cf_username,
     password     = local.sa_cf_password
   })
-}
-
-output "mgmt_space_id" {
-  value = module.mgmt_space.space_id
-}
-output "mgmt_org_id" {
-  value = data.cloudfoundry_org.org.id
 }

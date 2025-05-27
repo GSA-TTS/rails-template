@@ -23,6 +23,7 @@ resource "cloudfoundry_app" "app" {
   source_code_hash = data.archive_file.src.output_base64sha256
   buildpacks       = ["ruby_buildpack"]
   strategy         = "rolling"
+  enable_ssh       = var.allow_ssh
 
   environment = {
     RAILS_ENV                = var.env

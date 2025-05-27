@@ -27,6 +27,15 @@ module RailsTemplate18f
         end
       end
 
+      def install_shadowenv
+        append_to_file "Brewfile", <<~EOB
+
+          # shadowenv for loading terraform backend secrets
+          brew "shadowenv"
+        EOB
+        insert_into_file "README.md", indent("* [shadowenv](https://shopify.github.io/shadowenv/)\n"), after: /\* Install homebrew dependencies: `brew bundle`\n/
+      end
+
       def ignore_files
         unless skip_git?
           append_to_file ".gitignore", <<~EOM

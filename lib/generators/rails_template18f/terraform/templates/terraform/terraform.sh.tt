@@ -79,14 +79,13 @@ if [[ -f .terraform/terraform.tfstate ]]; then
 fi
 
 if [[ $tfm_needs_init = true ]]; then
-  if [[ ! -f secrets.backend.tfvars ]]; then
+  if [[ ! -f .shadowenv.d/500_tf_backend_secrets.lisp ]]; then
     echo "=============================================================================================================="
     echo "= Recreating backend config file. It is fine if this step wants to delete any local_sensitive_file resources"
     echo "=============================================================================================================="
-    (cd bootstrap && ./apply.sh -auto-approve)
+    (cd bootstrap && ./apply.sh $force)
   fi
-  terraform init -backend-config=secrets.backend.tfvars -backend-config="key=terraform.tfstate.$env" -reconfigure
-  rm secrets.backend.tfvars
+  terraform init -backend-config="bucket=$S3_BUCKET_NAME" -backend-config="key=terraform.tfstate.$env" -reconfigure
 fi
 
 echo "=============================================================================================================="
