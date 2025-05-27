@@ -48,7 +48,7 @@ data "cloudfoundry_space" "space" {
 }
 <% end %>
 data "cloudfoundry_service_plans" "cg_service_account" {
-  name                  = "space-auditor"
+  name                  = "<%= terraform_manage_spaces? ? "space-auditor" : "space-deployer" %>"
   service_offering_name = "cloud-gov-service-account"
 }
 locals {
@@ -61,9 +61,10 @@ locals {
 resource "cloudfoundry_service_instance" "runner_service_account" {
   name         = local.sa_service_name
   type         = "managed"
+  service_plan = data.cloudfoundry_service_plans.cg_service_account.service_plans.0.id<% if terraform_manage_spaces? %>
   space        = module.mgmt_space.space_id
-  service_plan = data.cloudfoundry_service_plans.cg_service_account.service_plans.0.id
-  depends_on   = [module.mgmt_space]
+  depends_on   = [module.mgmt_space]<% else %>
+  space        = data.cloudfoundry_space.space.id<% end %>
 }
 resource "cloudfoundry_service_credential_binding" "runner_sa_key" {
   name             = local.sa_key_name
