@@ -4,6 +4,9 @@
 
 set -e
 
+# ensure we're operating with the correct relative paths
+cd `dirname "$0"`
+
 shadowenv trust && eval "$(shadowenv hook)"
 
 ans=""

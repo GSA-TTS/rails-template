@@ -113,6 +113,27 @@ module RailsTemplate18f
         def backend
           options[:backend]
         end
+
+        def backend_block
+          if use_gitlab_backend?
+            <<EOB
+  backend "http" {
+    lock_method    = "POST"
+    unlock_method  = "DELETE"
+    retry_wait_min = 5
+  }
+EOB
+          else
+            <<EOB
+  backend "s3" {
+    encrypt           = true
+    use_lockfile      = true
+    use_fips_endpoint = true
+    region            = "us-gov-west-1"
+  }
+EOB
+          end
+        end
       end
     end
   end
