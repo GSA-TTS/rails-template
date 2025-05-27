@@ -1,0 +1,6 @@
+(provide "terraform-backend-config")
+(env/set "S3_BUCKET_NAME" "${creds.bucket}")
+(env/set "AWS_ACCESS_KEY_ID" "${creds.access_key_id}")
+(env/set "AWS_SECRET_ACCESS_KEY" "${creds.secret_access_key}")
+; not a secret, but setting it here enables the aws cli to work when in the terraform directory
+(env/set "AWS_REGION" "${creds.region}")

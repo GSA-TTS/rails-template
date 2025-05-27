@@ -3,34 +3,28 @@
 require "rails_helper"
 
 RSpec.describe CloudGovConfig, type: :model do
-  subject { described_class }
-
-  describe ".dig" do
-    context "VCAP_SERVICES is blank" do
-      it "returns nil" do
-        expect(subject.dig(:s3, :credentials, :bucket)).to be_nil
+  describe "#dig" do
+    [nil, "", "{}"].each do |blank|
+      context "VCAP_SERVICES is #{blank.inspect}" do
+        subject { described_class.new blank }
+        it "returns nil" do
+          expect(subject.dig(:s3, :credentials, :bucket)).to be_nil
+        end
       end
     end
 
     context "VCAP_SERVICES is set" do
+      subject { described_class.new vcap }
       let(:bucket_name) { "bucket-name" }
       let(:vcap) {
         {
-          s3: [
-            {
-              credentials: {
-                bucket: bucket_name
-              }
+          s3: [{
+            credentials: {
+              bucket: bucket_name
             }
-          ]
-        }
+          }]
+        }.to_json
       }
-
-      around do |example|
-        ClimateControl.modify VCAP_SERVICES: vcap.to_json do
-          example.run
-        end
-      end
 
       it "can find a path" do
         expect(subject.dig(:s3, :credentials, :bucket)).to eq bucket_name

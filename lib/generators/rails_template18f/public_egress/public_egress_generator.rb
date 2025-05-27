@@ -103,7 +103,7 @@ EOB
 
               cf_org_name          = local.cf_org_name
               cf_space_name        = "${var.cf_space_name}-egress"
-              allow_ssh            = var.allow_space_ssh
+              allow_ssh            = var.allow_ssh
               deployers            = local.space_deployers
               developers           = var.space_developers
               auditors             = var.space_auditors

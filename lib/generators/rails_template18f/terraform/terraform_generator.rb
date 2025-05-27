@@ -8,6 +8,8 @@ module RailsTemplate18f
       include Base
       include CloudGovOptions
 
+      class_option :backend, default: "s3", desc: "Which terraform backend to use. Options: [s3, gitlab]"
+
       desc <<~DESC
         Description:
           Install terraform files for cloud.gov database and s3 services
@@ -16,15 +18,34 @@ module RailsTemplate18f
       def install
         directory "terraform", mode: :preserve
         chmod "terraform/terraform.sh", 0o755
-        if terraform_manage_spaces?
-          template "full_bootstrap/main.tf", "terraform/bootstrap/main.tf"
-          copy_file "full_bootstrap/imports.tf.tftpl", "terraform/bootstrap/templates/imports.tf.tftpl"
+      end
+
+      def install_bootstrap
+        if use_gitlab_backend?
+          directory "gitlab_bootstrap", "terraform/bootstrap", mode: :preserve
         else
-          template "sandbox_bootstrap/main.tf", "terraform/bootstrap/main.tf"
-          copy_file "sandbox_bootstrap/imports.tf.tftpl", "terraform/bootstrap/templates/imports.tf.tftpl"
+          directory "s3_bootstrap/common", "terraform/bootstrap", mode: :preserve
+          if terraform_manage_spaces?
+            template "s3_bootstrap/full/main.tf", "terraform/bootstrap/main.tf"
+            copy_file "s3_bootstrap/full/imports.tf.tftpl", "terraform/bootstrap/templates/imports.tf.tftpl"
+          else
+            template "s3_bootstrap/sandbox/main.tf", "terraform/bootstrap/main.tf"
+            copy_file "s3_bootstrap/sandbox/imports.tf.tftpl", "terraform/bootstrap/templates/imports.tf.tftpl"
+          end
+        end
+        unless terraform_manage_spaces?
           remove_file "terraform/bootstrap/users.auto.tfvars"
           remove_file "terraform/production.tfvars"
         end
+      end
+
+      def install_shadowenv
+        append_to_file "Brewfile", <<~EOB
+
+          # shadowenv for loading terraform backend secrets
+          brew "shadowenv"
+        EOB
+        insert_into_file "README.md", indent("* [shadowenv](https://shopify.github.io/shadowenv/)\n"), after: /\* Install homebrew dependencies: `brew bundle`\n/
       end
 
       def ignore_files
@@ -85,6 +106,35 @@ module RailsTemplate18f
               fi
             done
           EOM
+        end
+
+        def use_gitlab_backend?
+          backend == "gitlab"
+        end
+
+        def backend
+          options[:backend]
+        end
+
+        def backend_block
+          if use_gitlab_backend?
+            <<EOB
+  backend "http" {
+    lock_method    = "POST"
+    unlock_method  = "DELETE"
+    retry_wait_min = 5
+  }
+EOB
+          else
+            <<EOB
+  backend "s3" {
+    encrypt           = true
+    use_lockfile      = true
+    use_fips_endpoint = true
+    region            = "us-gov-west-1"
+  }
+EOB
+          end
         end
       end
     end

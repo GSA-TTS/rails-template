@@ -401,6 +401,7 @@ after_bundle do
     "--cg-staging=#{cloud_gov_staging_space}",
     "--cg-prod=#{cloud_gov_production_space}"
   ]
+  generator_arguments << "--backend=gitlab" if @gitlab_ci
   generate "rails_template18f:terraform", *generator_arguments
 end
 if cloud_gov_org_tktk?

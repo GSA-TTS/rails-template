@@ -23,12 +23,12 @@ variable "space_auditors" {
   type        = set(string)
   default     = []
   description = "A list of users to be granted SpaceAuditor on cf_space_name"
-}
-variable "allow_space_ssh" {
+}<% end %>
+variable "allow_ssh" {
   type        = bool
   default     = false
-  description = "Whether to allow ssh to cf_space_name"
-}<% end %>
+  description = "Whether to allow ssh to the space and/or app"
+}
 
 # supporting services settings
 variable "rds_plan_name" {
