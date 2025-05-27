@@ -31,9 +31,11 @@ module RailsTemplate18f
           else
             template "s3_bootstrap/sandbox/main.tf", "terraform/bootstrap/main.tf"
             copy_file "s3_bootstrap/sandbox/imports.tf.tftpl", "terraform/bootstrap/templates/imports.tf.tftpl"
-            remove_file "terraform/bootstrap/users.auto.tfvars"
-            remove_file "terraform/production.tfvars"
           end
+        end
+        unless terraform_manage_spaces?
+          remove_file "terraform/bootstrap/users.auto.tfvars"
+          remove_file "terraform/production.tfvars"
         end
       end
 

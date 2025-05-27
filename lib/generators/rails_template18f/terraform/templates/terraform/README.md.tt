@@ -10,49 +10,54 @@ is very limited.
 When you are ready to move the application to a non-sandbox cloud.gov organization, please re-run the terraform generator with…
 
 ```bash
-bin/rails generate rails_template18f:terraform --cg-org=<ORG_NAME> --cg-staging=<STAGING_SPACE_NAME> --cg-prod=<PRODUCTION_SPACE_NAME>
+bin/rails generate rails_template18f:terraform --cg-org=<ORG_NAME> --cg-staging=<STAGING_SPACE_NAME> --cg-prod=<PRODUCTION_SPACE_NAME> --backend=<%= backend %>
 ```
 
 …to take full advantage of the generator, and then re-run your CI generator of choice to add production terraform plan and apply steps to your workflow.
 <% end %>
 ## Terraform State Credentials
 
-The `bootstrap` module is used to create an s3 bucket for later terraform runs to store their state in as well as
-create credentials files so developers can use that s3 bucket to create their own sandbox environments.
+The `bootstrap` module is used to create resources that must be created by an individual developers credentials before automation can be run:
 
-### Initial project setup
+* service account and credentials to provide to the CI/CD pipeline to perform future updates<% unless use_gitlab_backend? %>
+* an s3 bucket for later terraform runs to store their state in<% end %>
+
+### Initial <%= use_gitlab_backend? ? "CI/CD pipeline" : "project" %> setup
 
 These steps only need to be run once per project.
 
-1. `cd bootstrap`<% if terraform_manage_spaces? %>
-1. Add any users who should have access to the terraform state bucket to `users.auto.tfvars`<% end %>
+1. `cd bootstrap`<% if use_gitlab_backend? %>
+1. Run `./setup_shadowenv.sh`<% end %><% if terraform_manage_spaces? %>
+1. Add any users who should have access to the management space to `users.auto.tfvars`<% end %><% if use_gitlab_backend? %>
+1. Run `./apply.sh`<% else %>
 1. Run `./apply.sh -var create_bot_secrets_file=true`
-1. Add `imports.tf` to git and commit the changes
-1. Setup your CI/CD Pipeline to run terraform and deploy your staging and production environments
-    1. Copy backend credentials from `/terraform/.shadowenv.d/500_tf_backend_secrets.lisp` to your CI/CD secrets using the instructions in the base README
-    1. Copy the `cf_user` and `cf_password` credentials from `/terraform/secrets.cicd.tfvars` to your CI/CD secrets using the instructions in the base README
-1. Delete `/terraform/secrets.cicd.tfvars`
-1. Delete `/terraform/.shadowenv.d/500_tf_backend_secrets.lisp` if you won't be running terraform locally
+1. Add `imports.tf` to git and commit the changes<% end %>
+1. Setup your CI/CD Pipeline to run terraform and deploy your staging and production environments<% unless use_gitlab_backend? %>
+    1. Copy backend credentials from `/terraform/.shadowenv.d/500_tf_backend_secrets.lisp` to your CI/CD secrets using the instructions in the base README<% end %>
+    1. Copy the `cf_user` and `cf_password` credentials from `secrets.cicd.tfvars` to your CI/CD secrets using the instructions in the base README
+1. Delete `secrets.cicd.tfvars`
+1. Delete `.shadowenv.d/500_tf_backend_secrets.lisp` if you won't be running terraform locally
 
 ### To make changes to the bootstrap module
 
-*This should not be necessary in most cases<% if terraform_manage_spaces? %>, other than adding or removing users who should have access to the state bucket in `bootstrap/users.auto.tfvars`<% end %>*
+*This should not be necessary in most cases<% if terraform_manage_spaces? %>, other than adding or removing users who should have access to the mgmt space in `bootstrap/users.auto.tfvars`<% end %>*
 
 1. Make your changes
-1. Run `./apply.sh` and verify the plan before entering `yes`
-1. Commit any changes to `imports.tf`
+1. Run `./apply.sh` and verify the plan before entering `yes`<% unless use_gitlab_backend? %>
+1. Commit any changes to `imports.tf`<% end %>
 
-## Set up a sandbox environment or review app
+## Set up a sandbox environment or review app<% unless use_gitlab_backend? %>
 
 ### Pre-requisites:
 
 1. Someone on the team has run the [Initial project setup](#initial-project-setup) steps and `imports.tf` is up-to-date on your branch.
-<% if terraform_manage_spaces? %>1. You are included in the list of users in `bootstrap/users.auto.tfvars` and `bootstrap/imports.tf`<% end %>
+<% if terraform_manage_spaces? %>1. You are included in the list of users in `bootstrap/users.auto.tfvars` and `bootstrap/imports.tf`<% end %><% end %>
 
 ### Steps:
-
+<% if use_gitlab_backend? %>
+1. Run `./bootstrap/setup_shadowenv.sh`<% end %>
 <% if terraform_manage_spaces? %>1. Create a new `sandbox-<NAME>.tfvars` file to hold variable values for your environment. A good starting point is copying `staging.tfvars` and editing it with your values
-1. Add a `cf_user = "your.email@agency.gov"` line to the `sandbox-<NAME>.tfvars` file<% end %>
+1. Add a `cf_user = "your.email@gsa.gov"` line to the `sandbox-<NAME>.tfvars` file<% end %>
 
 1. Run terraform plan with:
     ```bash
@@ -75,13 +80,15 @@ These steps only need to be run once per project.
 |- bootstrap/
 |  |- main.tf
 |  |- apply.sh
+|  |- users.auto.tfvars<% if use_gitlab_backend? %>
+|  |- setup_shadowenv.sh
+|  |- bot_secrets.tftpl<% else %>
 |  |- imports.tf (automatically generated)
-|  |- users.auto.tfvars
 |  |- terraform.tfstate(.backup) (automatically generated)
 |  |- templates/
 |     |- backend_config.tftpl
 |     |- bot_secrets.tftpl
-|     |- imports.tf.tftpl
+|     |- imports.tf.tftpl<% end %>
 |- dist/
 |  |- src.zip (automatically generated)
 |- README.md
@@ -103,6 +110,7 @@ In the root module:
 
 In the bootstrap module:
 - `main.tf` sets up a management space, an s3 bucket to store terraform state files, and an initial SpaceDeployer for the system
-- `apply.sh` Helper script to either recreate the state locally or call `terraform apply` Any arguments are passed through to the `apply` call
-- `imports.tf` import blocks to create a new local state file when new developers need to access the state file. This file is automatically generated by calling `./apply.sh` and should be checked into git on any changes
-- `users.auto.tfvars` this file defines the list of cloud.gov accounts that should have access to the terraform state bucket
+- `apply.sh` Helper script to setup terraform and call `terraform apply`. Any arguments are passed through to the `apply` call
+- `users.auto.tfvars` this file defines the list of cloud.gov accounts that should have access to the management space<% if use_gitlab_backend? %>
+- `setup_shadowenv.sh` helper script to set terraform backend values using the gitlab http backend in shadowenv<% else %>
+- `imports.tf` import blocks to create a new local state file when new developers need to access the state file. This file is automatically generated by calling `./apply.sh` and should be checked into git on any changes<% end %>
