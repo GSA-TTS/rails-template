@@ -37,6 +37,14 @@ def has_active_storage?
   false
 end
 
+def use_gitlab_backend?
+  false
+end
+
+def backend_block
+  ""
+end
+
 directory "terraform"
 
 template "README.md", force: true
