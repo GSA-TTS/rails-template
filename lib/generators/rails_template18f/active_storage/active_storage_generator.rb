@@ -20,12 +20,13 @@ module RailsTemplate18f
         environment "config.active_storage.service = :local", env: "ci"
         append_to_file "config/storage.yml", <<~EOYAML
 
+          <% cgc = CloudGovConfig.new %>
           amazon:
             service: S3
-            access_key_id: <%= CloudGovConfig.dig(:s3, :credentials, :access_key_id) %>
-            secret_access_key: <%= CloudGovConfig.dig(:s3, :credentials, :secret_access_key) %>
+            access_key_id: <%= cgc.dig(:s3, :credentials, :access_key_id) %>
+            secret_access_key: <%= cgc.dig(:s3, :credentials, :secret_access_key) %>
             region: us-gov-west-1
-            bucket: <%= CloudGovConfig.dig(:s3, :credentials, :bucket) %>
+            bucket: <%= cgc.dig(:s3, :credentials, :bucket) %>
         EOYAML
       end
 

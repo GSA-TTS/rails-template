@@ -6,10 +6,6 @@ RSpec.describe RailsTemplate18f::Generators::CloudGovConfigGenerator, type: :gen
 
   before { run_generator }
 
-  it "adds the ClimateControl gem" do
-    expect(file("Gemfile")).to contain('gem "climate_control", "~> 1.2"')
-  end
-
   it "copies the CloudGovConfig model and test" do
     expect(file("app/models/cloud_gov_config.rb")).to exist
     expect(file("spec/models/cloud_gov_config_spec.rb")).to exist

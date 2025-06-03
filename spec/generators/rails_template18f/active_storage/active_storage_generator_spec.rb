@@ -21,12 +21,13 @@ RSpec.describe RailsTemplate18f::Generators::ActiveStorageGenerator, type: :gene
     run_generator
     expect(file("config/environments/production.rb")).to contain("config.active_storage.service = :amazon")
     expect(file("config/environments/ci.rb")).to contain("config.active_storage.service = :local")
+    expect(file("config/storage.yml")).to contain(/^<% cgc = CloudGovConfig.new %>$/)
     expect(file("config/storage.yml")).to contain(/^amazon:$/)
     expect(file("config/storage.yml")).to contain(/^  service: S3$/)
-    expect(file("config/storage.yml")).to contain(/^  access_key_id: <%= CloudGovConfig.dig\(:s3, :credentials, :access_key_id\) %>$/)
-    expect(file("config/storage.yml")).to contain(/^  secret_access_key: <%= CloudGovConfig.dig\(:s3, :credentials, :secret_access_key\) %>$/)
+    expect(file("config/storage.yml")).to contain(/^  access_key_id: <%= cgc.dig\(:s3, :credentials, :access_key_id\) %>$/)
+    expect(file("config/storage.yml")).to contain(/^  secret_access_key: <%= cgc.dig\(:s3, :credentials, :secret_access_key\) %>$/)
     expect(file("config/storage.yml")).to contain(/^  region: us-gov-west-1$/)
-    expect(file("config/storage.yml")).to contain(/^  bucket: <%= CloudGovConfig.dig\(:s3, :credentials, :bucket\) %>$/)
+    expect(file("config/storage.yml")).to contain(/^  bucket: <%= cgc.dig\(:s3, :credentials, :bucket\) %>$/)
   end
 
   it "installs gems" do
