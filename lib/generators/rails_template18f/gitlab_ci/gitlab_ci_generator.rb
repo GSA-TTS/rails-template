@@ -79,7 +79,6 @@ EOB
             | `CF_USERNAME` | cloud.gov SpaceDeployer username |
             | `CF_PASSWORD` | cloud.gov SpaceDeployer password |
             | `RAILS_MASTER_KEY` | `config/master.key` |
-            #{terraform_secret_values}
           EOM
         end
 
@@ -96,7 +95,6 @@ EOB
               | `CF_USERNAME` | cloud.gov SpaceDeployer username |
               | `CF_PASSWORD` | cloud.gov SpaceDeployer password |
               | `PRODUCTION_RAILS_MASTER_KEY` | `config/credentials/production.key`. Should be marked as `Protected`. |
-              #{terraform_secret_values}
             EOM
           else
             "Production deploys are not supported in the sandbox organization."
@@ -113,13 +111,6 @@ EOB
       end
 
       private
-
-      def terraform_secret_values
-        <<~EOM
-          | `TERRAFORM_PUBLIC_BACKEND_CONFIG` | File-type variable containing all entries from secrets.backend.tfvars _except_ `secret_key`. Marked as `Visible` |
-          | `TERRAFORM_SECRET_BACKEND_CONFIG` | File-type variable containing the `secret_key` line from secrets.backend.tfvars. Masked and hidden. |
-        EOM
-      end
 
       def postgres_version
         options[:postgres_version]

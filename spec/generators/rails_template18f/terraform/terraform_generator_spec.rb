@@ -10,6 +10,10 @@ RSpec.describe RailsTemplate18f::Generators::TerraformGenerator, type: :generato
     expect(file("terraform/README.md")).to exist
   end
 
+  it "creates the shadowenv.d directory" do
+    expect(file("terraform/.shadowenv.d/.gitignore")).to exist
+  end
+
   it "creates the githook formatter" do
     expect(file(".githooks/pre-commit")).to contain(generator.githook_content)
   end
