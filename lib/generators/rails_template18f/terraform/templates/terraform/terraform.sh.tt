@@ -20,7 +20,7 @@ Options:
 "
 
 
-rmk=`cat $rmk_file || echo -n ""`
+rmk=$(cat $rmk_file || echo -n "")
 env=""
 force=""
 args_to_shift=0
@@ -78,13 +78,13 @@ cf spaces &> /dev/null || cf login -a api.fr.cloud.gov --sso
 tfm_needs_init=true<% if use_gitlab_backend? %>
 tf_state_address="https://$GITLAB_HOSTNAME/api/v4/projects/$GITLAB_PROJECT_ID/terraform/state/$env"
 if [[ -f .terraform/terraform.tfstate ]]; then
-  backend_state_address=`cat .terraform/terraform.tfstate | jq -r ".backend.config.address"`
+  backend_state_address=$(cat .terraform/terraform.tfstate | jq -r ".backend.config.address")
   if [[ "$backend_state_address" = "$tf_state_address" ]]; then
     tfm_needs_init=false
   fi
 fi<% else %>
 if [[ -f .terraform/terraform.tfstate ]]; then
-  backend_state_env=`cat .terraform/terraform.tfstate | jq -r ".backend.config.key" | cut -d '.' -f3`
+  backend_state_env=$(cat .terraform/terraform.tfstate | jq -r ".backend.config.key" | cut -d '.' -f3)
   if [[ "$backend_state_env" = "$env" ]]; then
     tfm_needs_init=false
   fi
