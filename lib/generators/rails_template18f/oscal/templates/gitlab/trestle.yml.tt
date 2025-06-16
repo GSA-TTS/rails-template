@@ -1,0 +1,29 @@
+.trestle:setup:
+  inherit:
+    default: false
+  image: "ghcr.io/gsa-tts/trestle:${TRESTLE_VERSION}"
+  before_script:
+    - cd doc/compliance/oscal
+    - export PATH="/app/bin:$PATH"
+
+validate_ssp:
+  extends: .trestle:setup
+  stage: test
+  script:
+    - validate-ssp-json
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
+
+assemble_ssp:
+  extends: .trestle:setup
+  stage: deploy
+  script:
+    - trestle assemble -n <%= app_name %> system-security-plan
+    - render-ssp
+  artifacts:
+    expose_as: "<%= app_name %> SSPP"
+    paths:
+      - doc/compliance/oscal/dist/system-security-plans/<%= app_name %>.json
+      - doc/compliance/oscal/ssp-render/<%= app_name %>_ssp.md
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"

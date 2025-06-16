@@ -49,6 +49,16 @@ module RailsTemplate18f
         end
       end
 
+      def copy_gitlab_ci
+        if use_gitlab_ci?
+          directory "gitlab", ".gitlab"
+          if file_exists? ".gitlab-ci.yml"
+            insert_into_file ".gitlab-ci.yml", "  - local: \".gitlab/trestle.yml\"\n", after: /^include:\n/
+            insert_into_file ".gitlab-ci.yml", "  TRESTLE_VERSION: #{docker_trestle_tag}\n", after: /^variables:\n/
+          end
+        end
+      end
+
       def update_readme
         if file_content("README.md").match?("## Documentation")
           insert_into_file "README.md", readme_contents, after: "## Documentation\n"
@@ -85,11 +95,15 @@ module RailsTemplate18f
         end
 
         def docker_trestle_tag
-          options[:tag].present? ? options[:tag] : "20240912"
+          options[:tag].present? ? options[:tag] : "20250603"
         end
 
         def use_github_actions?
           options[:ci] == "github" || file_exists?(".github/workflows")
+        end
+
+        def use_gitlab_ci?
+          options[:ci] == "gitlab" || file_exists?(".gitlab-ci.yml")
         end
 
         def readme_contents
