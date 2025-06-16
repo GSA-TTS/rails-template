@@ -128,22 +128,27 @@ register_announcement("Documentation", <<~EOM)
 EOM
 
 # do early so later generators register files in the correct location
-if compliance_trestle
-  after_bundle do
-    generator_arguments = []
-    generator_arguments << "--oscal_repo=#{compliance_trestle_repo}" if compliance_trestle_submodule
-    generator_arguments << "--ci=github" if @github_actions
-    generator_arguments << "--ci=gitlab" if @gitlab_ci
-    generator_arguments << "--ci=circleci" if @circleci_pipeline
-    generate "rails_template18f:oscal", *generator_arguments
-  end
-  register_announcement("OSCAL Documentation", <<~EOM)
-    OSCAL files have been generated with some default implementation statements in `doc/compliance/oscal`
+run_oscal_generator = -> (register_announcement=false) {
+  if compliance_trestle
+    after_bundle do
+      generator_arguments = []
+      generator_arguments << "--oscal_repo=#{compliance_trestle_repo}" if compliance_trestle_submodule
+      generator_arguments << "--ci=github" if @github_actions
+      generator_arguments << "--ci=gitlab" if @gitlab_ci
+      generator_arguments << "--ci=circleci" if @circleci_pipeline
+      generate "rails_template18f:oscal", *generator_arguments
+    end
+    if register_announcement
+      register_announcement("OSCAL Documentation", <<~EOM)
+        OSCAL files have been generated with some default implementation statements in `doc/compliance/oscal`
 
-    All generated statements must be reviewed for accuracy with your system's implementation before being
-    submitted for authorization.
-  EOM
-end
+        All generated statements must be reviewed for accuracy with your system's implementation before being
+        submitted for authorization.
+      EOM
+    end
+  end
+}
+run_oscal_generator.call(true)
 
 # ensure dependencies are installed
 copy_file "Brewfile"
@@ -467,6 +472,9 @@ if @gitlab_ci
     * Create project environment variables for deploy users as defined in the Deployment section of the README
   EOM
 end
+
+# rerun so we can update the correct CI systems
+run_oscal_generator.call
 
 if auditree
   after_bundle do
