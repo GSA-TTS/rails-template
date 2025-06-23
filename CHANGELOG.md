@@ -3,6 +3,7 @@
 - Prevent non-compliant hostnames by replacing underscores with dashes
 - use shadowenv for configuring terraform backend secrets
 - use GitLab http backend for terraform state storage whenever configuring both terraform and GitLab CI
+- Create GitLabCI jobs for oscal and auditree generators
 
 ## [2.1.0] - 2025-04-29
 

@@ -128,7 +128,7 @@ register_announcement("Documentation", <<~EOM)
 EOM
 
 # do early so later generators register files in the correct location
-run_oscal_generator = -> (register_announcement=false) {
+run_oscal_generator = ->(register_announcement = false) {
   if compliance_trestle
     after_bundle do
       generator_arguments = []

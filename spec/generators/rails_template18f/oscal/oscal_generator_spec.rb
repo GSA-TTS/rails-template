@@ -22,7 +22,7 @@ RSpec.describe RailsTemplate18f::Generators::OscalGenerator, type: :generator do
   end
 
   context "in-repo" do
-    subject! { run_generator ["--ci=gitlab"]}
+    subject! { run_generator ["--ci=gitlab"] }
 
     it "creates the oscal folder" do
       expect(file("doc/compliance/oscal/.keep")).to exist
