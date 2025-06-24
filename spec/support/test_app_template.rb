@@ -41,6 +41,14 @@ def use_gitlab_backend?
   false
 end
 
+def use_s3_backend?
+  false
+end
+
+def use_local_backend?
+  true
+end
+
 def backend_block
   ""
 end
