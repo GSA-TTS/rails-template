@@ -21,7 +21,7 @@ Options:
 
 
 rmk=$(cat $rmk_file || echo -n "")
-env=""
+env="<% unless terraform_manage_spaces? %>staging<% end %>"
 force=""
 args_to_shift=0
 
