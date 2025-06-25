@@ -10,6 +10,7 @@ workflow:
 stages:
   - build
   - test
+  - scan
   - deploy
 
 variables:
@@ -80,7 +81,7 @@ rspec:
     - if: $CI_PIPELINE_SOURCE != "schedule"
 
 pa11y_scan:
-  stage: test
+  stage: scan
   extends: .run-server
   script:
     - !reference [.install-puppet-deps]

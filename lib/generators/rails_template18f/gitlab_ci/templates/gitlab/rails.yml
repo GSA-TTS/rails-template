@@ -47,7 +47,7 @@ include:
     - sleep 5
 
 .owasp:setup:
-  stage: test
+  stage: scan
   extends: .run-server
   image: "rcahearngsa/owasp-ruby:${RUBY_VERSION}"
   variables:
