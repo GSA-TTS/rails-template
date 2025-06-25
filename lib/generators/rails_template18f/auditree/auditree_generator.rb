@@ -87,7 +87,7 @@ EOY
         end
 
         def auditree_evidence_locker
-          options[:evidence_locker].present? ? options[:evidence_locker] : default_evidence_locker
+          options[:evidence_locker].present? ? options[:evidence_locker] : "REPLACE_THIS_WITH_YOUR_EVIDENCE_LOCKER_REPO"
         end
 
         def gitlab_username
@@ -95,14 +95,6 @@ EOY
             "AUDITREE_GITLAB_TOKEN_USERNAME"
           else
             git_email.split("@").first
-          end
-        end
-
-        def default_evidence_locker
-          if file_exists? ".gitlab-ci.yml"
-            "https://workshop.cloud.gov/TKTK-group/#{app_name}-evidence"
-          else
-            "https://github.com/GSA-TTS/TKTK_#{app_name}_evidence"
           end
         end
 
