@@ -42,12 +42,17 @@ module RailsTemplate18f
       end
 
       def install_shadowenv
-        append_to_file "Brewfile", <<~EOB
+        unless use_local_backend?
+          append_to_file "Brewfile", <<~EOB
 
-          # shadowenv for loading terraform backend secrets
-          brew "shadowenv"
-        EOB
-        insert_into_file "README.md", indent("* [shadowenv](https://shopify.github.io/shadowenv/)\n"), after: /\* Install homebrew dependencies: `brew bundle`\n/
+            # shadowenv for loading terraform backend secrets
+            brew "shadowenv"
+          EOB
+          insert_into_file "README.md", indent(<<~EOR), after: /\* Install homebrew dependencies: `brew bundle`\n/
+            * [shadowenv](https://shopify.github.io/shadowenv/)
+              * See the [quick start](https://shopify.github.io/shadowenv/getting-started/#add-to-your-shell-profile) for instructions on loading shadowenv in your shell
+          EOR
+        end
       end
 
       def ignore_files
