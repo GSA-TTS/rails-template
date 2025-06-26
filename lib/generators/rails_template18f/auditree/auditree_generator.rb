@@ -112,7 +112,7 @@ EOY
             1. Initialize the config file with `bin/auditree init`
             1. Create an evidence locker repository with a default or blank README
             1. Update `config/auditree.template.json` with the repo address for your locker
-            #{ci_readme_contents}
+            #{ci_readme_contents.chomp}
             1. Copy the `devtools_cloud_gov` component definition into the project with the latest docker-trestle
 
             #### Ongoing use
@@ -126,7 +126,7 @@ EOY
           if file_exists? ".gitlab-ci.yml"
             <<~README
               1. Remove the `repo_integrity` section of `config/auditree.template.json`
-              1. Create a gitlab personal access token to interact with the code repo and evidence locker and set as `AUDITREE_GITLAB_TOKEN` secret within your CI/CD variables.
+              1. Create a gitlab personal access token with `write_repository` scope to interact with the code repo and evidence locker and set as `AUDITREE_GITLAB_TOKEN` secret within your CI/CD variables.
               #{options[:evidence_locker].blank? ? "1. Update `.gitlab/auditree.yml` with the locker repository URL" : ""}
             README
           elsif file_exists? ".github/workflows"
