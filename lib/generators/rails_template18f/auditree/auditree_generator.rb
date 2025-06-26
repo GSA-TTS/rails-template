@@ -90,20 +90,8 @@ EOY
           options[:evidence_locker].present? ? options[:evidence_locker] : "REPLACE_THIS_WITH_YOUR_EVIDENCE_LOCKER_REPO"
         end
 
-        def gitlab_username
-          if git_email == default_git_email
-            "AUDITREE_GITLAB_TOKEN_USERNAME"
-          else
-            git_email.split("@").first
-          end
-        end
-
         def git_email
-          options[:git_email].present? ? options[:git_email] : default_git_email
-        end
-
-        def default_git_email
-          "auditree@gsa.gov"
+          options[:git_email].present? ? options[:git_email] : "auditree@gsa.gov"
         end
 
         def readme_contents
@@ -139,7 +127,6 @@ EOY
             <<~README
               1. Remove the `repo_integrity` section of `config/auditree.template.json`
               1. Create a gitlab personal access token to interact with the code repo and evidence locker and set as `AUDITREE_GITLAB_TOKEN` secret within your CI/CD variables.
-              1. Update `.gitlab/auditree.yml` to ensure that `GITLAB_TOKEN` has the correct username to match the `AUDITREE_GITLAB_TOKEN`
               #{options[:evidence_locker].blank? ? "1. Update `.gitlab/auditree.yml` with the locker repository URL" : ""}
             README
           elsif file_exists? ".github/workflows"

@@ -10,7 +10,7 @@
     - git config --global user.email "$GITLAB_USER_EMAIL"
     - cf api api.fr.cloud.gov
     - cd $HOME
-    - export GITLAB_TOKEN="<%= gitlab_username %>:${AUDITREE_GITLAB_TOKEN}"
+    - export GITLAB_TOKEN="auditree-gitlab-token:${AUDITREE_GITLAB_TOKEN}"
 
 auditree:
   extends: .auditree:setup
