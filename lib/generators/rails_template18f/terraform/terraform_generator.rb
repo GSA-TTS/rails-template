@@ -8,7 +8,7 @@ module RailsTemplate18f
       include Base
       include CloudGovOptions
 
-      class_option :backend, default: "s3", desc: "Which terraform backend to use. Options: [s3, gitlab]"
+      class_option :backend, default: "s3", desc: "Which terraform backend to use. Options: [s3, gitlab, local]"
 
       desc <<~DESC
         Description:
@@ -23,7 +23,7 @@ module RailsTemplate18f
       def install_bootstrap
         if use_gitlab_backend?
           directory "gitlab_bootstrap", "terraform/bootstrap", mode: :preserve
-        else
+        elsif use_s3_backend?
           directory "s3_bootstrap/common", "terraform/bootstrap", mode: :preserve
           if terraform_manage_spaces?
             template "s3_bootstrap/full/main.tf", "terraform/bootstrap/main.tf"
@@ -32,6 +32,8 @@ module RailsTemplate18f
             template "s3_bootstrap/sandbox/main.tf", "terraform/bootstrap/main.tf"
             copy_file "s3_bootstrap/sandbox/imports.tf.tftpl", "terraform/bootstrap/templates/imports.tf.tftpl"
           end
+        else
+          remove_dir "terraform/.shadowenv.d"
         end
         unless terraform_manage_spaces?
           remove_file "terraform/bootstrap/users.auto.tfvars"
@@ -40,12 +42,17 @@ module RailsTemplate18f
       end
 
       def install_shadowenv
-        append_to_file "Brewfile", <<~EOB
+        unless use_local_backend?
+          append_to_file "Brewfile", <<~EOB
 
-          # shadowenv for loading terraform backend secrets
-          brew "shadowenv"
-        EOB
-        insert_into_file "README.md", indent("* [shadowenv](https://shopify.github.io/shadowenv/)\n"), after: /\* Install homebrew dependencies: `brew bundle`\n/
+            # shadowenv for loading terraform backend secrets
+            brew "shadowenv"
+          EOB
+          insert_into_file "README.md", indent(<<~EOR), after: /\* Install homebrew dependencies: `brew bundle`\n/
+            * [shadowenv](https://shopify.github.io/shadowenv/)
+              * See the [quick start](https://shopify.github.io/shadowenv/getting-started/#add-to-your-shell-profile) for instructions on loading shadowenv in your shell
+          EOR
+        end
       end
 
       def ignore_files
@@ -112,8 +119,24 @@ module RailsTemplate18f
           backend == "gitlab"
         end
 
+        def use_s3_backend?
+          backend == "s3"
+        end
+
+        def use_local_backend?
+          backend == "local"
+        end
+
         def backend
           options[:backend]
+        end
+
+        def backend_unless_local
+          if use_local_backend?
+            "<s3 or gitlab>"
+          else
+            backend
+          end
         end
 
         def backend_block
@@ -125,7 +148,7 @@ module RailsTemplate18f
     retry_wait_min = 5
   }
 EOB
-          else
+          elsif use_s3_backend?
             <<EOB
   backend "s3" {
     encrypt           = true

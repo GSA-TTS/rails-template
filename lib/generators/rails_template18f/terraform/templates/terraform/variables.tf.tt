@@ -1,9 +1,9 @@
-# Deploy user settings
+<% if terraform_manage_spaces? %># Deploy user settings
 variable "cf_user" {
   type        = string
   description = "The user email or service account running the terraform"
 }
-
+<% end %>
 # app_space settings
 variable "cf_space_name" {
   type        = string

@@ -21,7 +21,7 @@ Options:
 
 
 rmk=$(cat $rmk_file || echo -n "")
-env=""
+env="<% unless terraform_manage_spaces? %>staging<% end %>"
 force=""
 args_to_shift=0
 
@@ -56,11 +56,20 @@ if [[ "$1" = "--" ]]; then
   shift 1
 fi<% if use_gitlab_backend? %>
 
-if [ -z "$GITLAB_PROJECT_ID"] || [ -z "$GITLAB_HOSTNAME" ]; then
-  echo "GITLAB_PROJECT_ID or GITLAB_HOSTNAME have not been set. Run bootstrap/setup_shadowenv.sh first"
-  exit 1
-fi
-<% end %>
+if [ -z "$GITLAB_PROJECT_ID" ] || [ -z "$GITLAB_HOSTNAME" ]; then
+  echo "GITLAB_PROJECT_ID or GITLAB_HOSTNAME have not been set. Running bootstrap/setup_shadowenv.sh first"
+  (cd bootstrap && ./setup_shadowenv.sh)
+  eval "$(shadowenv hook)"
+fi<% elsif use_s3_backend? %>
+
+if [[ ! -f .shadowenv.d/500_tf_backend_secrets.lisp ]]; then
+  echo "=============================================================================================================="
+  echo "= Recreating backend config file. It is fine if this step wants to delete any local_sensitive_file resources"
+  echo "=============================================================================================================="
+  (cd bootstrap && ./apply.sh $force)
+  shadowenv trust && eval "$(shadowenv hook)"
+fi<% end %>
+
 if [[ -z "$env" ]]; then
   echo "-e <ENV_NAME> is required"
   echo "$usage"
@@ -82,26 +91,27 @@ if [[ -f .terraform/terraform.tfstate ]]; then
   if [[ "$backend_state_address" = "$tf_state_address" ]]; then
     tfm_needs_init=false
   fi
-fi<% else %>
+fi<% elsif use_s3_backend? %>
 if [[ -f .terraform/terraform.tfstate ]]; then
   backend_state_env=$(cat .terraform/terraform.tfstate | jq -r ".backend.config.key" | cut -d '.' -f3)
   if [[ "$backend_state_env" = "$env" ]]; then
     tfm_needs_init=false
   fi
+else
+  echo "Sleeping for 10 seconds to avoid a bucket creation race condition"
+  sleep 10
+fi<% else %>
+if [[ -f .terraform.lock.hcl ]]; then
+  tfm_needs_init=false
 fi<% end %>
 
 if [[ $tfm_needs_init = true ]]; then<% if use_gitlab_backend? %>
   terraform init -reconfigure \
     -backend-config="address=$tf_state_address" \
     -backend-config="lock_address=$tf_state_address/lock" \
-    -backend-config="unlock_address=$tf_state_address/lock"<% else %>
-  if [[ ! -f .shadowenv.d/500_tf_backend_secrets.lisp ]]; then
-    echo "=============================================================================================================="
-    echo "= Recreating backend config file. It is fine if this step wants to delete any local_sensitive_file resources"
-    echo "=============================================================================================================="
-    (cd bootstrap && ./apply.sh $force)
-  fi
-  terraform init -backend-config="bucket=$S3_BUCKET_NAME" -backend-config="key=terraform.tfstate.$env" -reconfigure<% end %>
+    -backend-config="unlock_address=$tf_state_address/lock"<% elsif use_s3_backend? %>
+  terraform init -backend-config="bucket=$S3_BUCKET_NAME" -backend-config="key=terraform.tfstate.$env" -reconfigure<% else %>
+  terraform init<% end %>
 fi
 
 echo "=============================================================================================================="

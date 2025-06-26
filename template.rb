@@ -102,6 +102,10 @@ cloud_gov_production_space = default_prod_space if cloud_gov_production_space.bl
 @gitlab_ci = yes?("Create GitLab CI config? (y/n)")
 @github_actions = yes?("Create GitHub Actions? (y/n)")
 @circleci_pipeline = yes?("Create CircleCI config? (y/n)")
+local_terraform_backend = false
+unless [@gitlab_ci, @github_actions, @circleci_pipeline].any?
+  local_terraform_backend = yes?("Use a local file to store terraform state? This is only appropriate for short-lived proofs of concept. (y/n)")
+end
 newrelic = yes?("Create FEDRAMP New Relic config files? (y/n)")
 dap = yes?("If this will be a public site, should we include Digital Analytics Program code? (y/n)")
 supported_languages = []
@@ -406,7 +410,11 @@ after_bundle do
     "--cg-staging=#{cloud_gov_staging_space}",
     "--cg-prod=#{cloud_gov_production_space}"
   ]
-  generator_arguments << "--backend=gitlab" if @gitlab_ci
+  if @gitlab_ci
+    generator_arguments << "--backend=gitlab"
+  elsif local_terraform_backend
+    generator_arguments << "--backend=local"
+  end
   generate "rails_template18f:terraform", *generator_arguments
 end
 if cloud_gov_org_tktk?

@@ -2,7 +2,7 @@ cf_space_name = "<%= cloud_gov_staging_space %>"
 env           = "staging"
 allow_ssh     = true
 # host_name must be unique across cloud.gov, default is "<%= app_name %>-${var.env}"
-host_name = null
+host_name = null<% if terraform_manage_spaces? %>
 space_developers = [
   # enter developer emails that should have ssh access to staging
-]
+]<% end %>
