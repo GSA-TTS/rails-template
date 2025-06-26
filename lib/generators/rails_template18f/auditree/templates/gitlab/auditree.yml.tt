@@ -1,0 +1,48 @@
+.auditree:setup:
+  inherit:
+    default: false
+  image: "ghcr.io/gsa-tts/auditree:${AUDITREE_VERSION}"
+  variables:
+    CDEF: "${CI_PROJECT_DIR}/doc/compliance/oscal/component-definitions/devtools_cloud_gov/component-definition.json"
+    AUDITREE_CONFIG: "${CI_PROJECT_DIR}/config/auditree.template.json"
+  before_script:
+    - git config --global user.name "$GITLAB_USER_NAME"
+    - git config --global user.email "$GITLAB_USER_EMAIL"
+    - cf api api.fr.cloud.gov
+    - cd $HOME
+    - export GITLAB_TOKEN="auditree-gitlab-token:${AUDITREE_GITLAB_TOKEN}"
+
+auditree:
+  extends: .auditree:setup
+  stage: scan
+  script:
+    - fetch -c "$CDEF" -t "$AUDITREE_CONFIG"
+    - check -c "$CDEF" -t "$AUDITREE_CONFIG" -o "$CI_PROJECT_DIR"
+  artifacts:
+    paths:
+      - auditree.json
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+
+rspec:plant:
+  extends: .auditree:setup
+  stage: test
+  needs: ["rspec"]
+  variables:
+    PLAN_FILE: "${CI_PROJECT_DIR}/tmp/oscal/assessment-plans/rspec/assessment-plan.json"
+    RESULT_FILE: "${CI_PROJECT_DIR}/tmp/oscal/assessment-results/rspec/assessment-results.json"
+  script:
+    - |
+      if [ -f "$PLAN_FILE" ]; then
+        plant-helper -f "$PLAN_FILE" -c assessment-plans -d "RSpec run assessment plan" -t 31536000 -l "<%= auditree_evidence_locker %>"
+      else
+        echo "No plan file, skipping plant"
+      fi
+    - |
+      if [ -f "$RESULT_FILE" ]; then
+        plant-helper -f "$RESULT_FILE" -c assessment-results -d "RSpec run assessment results" -t 31536000 -l "<%= auditree_evidence_locker %>"
+      else
+        echo "No result file, skipping plant"
+      fi
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"

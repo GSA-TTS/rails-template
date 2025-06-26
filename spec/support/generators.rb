@@ -14,6 +14,14 @@ module RailsTemplate18f
           }
         end
 
+        def setup_gitlab_ci_destination
+          destination destination_path
+          before {
+            prepare_destination
+            generate_gitlab_ci_app
+          }
+        end
+
         def setup_github_actions_destination
           destination destination_path
           before {
@@ -46,8 +54,8 @@ module RailsTemplate18f
         `rails new tmp --template=spec/support/test_app_template.rb #{common_arguments}`
       end
 
-      def generate_github_actions_app
-        `rails new tmp --template=spec/support/github_actions_app_template.rb #{common_arguments}`
+      def generate_gitlab_ci_app
+        `rails new tmp --template=spec/support/test_gitlab_app_template.rb #{common_arguments}`
       end
 
       def generate_storage_app

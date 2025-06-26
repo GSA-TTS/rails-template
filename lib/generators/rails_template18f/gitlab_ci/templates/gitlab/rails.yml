@@ -30,7 +30,7 @@ include:
       alias: pg
   before_script:
     - !reference [.setup-ruby]
-    - export DATABASE_URL="postgres://postgres:${POSTGRES_PASSWORD}@${CI_SERVICE_pg}:5432/${POSTGRES_DB}"
+    - export DATABASE_URL="postgres://postgres:${POSTGRES_PASSWORD}@${WSR_SERVICE_HOST_pg}:5432/${POSTGRES_DB}"
     - bin/rails db:prepare
 
 .run-server:
@@ -47,7 +47,7 @@ include:
     - sleep 5
 
 .owasp:setup:
-  stage: test
+  stage: scan
   extends: .run-server
   image: "rcahearngsa/owasp-ruby:${RUBY_VERSION}"
   variables:

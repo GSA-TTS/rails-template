@@ -22,7 +22,7 @@ RSpec.describe RailsTemplate18f::Generators::OscalGenerator, type: :generator do
   end
 
   context "in-repo" do
-    subject! { run_generator }
+    subject! { run_generator ["--ci=gitlab"] }
 
     it "creates the oscal folder" do
       expect(file("doc/compliance/oscal/.keep")).to exist
@@ -34,6 +34,10 @@ RSpec.describe RailsTemplate18f::Generators::OscalGenerator, type: :generator do
 
     it "creates a yaml file to configure docker-trestle" do
       expect(file("doc/compliance/oscal/trestle-config.yaml")).to contain("components:")
+    end
+
+    it "creates the trestle.yml gitlab steps" do
+      expect(file(".gitlab/trestle.yml")).to exist
     end
   end
 end
