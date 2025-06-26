@@ -113,7 +113,7 @@ EOY
             1. Create an evidence locker repository with a default or blank README
             1. Update `config/auditree.template.json` with the repo address for your locker
             #{ci_readme_contents.chomp}
-            1. Copy the `devtools_cloud_gov` component definition into the project with the latest docker-trestle
+            1. Copy the `devtools_cloud_gov` component definition into the project with the latest docker-trestle after [setting up docker-trestle](#initial-trestle-setup)
 
             #### Ongoing use
 
