@@ -1,9 +1,12 @@
 ## [Unreleased]
 
+## [2.2.0] - 2025-06-27
+
 - Prevent non-compliant hostnames by replacing underscores with dashes
 - use shadowenv for configuring terraform backend secrets
 - use GitLab http backend for terraform state storage whenever configuring both terraform and GitLab CI
 - Create GitLabCI jobs for oscal and auditree generators
+- fixes for deploying to the sandbox-gsa cloug.gov org
 
 ## [2.1.0] - 2025-04-29
 

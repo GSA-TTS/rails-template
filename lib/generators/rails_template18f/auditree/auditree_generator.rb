@@ -135,6 +135,8 @@ EOY
               1. Create a github personal access token to interact with the code repo and evidence locker and set as `AUDITREE_GITHUB_TOKEN` secret within your Github Actions secrets.
               #{options[:evidence_locker].blank? ? "1. Update `.github/workflows/rspec.yml` with the locker repository URL" : ""}
             README
+          else
+            ""
           end
         end
       end

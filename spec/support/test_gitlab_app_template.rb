@@ -46,6 +46,10 @@ def use_gitlab_backend?
   true
 end
 
+def use_local_backend?
+  false
+end
+
 def backend_block
   ""
 end
